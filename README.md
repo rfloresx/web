@@ -17,7 +17,7 @@ Then from the shell, execute the following statement:
 ```
 rest::server s: 8000
 ```
-The web server is now running. You can verify with the following address in your webbrowser: `http://localhost:8000` which will display the Cortex web user interface. Another way of invoking the REST api directly is with the `curl` command:
+The web server is now running. Verify by going to `http://localhost:8000` which will display the Cortex web interface. A way of directly invoking the REST api directly is with the `curl` command:
 ```
 curl localhost:800/cortex/lang/class
 ```
