@@ -1,0 +1,10 @@
+// Cortex REST API
+#package ::cortex::rest
+
+// REST server
+class server::
+    port: uint16
+    impl: word, private|local // Reference to external server implementation
+    thread: word, private|local // Thread in which the server will run
+    int16 construct()
+    void destruct()
