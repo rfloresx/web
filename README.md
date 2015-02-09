@@ -6,9 +6,9 @@ At this moment web contains a `rest` package, which is a REST API for accessing 
 The `rest` package uses the Mongoose HTTP server (http://github.com/cesanta/mongoose). 
 
 ### Getting started
-Clone the repository in a folder called `web`. Make sure that the `cortex` repository is built and the cortex tools are available from the environment (see http://github.com/SeldomBerry/cortex). Build the web package with `make -C web`.
+Clone the repository in a folder called `web`. Make sure that the `cortex` repository is built and the cortex tools are available from the environment (see http://github.com/SeldomBerry/cortex). Build the rest package with `make -C rest`.
 
-To start a server using the default Cortex web application, run the following commands:
+To start a server using the default Cortex web application, execute the following commands:
 ```
 cd $(CORTEX_HOME)/interface/web
 cxsh
