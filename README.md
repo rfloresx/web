@@ -10,7 +10,7 @@ Clone the repository in a folder called `web`. Make sure that the `cortex` repos
 
 To start a server using the default Cortex web application, execute the following commands:
 ```
-cd $(CORTEX_HOME)/interface/web
+cd $CORTEX_HOME/interface/web
 cxsh
 ```
 Then from the shell, execute the following statement:
