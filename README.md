@@ -21,4 +21,4 @@ The web server is now running. Verify by going to `http://localhost:8000` which 
 ```
 curl localhost:800/cortex/lang/class
 ```
-This will return the JSON generated from the `::cortex::lang::class` object.
+The server will reply with the JSON code generated from `::cortex::lang::class`.
