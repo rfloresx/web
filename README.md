@@ -19,6 +19,6 @@ rest::server s: 8000
 ```
 The web server is now running. Verify by going to `http://localhost:8000` which will display the Cortex web interface. A way of directly invoking the REST api directly is with the `curl` command:
 ```
-curl localhost:800/cortex/lang/class
+curl localhost:8000/cortex/lang/class
 ```
 The server will reply with the JSON code generated from `::cortex::lang::class`.
