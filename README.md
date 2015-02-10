@@ -6,7 +6,7 @@ With the `web` package you can build interactive web applications on top of cort
 The server package uses the Mongoose HTTP server (http://github.com/cesanta/mongoose). 
 
 ### Getting started
-Clone the repository in a folder called `web`. Make sure that the `cortex` repository is built and the cortex tools are available from the environment (see http://github.com/SeldomBerry/cortex). Build the rest package with `make -C rest`.
+Clone the repository in a folder called `web`. Make sure that the `cortex` repository is built and the cortex tools are available from the environment (see http://github.com/SeldomBerry/cortex). Build the rest package with `make -C web`.
 
 To start a server using the default Cortex web application, execute the following commands:
 ```
