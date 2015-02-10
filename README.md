@@ -1,5 +1,5 @@
 # web
-Web functionality for Cortex. 
+Web functionality for cortex. 
 
 With the `web` package you can build interactive web applications on top of cortex platform. It contains a `web::server` class that exposes a REST based API and will be extended with websocket functionality. The server works best in conjunction with the web application in the `interface/web` folder of the http://github.com/SeldomBerry/cortex project.
 
