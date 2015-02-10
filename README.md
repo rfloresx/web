@@ -15,7 +15,7 @@ cxsh
 ```
 Then from the shell, execute the following statement:
 ```
-rest::server s: 8000
+web::server s: 8000
 ```
 The web server is now running. Verify by going to `http://localhost:8000` which will display the Cortex web interface. A way of directly invoking the REST api directly is with the `curl` command:
 ```
