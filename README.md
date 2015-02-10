@@ -1,9 +1,9 @@
 # web
-Web packages for Cortex. 
+Web functionality for Cortex. 
 
-At this moment web contains a `rest` package, which is a REST API for accessing the Cortex object store. In the future, this API will be extended with the capability to remotely modify objects. Additionally a package containing a websocket-based protocol will be added.
+With the `web` package you can build interactive web applications on top of cortex platform. It contains a `web::server` class that exposes a REST based API and will be extended with websocket functionality. The server works best in conjunction with the web application in the `interface/web` folder of the http://github.com/SeldomBerry/cortex project.
 
-The `rest` package uses the Mongoose HTTP server (http://github.com/cesanta/mongoose). 
+The server package uses the Mongoose HTTP server (http://github.com/cesanta/mongoose). 
 
 ### Getting started
 Clone the repository in a folder called `web`. Make sure that the `cortex` repository is built and the cortex tools are available from the environment (see http://github.com/SeldomBerry/cortex). Build the rest package with `make -C rest`.
