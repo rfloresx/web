@@ -1,4 +1,4 @@
-/* rest_server.c
+/* web_server.c
  *
  * This file contains the implementation for the generated interface.
  *
@@ -6,30 +6,28 @@
  *    code in interface functions isn't replaced when code is re-generated.
  */
 
-#include "rest.h"
-#include "rest__meta.h"
+#include "web.h"
+#include "web__meta.h"
 
 /* $header() */
 #include "mongoose.h"
 #include "json.h"
 
-static const char *s_no_cache_header =
-  "Cache-Control: max-age=0, post-check=0, "
-  "pre-check=0, no-store, no-cache, must-revalidate\r\n";
-
-static int rest_deliverFile(struct mg_connection *conn, const char *file) {
-    mg_send_file(conn, file, s_no_cache_header);
+/* Serve a file (html, icon, css, js) */
+static int web_serveFile(struct mg_connection *conn, const char *file) {
+    mg_send_file(conn, file, "");
     return MG_MORE; /* Indicate that page will request more data */    
 }
 
-static int rest_printParents(struct mg_connection *conn, cx_object o) {
+/* Write all parents to connection so that a reply is self-containing */
+static int web_printParents(struct mg_connection *conn, cx_object o) {
     int result = 0;
     struct cx_serializer_s serializer = cx_json_ser(CX_PRIVATE, CX_NOT, CX_SERIALIZER_TRACE_NEVER);
     
     if (o) {
         cx_json_ser_t jsonData = {NULL, NULL, 0, 0, 0, TRUE, FALSE, FALSE, TRUE};
         if (cx_parentof(o)) {
-            result += rest_printParents(conn, cx_parentof(o));
+            result += web_printParents(conn, cx_parentof(o));
         }
 
         if (result) {
@@ -46,16 +44,12 @@ static int rest_printParents(struct mg_connection *conn, cx_object o) {
     return result;
 }
 
-static int rest_deliverResource(struct mg_connection *conn) {
+/* Serve a Cortex object */
+static int web_serveObject(struct mg_connection *conn) {
     cx_object o = NULL;
 
     /* Resolve object based on URI */
-    if (strcmp(conn->uri, "/::")) {
-        o = cx_resolve(NULL, (cx_string)conn->uri);
-    } else {
-        o = root_o;
-        cx_keep(o);
-    }
+    o = cx_resolve(NULL, (cx_string)conn->uri + 2);
 
     if (!o) {
         mg_send_status(conn, 404);
@@ -93,7 +87,7 @@ static int rest_deliverResource(struct mg_connection *conn) {
                 mg_printf_data(conn, "[");
 
                 /* Serialize metadata of parents */
-                if (rest_printParents(conn, cx_parentof(o))) {
+                if (web_printParents(conn, cx_parentof(o))) {
                     mg_printf_data(conn, ",");
                 }
 
@@ -114,21 +108,30 @@ static int rest_deliverResource(struct mg_connection *conn) {
     return MG_TRUE;
 }
 
-static int rest_handler(struct mg_connection *conn, enum mg_event ev) {
+static int web_handler(struct mg_connection *conn, enum mg_event ev) {
     int result = MG_TRUE;
 
     switch (ev) {
     case MG_AUTH:
         break;
-    case MG_REQUEST: {
 
-        if (*conn->uri && !(conn->uri[1])) {
-            /* Empty URI, forward index.html */
-            result = rest_deliverFile(conn, "index.html");
+    /* HTTP request */
+    case MG_REQUEST: {
+        /* If the URI is prefixed with a '_' an object is requested */
+        if (!memcmp(conn->uri, "/_", 2)) {
+            result = web_serveObject(conn);
+
+        /* If the URI contains a '.' before a '?' a file is requested */
         } else if (strchr (conn->uri, '.')) {
-            result = rest_deliverFile(conn, conn->uri + 1);
+            result = web_serveFile(conn, conn->uri + 1);
+
+        /* If none of the above, serve index.html. Since the client
+         * is a single page app, the URI can contain a path to the
+         * object currently displayed. This URI is not relevant for
+         * the server. However, when such a URI is requested, the 
+         * index.html file must be served. */
         } else {
-            result = rest_deliverResource(conn);
+            result = web_serveFile(conn, "index.html");
         }
 
         break;
@@ -142,14 +145,14 @@ static int rest_handler(struct mg_connection *conn, enum mg_event ev) {
 }
 
 /* Run the server in a separate thread */
-void* rest_run(void *data) {
+void* web_run(void *data) {
     struct mg_server *server;
-    rest_server _this = data;
+    web_server _this = data;
     char portStr[6];
     sprintf(portStr, "%u", _this->port);
 
     // Create and configure the server
-    server = mg_create_server(NULL, rest_handler);
+    server = mg_create_server(NULL, web_handler);
     mg_set_option(server, "listening_port", portStr);
 
     // Serve request. Hit Ctrl-C to terminate the program
@@ -163,10 +166,10 @@ void* rest_run(void *data) {
 
 /* $end */
 
-/* ::cortex::rest::server::construct() */
-cx_int16 rest_server_construct(rest_server _this) {
-/* $begin(::cortex::rest::server::construct) */
-    _this->thread = (cx_word)cx_threadNew(rest_run, _this);
+/* ::cortex::web::server::construct() */
+cx_int16 web_server_construct(web_server _this) {
+/* $begin(::cortex::web::server::construct) */
+    _this->thread = (cx_word)cx_threadNew(web_run, _this);
     if (!_this->thread) {
         goto error;
     }
@@ -176,9 +179,10 @@ error:
 /* $end */
 }
 
-/* ::cortex::rest::server::destruct() */
-cx_void rest_server_destruct(rest_server _this) {
-/* $begin(::cortex::rest::server::destruct) */
+/* ::cortex::web::server::destruct() */
+cx_void web_server_destruct(web_server _this) {
+/* $begin(::cortex::web::server::destruct) */
     CX_UNUSED(_this);
 /* $end */
 }
+

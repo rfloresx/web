@@ -1,7 +1,7 @@
-// Cortex REST API
-#package ::cortex::rest
+// Cortex web API
+#package ::cortex::web
 
-// REST server
+// webserver
 class server::
     port: uint16
     impl: word, private|local // Reference to external server implementation

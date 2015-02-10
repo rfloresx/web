@@ -1,11 +1,11 @@
-/* rest__type.h
+/* web__type.h
  *
  *    Type-definitions for C-language.
  *    This file contains generated code. Do not modify!
  */
 
-#ifndef rest__type_H
-#define rest__type_H
+#ifndef web__type_H
+#define web__type_H
 
 #include "cortex.h"
 
@@ -14,13 +14,13 @@ extern "C" {
 #endif
 
 /* Casting macro's for classes */
-#define rest_server(o) ((rest_server)o)
+#define web_server(o) ((web_server)o)
 
 /* Type definitions */
-/*  ::cortex::rest::server */
-CX_CLASS(rest_server);
+/*  ::cortex::web::server */
+CX_CLASS(web_server);
 
-CX_CLASS_DEF(rest_server) {
+CX_CLASS_DEF(web_server) {
     cx_uint16 port;
     cx_word impl;
     cx_word thread;

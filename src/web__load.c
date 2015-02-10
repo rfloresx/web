@@ -2,18 +2,18 @@
  * This file is generated. Only insert code in appropriate places
  */
 
-#include "rest__meta.h"
+#include "web__meta.h"
 
 /* $header() */
 /* Insert user-includes here */
 /* $end */
 
-/* This function is the entrypoint for the library and * loads definitions of the 'rest' scope */
+/* This function is the entrypoint for the library and * loads definitions of the 'web' scope */
 int cortexmain(int argc, char* argv[]) {
     CX_UNUSED(argc);
     CX_UNUSED(argv);
     
-    int result = rest_load();
+    int result = web_load();
     
     /* $begin(cortexmain) */
     /* Insert user-code here */
