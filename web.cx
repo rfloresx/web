@@ -8,3 +8,16 @@ class server::
     thread: word, private|local // Thread in which the server will run
     int16 construct()
     void destruct()
+
+// websocket data
+class wsdata::
+    int16 construct()
+    void destruct()
+    void trigger() observer
+    void send(object o, bool value, bool meta, bool @scope, bool parents)
+    conn: word
+    observable: object
+    eventCount: uint32, readonly
+    clientReceived: uint32, readonly
+    serverSent: uint32, readonly
+

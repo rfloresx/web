@@ -108,6 +108,74 @@ static int web_serveObject(struct mg_connection *conn) {
     return MG_TRUE;
 }
 
+/* Handle subscribe message */
+static int web_subscribe(struct mg_connection *conn) {
+    char *flag_start = conn->content + 2;
+    char *id_start = strchr(flag_start, ' ') + 1;
+    int len;
+    cx_id id;
+    cx_object o = NULL; 
+
+    /* Check if message is correct */
+    if ((id_start - conn->content) > (int)conn->content_len) {
+        printf("error: message '%.*s' not correctly formatted\n",
+            (int)conn->content_len, conn->content);
+        goto error;
+    }
+
+    /* Copy identifier to buffer */
+    len = (int)conn->content_len - (id_start - conn->content);
+    memcpy(id, id_start, len);
+    id[len] = '\0';
+
+    /* Silence previous subscription */
+    if (web_wsdata(conn->connection_param)->observable) {
+        cx_silence(web_wsdata(conn->connection_param)->observable, 
+            web_wsdata_trigger_o, web_wsdata(conn->connection_param));
+    }
+    web_wsdata(conn->connection_param)->eventCount = 0;
+
+    /* Lookup object */
+    o = cx_resolve(NULL, id);
+    if (!o) {
+        goto error;
+    } else if (!cx_checkAttr(o, CX_ATTR_OBSERVABLE)) {
+        /* Can't listen if object is not observable, but can send the client the value */
+        cx_set(&web_wsdata(conn->connection_param)->observable, NULL);
+        web_wsdata_send(web_wsdata(conn->connection_param), o, TRUE, TRUE, TRUE, TRUE);
+        web_wsdata(conn->connection_param)->eventCount++;
+    } else {
+        /* Configure observer to listen for updates */
+        cx_set(&web_wsdata(conn->connection_param)->observable, o);
+        cx_listen(o, web_wsdata_trigger_o, web_wsdata(conn->connection_param));
+    }
+
+    return 0;
+error:
+    return -1;
+}
+
+/* Set throttle value on connection */
+static void web_throttle(struct mg_connection *conn) {
+    web_wsdata(conn->connection_param)->clientReceived = atoi(conn->content + 2);
+}
+
+/* Handle websocket message */
+static int web_socketHandler(struct mg_connection *conn) {
+    switch (*conn->content) {
+    case 'L':
+        web_subscribe(conn);
+        break;
+    case 'T':
+        web_throttle(conn);
+        break;
+    default:
+        break;
+    }
+    return MG_TRUE;
+}
+
+/* Handle incoming HTTP events */
 static int web_handler(struct mg_connection *conn, enum mg_event ev) {
     int result = MG_TRUE;
 
@@ -115,27 +183,48 @@ static int web_handler(struct mg_connection *conn, enum mg_event ev) {
     case MG_AUTH:
         break;
 
+    /* New websocket connection */
+    case MG_WS_CONNECT:
+        conn->connection_param = web_wsdata__create((cx_word)conn, NULL);
+        mg_websocket_printf(conn, WEBSOCKET_OPCODE_TEXT, "");
+        result = MG_FALSE;
+        break;
+
+    /* Close websocket connection */
+    case MG_CLOSE:
+        if (conn->connection_param) {
+            cx_free(conn->connection_param);
+            conn->connection_param = NULL;
+        }
+        break;
+
     /* HTTP request */
-    case MG_REQUEST: {
-        /* If the URI is prefixed with a '_' an object is requested */
-        if (!memcmp(conn->uri, "/_", 2)) {
-            result = web_serveObject(conn);
-
-        /* If the URI contains a '.' before a '?' a file is requested */
-        } else if (strchr (conn->uri, '.')) {
-            result = web_serveFile(conn, conn->uri + 1);
-
-        /* If none of the above, serve index.html. Since the client
-         * is a single page app, the URI can contain a path to the
-         * object currently displayed. This URI is not relevant for
-         * the server. However, when such a URI is requested, the 
-         * index.html file must be served. */
+    case MG_REQUEST: 
+        /* If request is a websocket, forward to websocket handler */
+        if (conn->is_websocket) {
+            if (conn->content_len) {
+                result = web_socketHandler(conn);
+            }
         } else {
-            result = web_serveFile(conn, "index.html");
+            /* If the URI is prefixed with a '_' an object is requested */
+            if (!memcmp(conn->uri, "/_", 2)) {
+                result = web_serveObject(conn);
+
+            /* If the URI contains a '.' before a '?' a file is requested */
+            } else if (strchr (conn->uri, '.')) {
+                result = web_serveFile(conn, conn->uri + 1);
+
+            /* If none of the above, serve index.html. Since the client
+             * is a single page app, the URI can contain a path to the
+             * object currently displayed. This URI is not relevant for
+             * the server. However, when such a URI is requested, the 
+             * index.html file must be served. */
+            } else {
+                result = web_serveFile(conn, "index.html");
+            }
         }
 
         break;
-    }
     default: 
         result = MG_FALSE;
         break;
@@ -163,7 +252,6 @@ void* web_run(void *data) {
     // Cleanup, and free server instance
     mg_destroy_server(&server);
 }
-
 /* $end */
 
 /* ::cortex::web::server::construct() */
@@ -185,4 +273,3 @@ cx_void web_server_destruct(web_server _this) {
     CX_UNUSED(_this);
 /* $end */
 }
-
