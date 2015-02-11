@@ -13,7 +13,7 @@
 #include "mongoose.h"
 #include "json.h"
 
- #define WEB_THROTTLE_THRESHOLD (100)
+ #define WEB_THROTTLE_THRESHOLD (200)
 
 /* Write all parents to connection */
 static void wsdata_sendParent(web_wsdata _this, cx_object o) {
@@ -72,7 +72,7 @@ cx_void web_wsdata_trigger(web_wsdata _this, cx_object *observable, cx_object *s
     /* If the difference between received and send exceeds a threshold,
      * throttle down */
     if (_this->clientReceived && ((_this->serverSent - _this->clientReceived)) > WEB_THROTTLE_THRESHOLD) {
-        cx_sleep(1, 0);
+        cx_sleep(0, 500000000);
     }
 
     if (source && (observable != source)) {
