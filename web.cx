@@ -2,22 +2,23 @@
 #package ::cortex::web
 
 // webserver
-class server::
+class server : implements={dispatcher}::
     port: uint16
+    connectionId: uint32, private|local
     impl: word, private|local // Reference to external server implementation
     thread: word, private|local // Thread in which the server will run
+    events: list{event}, private|local
     int16 construct()
     void destruct()
+    void post(event e)
 
 // websocket data
-class wsdata::
+class wsconnection::
     int16 construct()
-    void destruct()
     void trigger() observer
     void send(object o, bool value, bool meta, bool @scope, bool parents)
-    conn: word
-    observable: object
-    eventCount: uint32, readonly
-    clientReceived: uint32, readonly
-    serverSent: uint32, readonly
-
+    observing: object
+    remote_ip: string
+    remote_port: uint16
+    conn: word, private | local
+    eventCount: uint32, private | local

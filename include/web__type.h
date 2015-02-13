@@ -15,27 +15,31 @@ extern "C" {
 
 /* Casting macro's for classes */
 #define web_server(o) ((web_server)o)
-#define web_wsdata(o) ((web_wsdata)o)
+#define web_wsconnection(o) ((web_wsconnection)o)
 
 /* Type definitions */
+CX_LIST(cx_event_list);
+
 /*  ::cortex::web::server */
 CX_CLASS(web_server);
 
 CX_CLASS_DEF(web_server) {
     cx_uint16 port;
+    cx_uint32 connectionId;
     cx_word impl;
     cx_word thread;
+    cx_event_list events;
 };
 
-/*  ::cortex::web::wsdata */
-CX_CLASS(web_wsdata);
+/*  ::cortex::web::wsconnection */
+CX_CLASS(web_wsconnection);
 
-CX_CLASS_DEF(web_wsdata) {
+CX_CLASS_DEF(web_wsconnection) {
+    cx_object observing;
+    cx_string remote_ip;
+    cx_uint16 remote_port;
     cx_word conn;
-    cx_object observable;
     cx_uint32 eventCount;
-    cx_uint32 clientReceived;
-    cx_uint32 serverSent;
 };
 
 #ifdef __cplusplus

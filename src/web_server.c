@@ -114,7 +114,8 @@ static int web_subscribe(struct mg_connection *conn) {
     char *id_start = strchr(flag_start, ' ') + 1;
     int len;
     cx_id id;
-    cx_object o = NULL; 
+    cx_object o = NULL;
+    web_wsconnection wc = web_wsconnection(conn->connection_param);
 
     /* Check if message is correct */
     if ((id_start - conn->content) > (int)conn->content_len) {
@@ -129,11 +130,11 @@ static int web_subscribe(struct mg_connection *conn) {
     id[len] = '\0';
 
     /* Silence previous subscription */
-    if (web_wsdata(conn->connection_param)->observable) {
-        cx_silence(web_wsdata(conn->connection_param)->observable, 
-            web_wsdata_trigger_o, web_wsdata(conn->connection_param));
+    if (wc->observing) {
+        cx_silence(wc->observing, 
+            web_wsconnection_trigger_o, wc);
     }
-    web_wsdata(conn->connection_param)->eventCount = 0;
+    wc->eventCount = 0;
 
     /* Lookup object */
     o = cx_resolve(NULL, id);
@@ -141,23 +142,18 @@ static int web_subscribe(struct mg_connection *conn) {
         goto error;
     } else if (!cx_checkAttr(o, CX_ATTR_OBSERVABLE)) {
         /* Can't listen if object is not observable, but can send the client the value */
-        cx_set(&web_wsdata(conn->connection_param)->observable, NULL);
-        web_wsdata_send(web_wsdata(conn->connection_param), o, TRUE, TRUE, TRUE, TRUE);
-        web_wsdata(conn->connection_param)->eventCount++;
+        cx_set(&wc->observing, NULL);
+        web_wsconnection_send(wc, o, TRUE, TRUE, TRUE, TRUE);
+        wc->eventCount++;
     } else {
         /* Configure observer to listen for updates */
-        cx_set(&web_wsdata(conn->connection_param)->observable, o);
-        cx_listen(o, web_wsdata_trigger_o, web_wsdata(conn->connection_param));
+        cx_set(&wc->observing, o);
+        cx_listen(o, web_wsconnection_trigger_o, wc);
     }
-
+    
     return 0;
 error:
     return -1;
-}
-
-/* Set throttle value on connection */
-static void web_throttle(struct mg_connection *conn) {
-    web_wsdata(conn->connection_param)->clientReceived = atoi(conn->content + 2);
 }
 
 /* Handle websocket message */
@@ -165,9 +161,7 @@ static int web_socketHandler(struct mg_connection *conn) {
     switch (*conn->content) {
     case 'L':
         web_subscribe(conn);
-        break;
-    case 'T':
-        web_throttle(conn);
+        cx_update(web_wsconnection(conn->connection_param));
         break;
     default:
         break;
@@ -184,16 +178,38 @@ static int web_handler(struct mg_connection *conn, enum mg_event ev) {
         break;
 
     /* New websocket connection */
-    case MG_WS_CONNECT:
-        conn->connection_param = web_wsdata__create((cx_word)conn, NULL);
-        mg_websocket_printf(conn, WEBSOCKET_OPCODE_TEXT, "");
-        result = MG_FALSE;
+    case MG_WS_CONNECT: {
+        cx_id id;
+        web_server s = conn->server_param;
+        sprintf(id, "C%d", s->connectionId);
+
+        /* Create connection object */
+        web_wsconnection wc = web_wsconnection__declare(s, id);
+        s->connectionId++;
+        wc->conn = (cx_word)conn;
+        web_wsconnection__define(wc, NULL, conn->remote_ip, conn->remote_port);
+
+        /* Set dispatcher for trigger */
+        cx_observer_setDispatcher(web_wsconnection_trigger_o, cx_dispatcher(s));
+
+        conn->connection_param = wc;
         break;
+    }
 
     /* Close websocket connection */
     case MG_CLOSE:
         if (conn->connection_param) {
-            cx_free(conn->connection_param);
+            web_wsconnection wc = conn->connection_param;
+            if (wc->observing) {
+                /* Remove connection from observer queue */
+                cx_silence(wc->observing, web_wsconnection_trigger_o, wc);
+                /* Set observing to NULL */
+                cx_set(&wc->observing, NULL);
+            }
+            /* Set connection parameter to NULL since pointer
+             * will be invalid after this callback */
+            wc->conn = 0;
+            cx_destruct(wc);
             conn->connection_param = NULL;
         }
         break;
@@ -223,9 +239,14 @@ static int web_handler(struct mg_connection *conn, enum mg_event ev) {
                 result = web_serveFile(conn, "index.html");
             }
         }
-
         break;
-    default: 
+    case MG_HTTP_ERROR:
+        result = FALSE;
+        break;
+    case MG_POLL:
+        result = FALSE;
+        break;
+    default:
         result = MG_FALSE;
         break;
     }
@@ -239,14 +260,30 @@ void* web_run(void *data) {
     web_server _this = data;
     char portStr[6];
     sprintf(portStr, "%u", _this->port);
+    cx_event e;
+    cx_ll events = cx_llNew();
 
     // Create and configure the server
-    server = mg_create_server(NULL, web_handler);
+    server = mg_create_server(_this, web_handler);
     mg_set_option(server, "listening_port", portStr);
 
     // Serve request. Hit Ctrl-C to terminate the program
     for (;;) {
-        mg_poll_server(server, 1000);
+        mg_poll_server(server, 50);
+
+        /* Handle queued events */
+        cx_lock(_this);
+        while ((e = cx_llTakeFirst(_this->events))) {
+            cx_llAppend(events, e);
+        }
+        cx_unlock(_this);
+
+        /* Process events outside of lock */
+        while ((e = cx_llTakeFirst(events))) {
+            cx_event_handle(e);
+            cx_free(e);
+            mg_poll_server(server, 1);
+        }
     }
 
     // Cleanup, and free server instance
@@ -271,5 +308,45 @@ error:
 cx_void web_server_destruct(web_server _this) {
 /* $begin(::cortex::web::server::destruct) */
     CX_UNUSED(_this);
+/* $end */
+}
+
+/* ::cortex::web::server::post(event e) */
+static cx_observableEvent web_server_findRelatedEvent(web_server _this, cx_observableEvent e) {
+    cx_iter iter = cx_llIter(_this->events);
+    cx_observableEvent e2;
+    while ((cx_iterHasNext(&iter))) {
+        e2 = cx_iterNext(&iter);
+        if((e2->me == e->me) &&
+          (e2->observable == e->observable) &&
+          (e2->source == e->source) &&
+          (e2->observer == e->observer)) {
+            return e2;
+        }
+    }
+    return NULL;
+}
+cx_void web_server_post(web_server _this, cx_event e) {
+/* $begin(::cortex::web::server::post) */
+    cx_uint32 size = 0;
+    cx_observableEvent e2;
+
+    cx_lock(_this);
+    /* Check if there is already another event in the queue for the same object.
+     * if so, replace event with latest update. */
+    if ((e2 = web_server_findRelatedEvent(_this, cx_observableEvent(e)))) {
+        cx_llReplace(_this->events, e2, e);
+        cx_free(e2);
+    } else {
+        cx_llAppend(_this->events, e);
+    }
+    size = cx_llSize(_this->events);
+    cx_unlock(_this);
+
+    /* If queue is getting big, slow down publisher */
+    if (size > 100) {
+        cx_sleep(0, 10000000);
+    }
+
 /* $end */
 }
