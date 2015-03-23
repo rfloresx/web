@@ -312,6 +312,7 @@ cx_void web_server_destruct(web_server _this) {
 }
 
 /* ::cortex::web::server::post(event e) */
+/* $header(::cortex::web::server::post) */
 static cx_observableEvent web_server_findRelatedEvent(web_server _this, cx_observableEvent e) {
     cx_iter iter = cx_llIter(_this->events);
     cx_observableEvent e2;
@@ -326,6 +327,7 @@ static cx_observableEvent web_server_findRelatedEvent(web_server _this, cx_obser
     }
     return NULL;
 }
+/* $end */
 cx_void web_server_post(web_server _this, cx_event e) {
 /* $begin(::cortex::web::server::post) */
     cx_uint32 size = 0;
