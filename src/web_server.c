@@ -87,15 +87,17 @@ static int web_serveObject(struct mg_connection *conn) {
                 mg_printf_data(conn, "[");
 
                 /* Serialize metadata of parents */
-                if (web_printParents(conn, cx_parentof(o))) {
-                    mg_printf_data(conn, ",");
+                if (meta) {
+                    if (web_printParents(conn, cx_parentof(o))) {
+                        mg_printf_data(conn, ",");
+                    }
                 }
 
                 /* Serialize value */              
                 {
                     cx_json_ser_t jsonData = {NULL, NULL, 0, 0, 0, meta, value, scope, TRUE};
                     cx_serialize(&serializer, o, &jsonData);
-                    mg_printf_data(conn, "%s\n", jsonData.buffer);
+                    mg_printf_data(conn, "%s", jsonData.buffer);
                     cx_dealloc(jsonData.buffer);
                 }
                 mg_printf_data(conn, "]\n");
