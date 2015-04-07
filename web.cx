@@ -8,6 +8,8 @@ class server : implements={dispatcher}::
     impl: word, private|local // Reference to external server implementation
     thread: word, private|local // Thread in which the server will run
     events: list{event}, private|local
+    defaultToConsole: bool
+    int16 init()
     int16 construct()
     void destruct()
     void post(event e)

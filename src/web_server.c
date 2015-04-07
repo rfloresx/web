@@ -15,7 +15,17 @@
 
 /* Serve a file (html, icon, css, js) */
 static int web_serveFile(struct mg_connection *conn, const char *file) {
-    mg_send_file(conn, file, "");
+    web_server _this = conn->server_param;
+    
+    if (cx_fileTest(file) || !_this->defaultToConsole) {
+        mg_send_file(conn, file, "");        
+    } else {
+        cx_id buffer;
+        char *cortexHome = getenv("CORTEX_HOME");
+        sprintf(buffer, "%s/interface/web/%s", cortexHome, file);
+        mg_send_file(conn, buffer, ""); 
+    }
+
     return MG_MORE; /* Indicate that page will request more data */    
 }
 
@@ -310,6 +320,16 @@ error:
 cx_void web_server_destruct(web_server _this) {
 /* $begin(::cortex::web::server::destruct) */
     CX_UNUSED(_this);
+/* $end */
+}
+
+/* ::cortex::web::server::init() */
+cx_int16 web_server_init(web_server _this) {
+/* $begin(::cortex::web::server::init) */
+
+    _this->defaultToConsole = TRUE;
+
+    return 0;
 /* $end */
 }
 
