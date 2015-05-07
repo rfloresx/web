@@ -202,7 +202,7 @@ static int web_handler(struct mg_connection *conn, enum mg_event ev) {
         web_wsconnection__define(wc, NULL, conn->remote_ip, conn->remote_port);
 
         /* Set dispatcher for trigger */
-        cx_observer_setDispatcher(web_wsconnection_trigger_o, cx_dispatcher(s));
+        cx_observer_setDispatcher(web_wsconnection_trigger_o, (cx_dispatcher)s);
 
         conn->connection_param = wc;
         break;

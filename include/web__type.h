@@ -14,8 +14,8 @@ extern "C" {
 #endif
 
 /* Casting macro's for classes */
-#define web_server(o) ((web_server)o)
-#define web_wsconnection(o) ((web_wsconnection)o)
+#define web_server(o) ((web_server)cx_assertType((cx_type)web_server_o, o))
+#define web_wsconnection(o) ((web_wsconnection)cx_assertType((cx_type)web_wsconnection_o, o))
 
 /* Type definitions */
 CX_LIST(cx_event_list);
