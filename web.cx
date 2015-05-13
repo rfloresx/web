@@ -9,6 +9,7 @@ class server : implements={dispatcher}::
     thread: word, private|local // Thread in which the server will run
     events: list{event}, private|local
     defaultToConsole: bool
+    exiting: bool, private|local
     int16 init()
     int16 construct()
     void destruct()
@@ -17,8 +18,9 @@ class server : implements={dispatcher}::
 // websocket data
 class wsconnection::
     int16 construct()
-    void trigger() observer
-    void send(object o, bool value, bool meta, bool @scope, bool parents)
+    void onUpdate() observer
+    void onDelete() observer
+    void send(object o, bool value, bool meta, bool @scope, bool parents, bool isDelete)
     observing: object
     remote_ip: string
     remote_port: uint16

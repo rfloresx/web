@@ -30,6 +30,7 @@ CX_CLASS_DEF(web_server) {
     cx_word thread;
     cx_event_list events;
     cx_bool defaultToConsole;
+    cx_bool exiting;
 };
 
 /*  ::cortex::web::wsconnection */

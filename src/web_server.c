@@ -143,8 +143,8 @@ static int web_subscribe(struct mg_connection *conn) {
 
     /* Silence previous subscription */
     if (wc->observing) {
-        cx_silence(wc->observing, 
-            web_wsconnection_trigger_o, wc);
+        cx_silence(wc->observing, web_wsconnection_onUpdate_o, wc);
+        cx_silence(wc->observing, web_wsconnection_onDelete_o, wc);
     }
     wc->eventCount = 0;
 
@@ -155,12 +155,13 @@ static int web_subscribe(struct mg_connection *conn) {
     } else if (!cx_checkAttr(o, CX_ATTR_OBSERVABLE)) {
         /* Can't listen if object is not observable, but can send the client the value */
         cx_set(&wc->observing, NULL);
-        web_wsconnection_send(wc, o, TRUE, TRUE, TRUE, TRUE);
+        web_wsconnection_send(wc, o, TRUE, TRUE, TRUE, TRUE, FALSE);
         wc->eventCount++;
     } else {
         /* Configure observer to listen for updates */
         cx_set(&wc->observing, o);
-        cx_listen(o, web_wsconnection_trigger_o, wc);
+        cx_listen(o, web_wsconnection_onUpdate_o, wc);
+        cx_listen(o, web_wsconnection_onDelete_o, wc);
     }
     
     return 0;
@@ -202,7 +203,8 @@ static int web_handler(struct mg_connection *conn, enum mg_event ev) {
         web_wsconnection__define(wc, NULL, conn->remote_ip, conn->remote_port);
 
         /* Set dispatcher for trigger */
-        cx_observer_setDispatcher(web_wsconnection_trigger_o, (cx_dispatcher)s);
+        cx_observer_setDispatcher(web_wsconnection_onUpdate_o, (cx_dispatcher)s);
+        cx_observer_setDispatcher(web_wsconnection_onDelete_o, (cx_dispatcher)s);
 
         conn->connection_param = wc;
         break;
@@ -214,7 +216,8 @@ static int web_handler(struct mg_connection *conn, enum mg_event ev) {
             web_wsconnection wc = conn->connection_param;
             if (wc->observing) {
                 /* Remove connection from observer queue */
-                cx_silence(wc->observing, web_wsconnection_trigger_o, wc);
+                cx_silence(wc->observing, web_wsconnection_onUpdate_o, wc);
+                cx_silence(wc->observing, web_wsconnection_onDelete_o, wc);
                 /* Set observing to NULL */
                 cx_set(&wc->observing, NULL);
             }
@@ -283,8 +286,13 @@ void* web_run(void *data) {
     for (;;) {
         mg_poll_server(server, 50);
 
+        if (_this->exiting) {
+            break;
+        }
+
         /* Handle queued events */
         cx_lock(_this);
+
         while ((e = cx_llTakeFirst(_this->events))) {
             cx_llAppend(events, e);
         }
@@ -300,6 +308,8 @@ void* web_run(void *data) {
 
     // Cleanup, and free server instance
     mg_destroy_server(&server);
+
+    return NULL;
 }
 /* $end */
 
@@ -319,7 +329,8 @@ error:
 /* ::cortex::web::server::destruct() */
 cx_void web_server_destruct(web_server _this) {
 /* $begin(::cortex::web::server::destruct) */
-    CX_UNUSED(_this);
+    _this->exiting = TRUE;
+    cx_threadJoin((cx_thread)_this->thread, NULL);
 /* $end */
 }
 
