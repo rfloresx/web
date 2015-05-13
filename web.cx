@@ -18,6 +18,7 @@ class server : implements={dispatcher}::
 // websocket data
 class wsconnection::
     int16 construct()
+    void destruct()
     void onUpdate() observer
     void onDelete() observer
     void send(object o, bool value, bool meta, bool @scope, bool parents, bool isDelete)

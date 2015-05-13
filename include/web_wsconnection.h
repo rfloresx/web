@@ -20,6 +20,9 @@ extern "C" {
 /* ::cortex::web::wsconnection::construct() */
 cx_int16 web_wsconnection_construct(web_wsconnection _this);
 
+/* ::cortex::web::wsconnection::destruct() */
+cx_void web_wsconnection_destruct(web_wsconnection _this);
+
 /* ::cortex::web::wsconnection::onDelete() */
 cx_void web_wsconnection_onDelete(web_wsconnection _this, cx_object *observable, cx_object *source);
 

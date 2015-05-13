@@ -33,6 +33,14 @@ cx_int16 web_wsconnection_construct(web_wsconnection _this) {
 /* $end */
 }
 
+/* ::cortex::web::wsconnection::destruct() */
+cx_void web_wsconnection_destruct(web_wsconnection _this) {
+/* $begin(::cortex::web::wsconnection::destruct) */
+    cx_silence(_this->observing, web_wsconnection_onUpdate_o, _this);
+    cx_silence(_this->observing, web_wsconnection_onDelete_o, _this);
+/* $end */
+}
+
 /* ::cortex::web::wsconnection::onDelete() */
 cx_void web_wsconnection_onDelete(web_wsconnection _this, cx_object *observable, cx_object *source) {
 /* $begin(::cortex::web::wsconnection::onDelete) */
