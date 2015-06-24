@@ -1,0 +1,87 @@
+#package ::cortex::web
+
+class WebSocketConnection::
+    conn: word, private|local // implementation data
+
+    int16 construct()
+    void destruct()
+
+    void send(string message)
+
+void handler(WebSocketConnection conn) delegate
+void messageHandler(WebSocketConnection conn, string message) delegate
+
+class WebSocketServer::
+    onOpen: handler
+    onClose: handler
+    onMessage: messageHandler
+    pollTimemoutMillis: uint16
+
+    thread: word, private|local
+    nextConnectionId: uint32, private|local
+    exiting: bool, private|local
+    server: word, private|local // implementation data
+
+    int16 construct()
+    void destruct()
+
+    void poll()
+    void run() virtual
+
+
+class DDPConnection: WebSocketConnection::
+    observing: object
+    ignoredFirstMsg: bool
+    eventCount: uint32, private|local
+
+    void onUpdate() observer
+    void onDelete() observer
+
+    void send(object o, bool value, bool meta, bool @scope, bool parents, bool isDelete)
+
+    // --------------------------------
+    // Send client->server DDP messages
+    // --------------------------------
+
+    // Establishing a DDP connection
+    void connected()
+    void failed()
+    
+    // Heartbeats
+    void ping()
+    void pong(string id)
+
+    // Managing data
+    void nosub()
+
+    // etc
+
+
+class DDPServer: WebSocketServer, implements={dispatcher}::
+    events: list{event}, private|local
+
+    bool step()
+
+    void onMessage(DDPConnection conn, string message) method
+
+    void post(event e)
+
+    // ----------------------------------
+    // Handle client->server DDP messages
+    // ----------------------------------
+
+    // Establishing a DDP connection
+    void connect(DDPConnection conn, word json)
+
+    // Heartbeats
+    void ping(DDPConnection conn, word json)
+    void pong(DDPConnection conn, word json)
+
+    // Managing data
+    void sub(DDPConnection conn, word json)
+    void unsub(DDPConnection conn, word json)
+
+    // etc
+
+
+

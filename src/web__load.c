@@ -1,8 +1,9 @@
-/** 
- * This file is generated. Only insert code in appropriate places
+/* web__load.c
+ *
+ * This file is generated. Only insert code in appropriate places.
  */
 
-#include "web__meta.h"
+#include "web.h"
 
 /* $header() */
 /* Insert user-includes here */
