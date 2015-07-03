@@ -1,17 +1,17 @@
 #package ::cortex::web
 
 class WebSocketConnection::
-    conn: word, private|local // implementation data
-
-    int16 construct()
-    void destruct()
+    conn: word, private|local
 
     void send(string message)
+
 
 void handler(WebSocketConnection conn) delegate
 void messageHandler(WebSocketConnection conn, string message) delegate
 
+
 class WebSocketServer::
+    port: uint16
     onOpen: handler
     onClose: handler
     onMessage: messageHandler
@@ -20,7 +20,7 @@ class WebSocketServer::
     thread: word, private|local
     nextConnectionId: uint32, private|local
     exiting: bool, private|local
-    server: word, private|local // implementation data
+    server: word, private|local
 
     int16 construct()
     void destruct()
@@ -29,15 +29,34 @@ class WebSocketServer::
     void run() virtual
 
 
+
+
+class SockJsConnection::
+    conn: word, private|local
+
+    void send(string message)
+
+
+class SockJsServer::
+    onMessage: handler
+    onOpen: handler
+    onClose: handler
+
+    int16 construct()
+    void destruct()
+
+
 class DDPConnection: WebSocketConnection::
     observing: object
-    ignoredFirstMsg: bool
+    expectingPong: bool
+    expectingPongId: string
+
     eventCount: uint32, private|local
+
+    void destruct()
 
     void onUpdate() observer
     void onDelete() observer
-
-    void send(object o, bool value, bool meta, bool @scope, bool parents, bool isDelete)
 
     // --------------------------------
     // Send client->server DDP messages
@@ -48,7 +67,7 @@ class DDPConnection: WebSocketConnection::
     void failed()
     
     // Heartbeats
-    void ping()
+    void ping(string id)
     void pong(string id)
 
     // Managing data

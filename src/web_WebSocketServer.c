@@ -10,9 +10,30 @@
 
 /* $header() */
 
+#include "inttypes.h"
+
+#include "math.h"
 #include "mongoose.h"
 
+
 #define WEB_WEBSOCKETSERVER_DEFAULT_POLL_TIMEOUT 50
+
+
+/* Allocates memory and copies the content; free the memory manually when finished. */
+static char* web_WebSocketServer_copyConnectionContent(struct mg_connection *conn) {
+    char *content = cx_malloc(conn->content_len + 1);
+    memcpy(content, conn->content, conn->content_len);
+    content[conn->content_len] = '\0';
+    return content;
+}
+
+/* Allocates memory and creates a new name; free the memory manually when finished. */
+static char* web_WebSocketServer_nextConnectionName(web_WebSocketServer _this) {
+    char *name = cx_malloc(log10(_this->nextConnectionId | 1) + 2);
+    sprintf(name, "c%d", _this->nextConnectionId);
+    _this->nextConnectionId++;
+    return name;
+}
 
 static void web_WebSocketServer_close(web_WebSocketServer _this, struct mg_connection *conn) {
     web_WebSocketConnection c = web_WebSocketConnection(conn->connection_param);
@@ -20,20 +41,21 @@ static void web_WebSocketServer_close(web_WebSocketServer _this, struct mg_conne
         cx_call(_this->onClose._parent.procedure, NULL, _this->onClose._parent.instance, c);
     }
     c->conn = 0;
-    cx_destruct(c);
     conn->connection_param = NULL;
+    cx_destruct(c);
 }
 
 static void web_WebSocketServer_open(web_WebSocketServer _this, struct mg_connection *conn) {
-    cx_id id;
-    sprintf(id, "C%d", _this->nextConnectionId);
-    web_WebSocketConnection c = web_WebSocketConnection__declare(_this, id);
+    char *name = web_WebSocketServer_nextConnectionName(_this);
+    web_WebSocketConnection c = web_WebSocketConnection__declare(_this, name);
+    cx_dealloc(name);
     c->conn = (cx_word)conn;
+    conn->connection_param = c;
     if (web_WebSocketConnection__define(c)) {
         goto error;
     }
-    conn->connection_param = c;
     if (_this->onOpen._parent.procedure) {
+        web_WebSocketConnection c = web_WebSocketConnection(conn->connection_param);
         cx_call(_this->onOpen._parent.procedure, NULL, _this->onOpen._parent.instance, c);
     }
 error:;
@@ -41,19 +63,35 @@ error:;
 
 static void web_WebSocketServer_message(web_WebSocketServer _this, struct mg_connection *conn) {
     web_WebSocketConnection c = web_WebSocketConnection(conn->connection_param);
-    char *msg = cx_malloc(conn->content_len + 1);
-    memcpy(msg, conn->content, conn->content_len);
-    msg[conn->content_len] = '\0';
+    char *msg = web_WebSocketServer_copyConnectionContent(conn);
     if (_this->onMessage._parent.procedure) {
         cx_call(_this->onMessage._parent.procedure, NULL, _this->onMessage._parent.instance, c, msg);
-    } else {
-        puts("message handler is null!");
     }
+    cx_dealloc(msg);
+}
+
+static const char *mgeventname(enum mg_event e) {
+    static const char *names[200];
+    names[MG_POLL] = "MG_POLL";
+    names[MG_CONNECT] = "MG_CONNECT";
+    names[MG_AUTH] = "MG_AUTH";
+    names[MG_REQUEST] = "MG_REQUEST";
+    names[MG_REPLY] = "MG_REPLY";
+    names[MG_RECV] = "MG_RECV";
+    names[MG_CLOSE] = "MG_CLOSE";
+    names[MG_WS_HANDSHAKE] = "MG_WS_HANDSHAKE";
+    names[MG_WS_CONNECT] = "MG_WS_CONNECT";
+    names[MG_HTTP_ERROR] = "MG_HTTP_ERROR";
+    return names[e];
 }
 
 static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event ev) {
     if (ev != MG_POLL) {
-        printf("handler!!!: %d\n", ev);
+        cx_debug("\nhandler gets event: %d %s\n", ev, mgeventname(ev));
+        cx_debug("is_websocket? %d\n", conn->is_websocket);
+        cx_debug("uri: %s\n", conn->uri);
+        cx_debug("query_string: %s\n", conn->query_string);
+        cx_debug("%p\n", conn);
     }
     int result = MG_TRUE;
     web_WebSocketServer _this = web_WebSocketServer(conn->server_param);
@@ -64,13 +102,15 @@ static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event
         web_WebSocketServer_open(_this, conn);
         break;
     case MG_CLOSE:
-        web_WebSocketServer_close(_this, conn);
+        if (conn->is_websocket) {
+            web_WebSocketServer_close(_this, conn);
+        }
         break;
     case MG_REQUEST: 
         if (conn->is_websocket) {
             web_WebSocketServer_message(_this, conn);
         } else {
-            result = MG_TRUE;
+            cx_error("WebSocketServer received Http message");
         }
         break;
     case MG_HTTP_ERROR:
@@ -92,8 +132,11 @@ static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event
 
 static void* web_WebSocketServer_threadRun(void *data) {
     web_WebSocketServer _this = web_WebSocketServer(data);
+    char *port = cx_malloc((int)(log10(_this->port | 1)) + 1);
+    sprintf(port, "%"PRIu16, _this->port);
     struct mg_server *server = mg_create_server(_this, web_WebSocketServer_handler);
-    mg_set_option(server, "listening_port", "8000");
+    mg_set_option(server, "listening_port", port);
+    cx_dealloc(port);
     _this->server = (cx_word)server;
     web_WebSocketServer_run(_this);
     mg_destroy_server(&server);
