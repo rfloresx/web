@@ -29,7 +29,7 @@ static void web_WebSocketServer_open(web_WebSocketServer _this, struct mg_connec
     sprintf(id, "C%d", _this->nextConnectionId);
     web_WebSocketConnection c = web_WebSocketConnection__declare(_this, id);
     c->conn = (cx_word)conn;
-    if (web_WebSocketConnection__define(c)) {
+    if (web_WebSocketConnection__define(c, NULL)) {
         goto error;
     }
     conn->connection_param = c;
@@ -52,10 +52,8 @@ static void web_WebSocketServer_message(web_WebSocketServer _this, struct mg_con
 }
 
 static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event ev) {
-    if (ev != MG_POLL) {
-        printf("handler!!!: %d\n", ev);
-    }
     int result = MG_TRUE;
+    
     web_WebSocketServer _this = web_WebSocketServer(conn->server_param);
     switch (ev) {
     case MG_AUTH:

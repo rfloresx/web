@@ -129,6 +129,3 @@ cx_void web_DDPConnection_send(web_DDPConnection _this, cx_object o, cx_bool val
     // cx_dealloc(jsonData.buffer);
 /* $end */
 }
-$begin(::cortex::web::DDPConnection::connect) */
-    CX_UNUSED(_this);
-/* $end

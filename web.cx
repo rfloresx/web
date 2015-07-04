@@ -1,7 +1,8 @@
 #package ::cortex::web
 
 class WebSocketConnection::
-    conn: word, private|local // implementation data
+    data: object
+    conn: word, private|local
 
     int16 construct()
     void destruct()
@@ -20,13 +21,42 @@ class WebSocketServer::
     thread: word, private|local
     nextConnectionId: uint32, private|local
     exiting: bool, private|local
-    server: word, private|local // implementation data
+    server: word, private|local
+ 
+    int16 construct()
+    void destruct()
+
+    void poll()
+    void run() virtual
+
+
+class SockJsServer::
+    class Connection::
+        data: object
+        conn: word, private|local
+        void send(string msg)
+
+    void handler(Connection conn) delegate
+    void msgHandler(Connection conn, string message) delegate
+
+    port: uint16
+    onMessage: messageHandler
+    onOpen: handler
+    onClose: handler
+    pollTimemoutMillis: uint16
+
+    thread: word, private|local
+    nextConnectionId: uint32, private|local
+    exiting: bool, private|local
+    server: word, private|local
+    timeElapsed: uint32, private|local
 
     int16 construct()
     void destruct()
 
     void poll()
     void run() virtual
+
 
 
 class DDPConnection: WebSocketConnection::
