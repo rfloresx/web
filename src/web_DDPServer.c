@@ -24,66 +24,17 @@
 
 typedef cx_void web_DDPServer_ddpMsgHandler(web_DDPServer _this, web_DDPConnection conn, cx_word json);
 
-static int web_DDPServer_subscribe(struct mg_connection *conn) {
-    char *flag_start = conn->content + 2;
-    char *id_start = strchr(flag_start, ' ') + 1;
-    int len;
-    cx_id id;
-    cx_object o = NULL;
-    web_DDPConnection wc = web_DDPConnection(conn->connection_param);
-
-    /* Check if message is correct */
-    if ((id_start - conn->content) > (int)conn->content_len) {
-        printf("error: message '%.*s' not correctly formatted\n",
-            (int)conn->content_len, conn->content);
-        goto error;
-    }
-
-    /* Copy identifier to buffer */
-    len = (int)conn->content_len - (id_start - conn->content);
-    memcpy(id, id_start, len);
-    id[len] = '\0';
-
-    /* Silence previous subscription */
-    if (wc->observing) {
-        cx_silence(wc->observing, web_DDPConnection_onUpdate_o, wc);
-        cx_silence(wc->observing, web_DDPConnection_onDelete_o, wc);
-    }
-    wc->eventCount = 0;
-
-    /* Lookup object */
-    o = cx_resolve(NULL, id);
-    if (!o) {
-        goto error;
-    } else if (!cx_checkAttr(o, CX_ATTR_OBSERVABLE)) {
-        /* Can't listen if object is not observable, but can send the client the value */
-        cx_set(&wc->observing, NULL);
-        web_DDPConnection_send(wc, o, TRUE, TRUE, TRUE, TRUE, FALSE);
-        wc->eventCount++;
-    } else {
-        /* Configure observer to listen for updates */
-        cx_set(&wc->observing, o);
-        cx_listen(o, web_DDPConnection_onUpdate_o, wc);
-        cx_listen(o, web_DDPConnection_onDelete_o, wc);
-    }
-    
-    return 0;
-error:
-    return -1;
-}
 /* $end */
 
 /* ::cortex::web::DDPServer::connect(DDPConnection conn,word json) */
 cx_void web_DDPServer_connect(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
 /* $begin(::cortex::web::DDPServer::connect) */
-    puts("connect!");
     CX_UNUSED(_this);
     JSON_Object *_json = (JSON_Object *)json;
     const char *session = json_object_get_string(_json, "session");
     const char *version = json_object_get_string(_json, "version");
     JSON_Array *support = json_object_get_array(_json, "support");
     CX_UNUSED(support);
-
     /* TODO Future support for sessions */
     if (session || (version && strcmp(version, "1"))) {
         goto failed;
@@ -100,22 +51,25 @@ failed:;
 /* $header(::cortex::web::DDPServer::onMessage) */
 
 cx_void web_DDPServer_forwardMessage(web_DDPServer _this, web_DDPConnection conn, const char *msg, JSON_Object *json) {
-    struct msgFunc { char *msg; web_DDPServer_ddpMsgHandler *handler; } functions[] = {
+    static struct msgFunc { char *msg; web_DDPServer_ddpMsgHandler *handler; } functions[] = {
         {"connect", web_DDPServer_connect},
         {"ping", web_DDPServer_ping},
         {"pong", web_DDPServer_pong},
         {"sub", web_DDPServer_sub}
     };
-    printf("size is :%lu\n", sizeof(functions));
     unsigned long int i;
-    for (i = 0; i < sizeof(functions); i++) {
+    cx_bool notFoundMsg = TRUE;
+    printf("size is :%lu\n", sizeof(functions));
+    for (i = 0; i < sizeof(functions) && notFoundMsg; i++) {
         if (!strcmp(msg, functions[i].msg)) {
             json_object_remove(json, "msg"); /* for speed */
             functions[i].handler(_this, conn, (cx_word)json);
-            break;
+            notFoundMsg = FALSE;
         }
     }
-    cx_error("unknown message type: %s (length: %d)", msg, strlen(msg));
+    if (notFoundMsg) {
+        cx_error("unknown message type: %s (length: %d)", msg, strlen(msg));
+    }
 }
 /* $end */
 cx_void web_DDPServer_onMessage(web_DDPServer _this, web_DDPConnection conn, cx_string message) {
@@ -129,16 +83,7 @@ cx_void web_DDPServer_onMessage(web_DDPServer _this, web_DDPConnection conn, cx_
     if (json_value_get_type(msgJson) == JSONObject) {
         JSON_Object *jsonObj = json_value_get_object(msgJson);
         const char *msg = json_object_get_string(jsonObj, "msg");
-        if (msg) {
-            web_DDPServer_forwardMessage(_this, conn, msg, jsonObj);
-            conn->ignoredFirstMsg = TRUE;
-        } else {
-            if (conn->ignoredFirstMsg) {
-                cx_error("Invalid message: %s", message);
-            } else {
-                conn->ignoredFirstMsg = TRUE;
-            }
-        }
+        web_DDPServer_forwardMessage(_this, conn, msg, jsonObj);
     } else {
         printf("the json type was: %d\n", json_value_get_type(msgJson));
         web_DDPConnection_failed(conn);
@@ -151,25 +96,36 @@ error:;
 /* ::cortex::web::DDPServer::ping(DDPConnection conn,word json) */
 cx_void web_DDPServer_ping(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
 /* $begin(::cortex::web::DDPServer::ping) */
-    puts("pong!!!");
     CX_UNUSED(_this);
-    CX_UNUSED(conn);
-    CX_UNUSED(json);
     JSON_Object *_json = (JSON_Object *)json;
     const char *id = json_object_get_string(_json, "id");
-    if (id) {
-        web_DDPConnection_pong(conn, (cx_string)id);
-    }
+    web_DDPConnection_pong(conn, (cx_string)id);
 /* $end */
 }
 
 /* ::cortex::web::DDPServer::pong(DDPConnection conn,word json) */
 cx_void web_DDPServer_pong(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
 /* $begin(::cortex::web::DDPServer::pong) */
-    puts("pong!!!");
     CX_UNUSED(_this);
-    CX_UNUSED(conn);
-    CX_UNUSED(json);
+    JSON_Object *_json = (JSON_Object *)json;
+    const char *id = json_object_get_string(_json, "id");
+    if (conn->expectingPong) {
+        if (conn->expectingPongId) {
+            if (!id) {
+                cx_error("Received pong without id %s on %s", conn->expectingPongId, cx_nameof(conn));
+            }
+            /* else, success */
+            cx_dealloc(conn->expectingPongId);
+            conn->expectingPongId = NULL;
+        } else {
+            if (id) {
+                cx_error("Did not expect id %s on pong", id);
+            }
+            /* else, success */
+        }
+    } else {
+        cx_error("Did not expect pong on connection %s", cx_nameof(conn));
+    }
 /* $end */
 }
 

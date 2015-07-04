@@ -32,12 +32,21 @@ cx_void web_DDPConnection_connected(web_DDPConnection _this) {
 /* $end */
 }
 
+/* ::cortex::web::DDPConnection::destruct() */
+cx_void web_DDPConnection_destruct(web_DDPConnection _this) {
+/* $begin(::cortex::web::DDPConnection::destruct) */
+    if (_this->expectingPongId) {
+        cx_dealloc(_this->expectingPongId);
+        _this->expectingPongId = NULL;
+    }
+/* $end */
+}
+
 /* ::cortex::web::DDPConnection::failed() */
 cx_void web_DDPConnection_failed(web_DDPConnection _this) {
 /* $begin(::cortex::web::DDPConnection::failed) */
     web_WebSocketConnection __this = web_WebSocketConnection(_this);
     web_WebSocketConnection_send(__this, "{\"msg\": \"failed\", \"version\": \"1\"}");
-    puts("FAILED!!!!");
     CX_UNUSED(_this);
 /* $end */
 }
@@ -67,10 +76,27 @@ cx_void web_DDPConnection_onUpdate(web_DDPConnection _this, cx_object *observabl
 /* $end */
 }
 
-/* ::cortex::web::DDPConnection::ping() */
-cx_void web_DDPConnection_ping(web_DDPConnection _this) {
+/* ::cortex::web::DDPConnection::ping(string id) */
+cx_void web_DDPConnection_ping(web_DDPConnection _this, cx_string id) {
 /* $begin(::cortex::web::DDPConnection::ping) */
-    CX_UNUSED(_this);
+    web_WebSocketConnection __this = web_WebSocketConnection(_this);
+    JSON_Value *value = json_parse_string("{\"msg\": \"ping\"}");
+    JSON_Object *obj = json_value_get_object(value);
+    char *serialized_string;
+    _this->expectingPong = TRUE;
+    if (_this->expectingPongId) {
+        cx_dealloc(_this->expectingPongId);
+        _this->expectingPongId = NULL;
+    }
+    if (id) {
+        json_object_set_string(obj, "id", id);
+        _this->expectingPongId = cx_malloc(strlen(id) + 1);
+        strcpy(_this->expectingPongId, id);
+    }
+    serialized_string = json_serialize_to_string(value);
+    web_WebSocketConnection_send(__this, serialized_string);
+    json_free_serialized_string(serialized_string);
+    json_value_free(value);
 /* $end */
 }
 
@@ -80,12 +106,15 @@ cx_void web_DDPConnection_pong(web_DDPConnection _this, cx_string id) {
     web_WebSocketConnection __this = web_WebSocketConnection(_this);
     JSON_Value *value = json_parse_string("{\"msg\": \"pong\"}");
     JSON_Object *obj = json_value_get_object(value);
-    char *serialized_string = NULL;
-    json_object_set_string(obj, "id", id);
+    char *serialized_string;
+    if (id) {
+        json_object_set_string(obj, "id", id);
+    }
     serialized_string = json_serialize_to_string(value);
     web_WebSocketConnection_send(__this, serialized_string);
     json_free_serialized_string(serialized_string);
     json_value_free(value);
+    web_DDPConnection_ping(_this, "hello");
 /* $end */
 }
 
@@ -129,3 +158,4 @@ cx_void web_DDPConnection_send(web_DDPConnection _this, cx_object o, cx_bool val
     // cx_dealloc(jsonData.buffer);
 /* $end */
 }
+
