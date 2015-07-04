@@ -20,112 +20,96 @@
 #define WEB_DDP_SERVER_SIZE_THRESHOLD 100
 #define WEB_DDP_SERVER_BIG_LIST_SLEEP 10000000
 
-// typedef void *web_DDPServer_ddpMsgHandler(web_DDPConnection conn, JSON_Object *json);
-
-typedef cx_void web_DDPServer_ddpMsgHandler(web_DDPServer _this, web_DDPConnection conn, cx_word json);
-
-/* $end */
-
-/* ::cortex::web::DDPServer::connect(DDPConnection conn,word json) */
-cx_void web_DDPServer_connect(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
-/* $begin(::cortex::web::DDPServer::connect) */
+static cx_void web_DDPServer_connect(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
     CX_UNUSED(_this);
-    JSON_Object *_json = (JSON_Object *)json;
-    const char *session = json_object_get_string(_json, "session");
-    const char *version = json_object_get_string(_json, "version");
-    JSON_Array *support = json_object_get_array(_json, "support");
-    CX_UNUSED(support);
+    const char *session = json_object_get_string(json, "session");
+    const char *version = json_object_get_string(json, "version");
+    web_DDPServer_Session ddpSession = NULL;
+
     /* TODO Future support for sessions */
-    if (session || (version && strcmp(version, "1"))) {
+    if (version && strcmp(version, "1")) {
         goto failed;
     } else {
-        web_DDPConnection_connected(conn);
-    }
-failed:;
-    // DO NOTHING :/
-    // web_DDPConnection_failed(conn);
-/* $end */
-}
-
-/* ::cortex::web::DDPServer::onMessage(DDPConnection conn,string message) */
-/* $header(::cortex::web::DDPServer::onMessage) */
-
-cx_void web_DDPServer_forwardMessage(web_DDPServer _this, web_DDPConnection conn, const char *msg, JSON_Object *json) {
-    static struct msgFunc { char *msg; web_DDPServer_ddpMsgHandler *handler; } functions[] = {
-        {"connect", web_DDPServer_connect},
-        {"ping", web_DDPServer_ping},
-        {"pong", web_DDPServer_pong},
-        {"sub", web_DDPServer_sub}
-    };
-    unsigned long int i;
-    cx_bool notFoundMsg = TRUE;
-    printf("size is :%lu\n", sizeof(functions));
-    for (i = 0; i < sizeof(functions) && notFoundMsg; i++) {
-        if (!strcmp(msg, functions[i].msg)) {
-            json_object_remove(json, "msg"); /* for speed */
-            functions[i].handler(_this, conn, (cx_word)json);
-            notFoundMsg = FALSE;
+        if (!session || !(ddpSession = cx_resolve(_this, (cx_string)session))) {
+            char *sessionId = web_random(17);
+            ddpSession = web_DDPServer_Session__declare(_this, sessionId);
+            web_DDPServer_Session__define(ddpSession, NULL, conn);
+            cx_set(&conn->data, ddpSession);
+            cx_dealloc(sessionId);
+        } else {
+            cx_set(&ddpSession->conn, conn);
+            cx_set(&conn->data, ddpSession);
+            cx_free(ddpSession);
         }
+
+        web_DDPServer_Session_connected(ddpSession);
     }
-    if (notFoundMsg) {
-        cx_error("unknown message type: %s (length: %d)", msg, strlen(msg));
-    }
+
+    return;
+failed:;
+    web_DDPServer_Session_failed(conn);
 }
+
+cx_void web_DDPServer_ping(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
+    CX_UNUSED(_this);
+    const char *id = json_object_get_string(json, "id");
+    web_DDPServer_Session_pong(conn->data, (cx_string)id);
+}
+
 /* $end */
-cx_void web_DDPServer_onMessage(web_DDPServer _this, web_DDPConnection conn, cx_string message) {
+
+/* ::cortex::web::DDPServer::construct() */
+cx_int16 web_DDPServer_construct(web_DDPServer _this) {
+/* $begin(::cortex::web::DDPServer::construct) */
+
+    /* Set the handlers of the SockJsServer base */
+    cx_set(&web_SockJsServer(_this)->onClose._parent.procedure, web_DDPServer_onClose_o);
+    cx_set(&web_SockJsServer(_this)->onClose._parent.instance, _this);
+
+    cx_set(&web_SockJsServer(_this)->onMessage._parent.procedure, web_DDPServer_onMessage_o);
+    cx_set(&web_SockJsServer(_this)->onMessage._parent.instance, _this);
+
+    return web_SockJsServer_construct(web_SockJsServer(_this));
+/* $end */
+}
+
+/* ::cortex::web::DDPServer::onClose(::cortex::web::SockJsServer::Connection conn) */
+cx_void web_DDPServer_onClose(web_DDPServer _this, web_SockJsServer_Connection conn) {
+/* $begin(::cortex::web::DDPServer::onClose) */
+    CX_UNUSED(_this);
+    cx_destruct(conn->data);
+/* $end */
+}
+
+/* ::cortex::web::DDPServer::onMessage(::cortex::web::SockJsServer::Connection conn,string message) */
+cx_void web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connection conn, cx_string message) {
 /* $begin(::cortex::web::DDPServer::onMessage) */
     CX_UNUSED(_this);
     CX_UNUSED(conn);
-    JSON_Value *msgJson = json_parse_string(message);
-    if (!msgJson) {
+
+    JSON_Value *root = json_parse_string(message);
+    if (!root) {
         goto error;
     }
-    if (json_value_get_type(msgJson) == JSONObject) {
-        JSON_Object *jsonObj = json_value_get_object(msgJson);
+
+    if (json_value_get_type(root) == JSONObject) {
+        JSON_Object *jsonObj = json_value_get_object(root);
         const char *msg = json_object_get_string(jsonObj, "msg");
-        web_DDPServer_forwardMessage(_this, conn, msg, jsonObj);
-    } else {
-        printf("the json type was: %d\n", json_value_get_type(msgJson));
-        web_DDPConnection_failed(conn);
-    }
-    json_value_free(msgJson);
-error:;
-/* $end */
-}
 
-/* ::cortex::web::DDPServer::ping(DDPConnection conn,word json) */
-cx_void web_DDPServer_ping(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
-/* $begin(::cortex::web::DDPServer::ping) */
-    CX_UNUSED(_this);
-    JSON_Object *_json = (JSON_Object *)json;
-    const char *id = json_object_get_string(_json, "id");
-    web_DDPConnection_pong(conn, (cx_string)id);
-/* $end */
-}
-
-/* ::cortex::web::DDPServer::pong(DDPConnection conn,word json) */
-cx_void web_DDPServer_pong(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
-/* $begin(::cortex::web::DDPServer::pong) */
-    CX_UNUSED(_this);
-    JSON_Object *_json = (JSON_Object *)json;
-    const char *id = json_object_get_string(_json, "id");
-    if (conn->expectingPong) {
-        if (conn->expectingPongId) {
-            if (!id) {
-                cx_error("Received pong without id %s on %s", conn->expectingPongId, cx_nameof(conn));
-            }
-            /* else, success */
-            cx_dealloc(conn->expectingPongId);
-            conn->expectingPongId = NULL;
+        if (!strcmp(msg, "connect")) {
+            web_DDPServer_connect(_this, conn, jsonObj);
+        } else if (!strcmp(msg, "ping")) {
+            web_DDPServer_ping(_this, conn, jsonObj);
         } else {
-            if (id) {
-                cx_error("Did not expect id %s on pong", id);
-            }
-            /* else, success */
+            goto msg_error;
         }
     } else {
-        cx_error("Did not expect pong on connection %s", cx_nameof(conn));
+        goto msg_error;
     }
+
+msg_error:
+    json_value_free(root);
+error:;
 /* $end */
 }
 
@@ -196,25 +180,5 @@ cx_bool web_DDPServer_step(web_DDPServer _this) {
     }
     
     return result;
-/* $end */
-}
-
-/* ::cortex::web::DDPServer::sub(DDPConnection conn,word json) */
-cx_void web_DDPServer_sub(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
-/* $begin(::cortex::web::DDPServer::sub) */
-    puts("sub!!!");
-    CX_UNUSED(_this);
-    CX_UNUSED(conn);
-    CX_UNUSED(json);
-/* $end */
-}
-
-/* ::cortex::web::DDPServer::unsub(DDPConnection conn,word json) */
-cx_void web_DDPServer_unsub(web_DDPServer _this, web_DDPConnection conn, cx_word json) {
-/* $begin(::cortex::web::DDPServer::unsub) */
-    puts("unsub!!!");
-    CX_UNUSED(_this);
-    CX_UNUSED(conn);
-    CX_UNUSED(json);
 /* $end */
 }

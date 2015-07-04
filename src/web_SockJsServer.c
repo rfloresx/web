@@ -9,11 +9,11 @@
 #include "web.h"
 
 /* $header() */
-
+#include "parson.h"
 #include "mongoose.h"
 
 #define WEB_SOCKJSSERVER_DEFAULT_POLL_TIMEOUT       (50)
-#define WEB_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT  (10)
+#define WEB_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT  (25)
 
 static void web_SockJsServer_close(web_SockJsServer _this, struct mg_connection *conn) {
     web_SockJsServer_Connection c = web_SockJsServer_Connection(conn->connection_param);
@@ -28,9 +28,9 @@ static void web_SockJsServer_close(web_SockJsServer _this, struct mg_connection 
 }
 
 static void web_SockJsServer_open(web_SockJsServer _this, struct mg_connection *conn) {
-    cx_id id;
-    sprintf(id, "C%d", _this->nextConnectionId);
+    cx_string id = web_random(17);
     web_SockJsServer_Connection c = web_SockJsServer_Connection__declare(_this, id);
+    cx_dealloc(id);
     c->conn = (cx_word)conn;
     if (web_SockJsServer_Connection__define(c, NULL)) {
         goto error;
@@ -49,9 +49,26 @@ static void web_SockJsServer_message(web_SockJsServer _this, struct mg_connectio
             char *msg = cx_malloc(conn->content_len + 1);
             memcpy(msg, conn->content, conn->content_len);
             msg[conn->content_len] = '\0';
-            cx_call(_this->onMessage._parent.procedure, NULL, _this->onMessage._parent.instance, c, msg);
+
+            /* Parse & unpack message */
+            JSON_Value *root = json_parse_string(msg);
+            if (!root) {
+                goto error;
+            }
+
+            if (json_value_get_type(root) == JSONArray) {
+                JSON_Array *messages = json_value_get_array(root);
+                cx_uint32 i;
+                for (i = 0; i < json_array_get_count(messages); i++) {
+                    const char *message = json_array_get_string(messages, i);
+                    cx_call(_this->onMessage._parent.procedure, NULL, _this->onMessage._parent.instance, c, message);
+                }
+            }
+
+            json_value_free(root);
         }
     }
+error:;
 }
 
 static int web_SockJsServer_request(struct mg_connection *conn, enum mg_event ev) {
@@ -145,7 +162,6 @@ cx_void web_SockJsServer_poll(web_SockJsServer _this) {
             if (cx_instanceof(cx_type(web_SockJsServer_Connection_o), o)) {
                 web_SockJsServer_Connection c = web_SockJsServer_Connection(o);
                 mg_websocket_printf((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, "h");
-                web_SockJsServer_Connection_send(c, "{\"key\":\"value\"}");
             }
         }
         cx_scopeRelease(scope);

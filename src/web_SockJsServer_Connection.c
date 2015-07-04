@@ -20,7 +20,7 @@ cx_void web_SockJsServer_Connection_send(web_SockJsServer_Connection _this, cx_s
 
 	/* Escape & pack message in SockJS header */
 	escapedLength = stresc(NULL, 0, msg);
-	sockJsMsg = cx_malloc(escapedLength + strlen("a[\"\"]"));
+	sockJsMsg = cx_malloc(escapedLength + strlen("a[\"\"]") + 1);
 	sprintf(sockJsMsg, "a[\"%*s\"]", escapedLength, " ");
 	stresc(sockJsMsg + 3, escapedLength, msg);
 

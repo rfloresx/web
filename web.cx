@@ -1,5 +1,7 @@
 #package ::cortex::web
 
+string random(uint16 n)
+
 class WebSocketConnection::
     data: object
     conn: word, private|local
@@ -13,6 +15,7 @@ void handler(WebSocketConnection conn) delegate
 void messageHandler(WebSocketConnection conn, string message) delegate
 
 class WebSocketServer::
+    port: uint16
     onOpen: handler
     onClose: handler
     onMessage: messageHandler
@@ -46,7 +49,6 @@ class SockJsServer::
     pollTimemoutMillis: uint16
 
     thread: word, private|local
-    nextConnectionId: uint32, private|local
     exiting: bool, private|local
     server: word, private|local
     timeElapsed: uint32, private|local
@@ -58,60 +60,23 @@ class SockJsServer::
     void run() virtual
 
 
+class DDPServer: SockJsServer, implements={dispatcher}::
+    class Session::
+        observing: object
+        conn: SockJsServer::Connection
+        void onUpdate() observer
+        void onDelete() observer
+        void connected()
+        void failed(SockJsServer::Connection conn) function
+        void pong(string id)
 
-class DDPConnection: WebSocketConnection::
-    observing: object
-    ignoredFirstMsg: bool
-    eventCount: uint32, private|local
-
-    void onUpdate() observer
-    void onDelete() observer
-
-    void send(object o, bool value, bool meta, bool @scope, bool parents, bool isDelete)
-
-    // --------------------------------
-    // Send client->server DDP messages
-    // --------------------------------
-
-    // Establishing a DDP connection
-    void connected()
-    void failed()
-    
-    // Heartbeats
-    void ping()
-    void pong(string id)
-
-    // Managing data
-    void nosub()
-
-    // etc
-
-
-class DDPServer: WebSocketServer, implements={dispatcher}::
     events: list{event}, private|local
 
+    int16 construct()
+    void onMessage(SockJsServer::Connection conn, string message)
+    void onClose(SockJsServer::Connection conn)
+
     bool step()
-
-    void onMessage(DDPConnection conn, string message) method
-
     void post(event e)
-
-    // ----------------------------------
-    // Handle client->server DDP messages
-    // ----------------------------------
-
-    // Establishing a DDP connection
-    void connect(DDPConnection conn, word json)
-
-    // Heartbeats
-    void ping(DDPConnection conn, word json)
-    void pong(DDPConnection conn, word json)
-
-    // Managing data
-    void sub(DDPConnection conn, word json)
-    void unsub(DDPConnection conn, word json)
-
-    // etc
-
 
 
