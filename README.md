@@ -14,7 +14,7 @@ A library called `libweb.so` is now located in <web install dir>/bin. To use it,
 ```
 cxsh ./bin/libweb.so
 ```
-That will start the cortex shell. In the cortex shell, you can now type:
+That will start the cortex shell and load the web library. In the cortex shell, you can now type:
 ```
 web::DDPServer s: 8000
 ```
