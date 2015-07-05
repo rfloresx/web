@@ -14,7 +14,7 @@ are properly installed on your machine (check the README's of cortex and web). P
 
 ### Modify the list
 Here are some cxsh commands (this is in fact the cortex scripting language) to modify tasks. Type `cd Tasklist` to move cxsh
-to the Tasklist scope. Then run any of the followig commands:
+to the Tasklist scope. Then run any of the following commands:
 
 #### Create a new task
 ```
