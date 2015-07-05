@@ -10,7 +10,7 @@ When cortex is succesfully installed, go to the `web` installation folder. Run t
 ```
 rake
 ```
-After rake has finished, a library called `libweb.so` is now located in <web install dir>/bin. To use it, run the following command:
+After rake has finished, a library called `libweb.so` will now be located in <web install dir>/bin. To use it, run the following command:
 ```
 cxsh ./bin/libweb.so
 ```
