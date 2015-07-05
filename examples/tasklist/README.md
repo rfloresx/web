@@ -29,3 +29,44 @@ anotherTask := "Something different to do"
 ```
 anotherTask.delete()
 ```
+
+## Contents
+
+### tasklist.js
+Contains the Meteor Client & Server code. The client creates a DDP connection to the cortex server (`http://localhost:8000`) and subscribes for the `Tasklist` collection:
+```JavaScript
+  var remote = DDP.connect("http://127.0.0.1:8000");
+  var Tasklist = new Meteor.Collection("Tasklist", remote);
+  remote.subscribe("Tasklist")
+```
+The JS file also contains a simple helper that enables retrieving the Tasklist objects from HTML.
+```JavaScript
+  Template.body.helpers({
+    objects: function() {
+      return Tasklist.find();
+    }
+  });
+```
+
+### tasklist.html
+Contains a Meteor (Blaze) template that expands into the tasklist, which is populated from DDP. The template generates a list item for each entry in the Tasklist collection, with as content the `value` member of the JS object:
+```HTML
+    {{#each objects}}
+      <li>{{value}}</li>
+    {{/each}}
+```
+
+### tasklist.cx
+Contains the Tasklist collection, which is a plain Cortex scope:
+```C++
+void Tasklist::
+    string task_01: "Go to tasklist directory"
+    ...
+```
+This script also creates the DDP server:
+```C++
+web::DDPServer s: 8000
+```
+
+### tasklist.css
+An empty stylesheet.
