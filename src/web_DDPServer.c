@@ -30,10 +30,10 @@ static cx_void web_DDPServer_connect(web_DDPServer _this, web_SockJsServer_Conne
     if (version && strcmp(version, "1")) {
         goto failed;
     } else {
-        if (!session || !(ddpSession = cx_resolve(_this, (cx_string)session))) {
+        if (!session || !(ddpSession = cx_resolve(_this->sessions, (cx_string)session))) {
             char *sessionId = web_random(17);
-            ddpSession = web_DDPServer_Session__declare(_this, sessionId);
-            web_DDPServer_Session__define(ddpSession, NULL, conn);
+            ddpSession = web_DDPServer_Session__declare(_this->sessions, sessionId);
+            web_DDPServer_Session__define(ddpSession, conn);
             cx_set(&conn->data, ddpSession);
             cx_dealloc(sessionId);
         } else {
@@ -50,10 +50,17 @@ failed:;
     web_DDPServer_Session_failed(conn);
 }
 
-cx_void web_DDPServer_ping(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
+static cx_void web_DDPServer_ping(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
     CX_UNUSED(_this);
     const char *id = json_object_get_string(json, "id");
     web_DDPServer_Session_pong(conn->data, (cx_string)id);
+}
+
+static cx_void web_DDPServer_sub(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
+    CX_UNUSED(_this);
+    const char *id = json_object_get_string(json, "id");
+    const char *name = json_object_get_string(json, "name");
+    web_DDPServer_Session_sub(conn->data, (cx_string)id, (cx_string)name);
 }
 
 /* $end */
@@ -69,7 +76,28 @@ cx_int16 web_DDPServer_construct(web_DDPServer _this) {
     cx_set(&web_SockJsServer(_this)->onMessage._parent.procedure, web_DDPServer_onMessage_o);
     cx_set(&web_SockJsServer(_this)->onMessage._parent.instance, _this);
 
+    _this->sessions = cx_void__declare(_this, "__sessions");
+
     return web_SockJsServer_construct(web_SockJsServer(_this));
+/* $end */
+}
+
+/* ::cortex::web::DDPServer::getPublication(string name) */
+web_DDPServer_Publication web_DDPServer_getPublication(web_DDPServer _this, cx_string name) {
+/* $begin(::cortex::web::DDPServer::getPublication) */
+
+    /* Find matching publication */
+    web_DDPServer_Publication pub = cx_lookup(_this, name);
+    if (!pub) {
+        cx_object o = cx_resolve(NULL, name);
+        if (o) {
+            pub = web_DDPServer_Publication__declare(_this, name);
+            web_DDPServer_Publication__define(pub, o);
+            cx_free(o);
+        }
+    }
+
+    return pub;
 /* $end */
 }
 
@@ -77,7 +105,9 @@ cx_int16 web_DDPServer_construct(web_DDPServer _this) {
 cx_void web_DDPServer_onClose(web_DDPServer _this, web_SockJsServer_Connection conn) {
 /* $begin(::cortex::web::DDPServer::onClose) */
     CX_UNUSED(_this);
-    cx_destruct(conn->data);
+    if (conn->data) {
+        cx_destruct(conn->data);
+    }
 /* $end */
 }
 
@@ -100,6 +130,8 @@ cx_void web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connection
             web_DDPServer_connect(_this, conn, jsonObj);
         } else if (!strcmp(msg, "ping")) {
             web_DDPServer_ping(_this, conn, jsonObj);
+        } else if (!strcmp(msg, "sub")) {
+            web_DDPServer_sub(_this, conn, jsonObj);
         } else {
             goto msg_error;
         }
@@ -154,31 +186,28 @@ cx_void web_DDPServer_post(web_DDPServer _this, cx_event e) {
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::step() */
-cx_bool web_DDPServer_step(web_DDPServer _this) {
-/* $begin(::cortex::web::DDPServer::step) */
+/* ::cortex::web::DDPServer::run() */
+cx_void web_DDPServer_run(web_DDPServer _this) {
+/* $begin(::cortex::web::DDPServer::run) */
     cx_event e;
     cx_ll events = cx_llNew();
-    cx_bool result = TRUE;
-    web_WebSocketServer __this = web_WebSocketServer(_this);
 
-    web_WebSocketServer_poll(__this);
-    if (__this->exiting) {
-        result = FALSE;
+    while (TRUE) {
+        web_SockJsServer_poll(web_SockJsServer(_this), 0);
+        if (web_SockJsServer(_this)->exiting) {
+            break;
+        }
+        
+        cx_lock(_this);
+        while ((e = cx_llTakeFirst(_this->events))) {
+            cx_llAppend(events, e);
+        }
+        cx_unlock(_this);
+        while ((e = cx_llTakeFirst(events))) {
+            cx_event_handle(e);
+            cx_free(e);
+            web_SockJsServer_poll(web_SockJsServer(_this), 1);
+        }
     }
-    
-    struct mg_server *server = (struct mg_server *)__this->server;
-    cx_lock(_this);
-    while ((e = cx_llTakeFirst(_this->events))) {
-        cx_llAppend(events, e);
-    }
-    cx_unlock(_this);
-    while ((e = cx_llTakeFirst(events))) {
-        cx_event_handle(e);
-        cx_free(e);
-        mg_poll_server(server, 1);
-    }
-    
-    return result;
 /* $end */
 }

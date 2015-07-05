@@ -52,31 +52,64 @@ class SockJsServer::
     exiting: bool, private|local
     server: word, private|local
     timeElapsed: uint32, private|local
+    connections: object, private|local
 
     int16 construct()
     void destruct()
 
-    void poll()
+    void poll(uint32 msec)
     void run() virtual
 
 
 class DDPServer: SockJsServer, implements={dispatcher}::
+    class Collection::
+        obj: object
+        value, meta, @scope: bool
+
+        int16 construct()
+        observer onAdded: mask=on_define|on_scope
+        observer onChanged: mask=on_update|on_scope
+        observer onRemoved: mask=on_delete|on_scope
+        void subscribe(bool value, bool meta, bool @scope)
+
+    class Publication::
+        @scope: object
+        int16 create(object session, object sub) // sub: temp workaround - dep resolver can't solve cycle
+
+    class readyEvent: lang::event
+
+    class Subscription::
+        pub: Publication
+        id: string
+        value, meta, @scope: bool
+
+        int16 construct()
+        void destruct()
+        void ready()
+
     class Session::
-        observing: object
         conn: SockJsServer::Connection
-        void onUpdate() observer
-        void onDelete() observer
+        collections: object, private|local
+        subscriptions: object, private|local
+
+        int16 construct()
         void connected()
         void failed(SockJsServer::Connection conn) function
         void pong(string id)
+        void sub(string id, string name)
+        Subscription getSubscription(Publication pub, string id)
+        DDPServer::Collection getCollection(string name)
 
+    autoPublish: bool
     events: list{event}, private|local
+    sessions: object, private|local
 
     int16 construct()
     void onMessage(SockJsServer::Connection conn, string message)
     void onClose(SockJsServer::Connection conn)
 
-    bool step()
+    void run()
     void post(event e)
+    Publication getPublication(string name)
 
 

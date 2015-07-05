@@ -29,7 +29,8 @@ static void web_SockJsServer_close(web_SockJsServer _this, struct mg_connection 
 
 static void web_SockJsServer_open(web_SockJsServer _this, struct mg_connection *conn) {
     cx_string id = web_random(17);
-    web_SockJsServer_Connection c = web_SockJsServer_Connection__declare(_this, id);
+    web_SockJsServer_Connection c = 
+        web_SockJsServer_Connection__declare(_this->connections, id);
     cx_dealloc(id);
     c->conn = (cx_word)conn;
     if (web_SockJsServer_Connection__define(c, NULL)) {
@@ -134,6 +135,7 @@ cx_int16 web_SockJsServer_construct(web_SockJsServer _this) {
         _this->pollTimemoutMillis = WEB_SOCKJSSERVER_DEFAULT_POLL_TIMEOUT;
     }
     _this->thread = (cx_word)cx_threadNew(web_SockJsServer_threadRun, _this);
+    _this->connections = cx_void__declare(_this, "__connections");
     return 0;
 /* $end */
 }
@@ -146,12 +148,16 @@ cx_void web_SockJsServer_destruct(web_SockJsServer _this) {
 /* $end */
 }
 
-/* ::cortex::web::SockJsServer::poll() */
-cx_void web_SockJsServer_poll(web_SockJsServer _this) {
+/* ::cortex::web::SockJsServer::poll(uint32 msec) */
+cx_void web_SockJsServer_poll(web_SockJsServer _this, cx_uint32 msec) {
 /* $begin(::cortex::web::SockJsServer::poll) */
     struct mg_server *server = (struct mg_server *)_this->server;
-    mg_poll_server(server, _this->pollTimemoutMillis);
-    _this->timeElapsed += _this->pollTimemoutMillis;
+    if (!msec) {
+        msec = _this->pollTimemoutMillis;
+    }
+
+    mg_poll_server(server, msec);
+    _this->timeElapsed += msec;
 
     /* Send heartbeats for all live connections every n seconds */
     if (_this->timeElapsed >= (WEB_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT * 1000)) {
@@ -174,7 +180,7 @@ cx_void web_SockJsServer_poll(web_SockJsServer _this) {
 cx_void web_SockJsServer_run_v(web_SockJsServer _this) {
 /* $begin(::cortex::web::SockJsServer::run) */
     while (TRUE) {
-        web_SockJsServer_poll(_this);
+        web_SockJsServer_poll(_this, 0);
         if (_this->exiting) {
             break;
         }

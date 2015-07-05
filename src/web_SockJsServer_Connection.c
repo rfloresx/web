@@ -24,7 +24,9 @@ cx_void web_SockJsServer_Connection_send(web_SockJsServer_Connection _this, cx_s
 	sprintf(sockJsMsg, "a[\"%*s\"]", escapedLength, " ");
 	stresc(sockJsMsg + 3, escapedLength, msg);
 
-	mg_websocket_printf((struct mg_connection *)_this->conn, WEBSOCKET_OPCODE_TEXT, sockJsMsg);
+	if (_this->conn) {
+		mg_websocket_printf((struct mg_connection *)_this->conn, WEBSOCKET_OPCODE_TEXT, sockJsMsg);
+	}
 
 	cx_dealloc(sockJsMsg);
 /* $end */
