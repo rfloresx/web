@@ -5,7 +5,7 @@ if (Meteor.isClient) {
   remote.subscribe("Tasklist")
 
   Template.body.helpers({
-    objects: function() {
+    tasks: function() {
       return Tasklist.find();
     }
   });
