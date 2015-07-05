@@ -3,7 +3,7 @@ HTTP, WebSocket, SockJS and DDP server implementations for cortex
 
 The web package contains functionality that allows for connecting cortex applications to the web. 
 
-### Building web
+## Building web
 Web requires [cortex](http://www.github.com/cortexlang/cortex) to be installed on your machine. Before building web, please ensure that cortex is available in your environment (you can quickly check by typing `cxsh`). If not, run `source configure` from the cortex installation folder.
 
 When cortex is succesfully installed, go to the `web` installation folder. Run the following command:
@@ -20,6 +20,7 @@ web::DDPServer s: 8000
 ```
 This will start a DDP server on port 8000. Enjoy!
 
+## Contents
 ### HTTP server
 _::cortex::web::HTTPServer_
 
