@@ -40,10 +40,10 @@ Contains the Meteor Client & Server code. The client creates a DDP connection to
   var Tasklist = new Meteor.Collection("Tasklist", remote);
   remote.subscribe("Tasklist")
 ```
-The JS file also contains a simple helper that enables retrieving the Tasklist objects from HTML.
+The JS file also contains a simple helper that enables retrieving the tasks from HTML.
 ```JavaScript
   Template.body.helpers({
-    objects: function() {
+    tasks: function() {
       return Tasklist.find();
     }
   });
@@ -52,7 +52,7 @@ The JS file also contains a simple helper that enables retrieving the Tasklist o
 ### tasklist.html
 Contains a Meteor (Blaze) template that expands into the tasklist, which is populated from DDP. The template generates a list item for each entry in the Tasklist collection, with as content the `value` member of the JS object:
 ```HTML
-    {{#each objects}}
+    {{#each tasks}}
       <li>{{value}}</li>
     {{/each}}
 ```
