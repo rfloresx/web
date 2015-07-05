@@ -16,7 +16,7 @@ That will start the cortex shell and load the web library. In the cortex shell, 
 ```
 web::DDPServer s: 8000
 ```
-This will start a DDP server on port 8000. Enjoy!
+This will start a DDP server on port 8000. Also, check out our [DDP example](https://github.com/cortexlang/web/tree/master/examples/tasklist)! Enjoy!
 
 ## Contents
 ### HTTP server
