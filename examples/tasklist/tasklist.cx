@@ -7,7 +7,7 @@ void Tasklist::
     string task_04: "Open browser"
     string task_05: "Go to 'http://localhost:3000'"
     string task_06: "Go to cxsh"
-    string task_08: "Type 'Tasklist::task_08 := \"Congratulations, you are done!\"'"
+    string task_07: "Type 'Tasklist::task_07 := \"Congratulations, you are done!\"'"
 
 // Create the DDP server
 web::DDPServer s: 8000

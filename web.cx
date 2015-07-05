@@ -112,4 +112,3 @@ class DDPServer: SockJsServer, implements={dispatcher}::
     void post(event e)
     Publication getPublication(string name)
 
-
