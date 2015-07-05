@@ -2,7 +2,7 @@
 The tasklist example demonstrates a simple app that shows Cortex integration with Meteor/DDP. 
 
 ## Run the example
-Ensure that [Meteor](https://www.meteor.com/install), [Cortex](http://www.github.com/cortexlang/cortex) and [web](http://www.github.com/cortexlang/web)
+Ensure that the latest versions of [Meteor](https://www.meteor.com/install), [Cortex](http://www.github.com/cortexlang/cortex) and [web](http://www.github.com/cortexlang/web)
 are properly installed on your machine (check the README's of cortex and web). Perform the following steps to run the example:
 
 1. Open a console window
