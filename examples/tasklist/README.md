@@ -12,20 +12,21 @@ are properly installed on your machine (check the README's of cortex and web). P
 5. Run `cxsh ../../bin/libweb.so tasklist.cx`
 6. Open `http://localhost:3000` in your webbrowser
 
+### Modify the list
 Here are some cxsh commands (this is in fact the cortex scripting language) to modify tasks. Type `cd Tasklist` to move cxsh
 to the Tasklist scope. Then run any of the followig commands:
 
-### Create a new task
+#### Create a new task
 ```
 string anotherTask: "Something to do"
 ```
 
-### Modify an existing task
+#### Update an existing task
 ```
 anotherTask := "Something different to do"
 ```
 
-### Delete a task
+#### Delete a task
 ```
 anotherTask.delete()
 ```
