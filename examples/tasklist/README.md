@@ -34,7 +34,7 @@ anotherTask.delete()
 ## Contents
 
 ### tasklist.js
-Contains the Meteor Client & Server code. The client creates a DDP connection to the cortex server (`http://localhost:8000`) and subscribes for the `Tasklist` collection:
+Contains the Meteor Client & Server code. The client creates a DDP connection to the cortex server (`http://localhost:8000`) and subscribes to the `Tasklist` collection:
 ```JavaScript
   var remote = DDP.connect("http://127.0.0.1:8000");
   var Tasklist = new Meteor.Collection("Tasklist", remote);
