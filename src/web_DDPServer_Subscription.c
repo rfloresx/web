@@ -16,31 +16,12 @@ web_DDPServer_Session web_DDPServer_Subscription_getSession(web_DDPServer_Subscr
 }
 /* $end */
 
-/* ::cortex::web::DDPServer::Subscription::construct() */
-cx_int16 web_DDPServer_Subscription_construct(web_DDPServer_Subscription _this) {
-/* $begin(::cortex::web::DDPServer::Subscription::construct) */
-
-    /* << Insert implementation >> */
-
-/* $end */
-}
-
-/* ::cortex::web::DDPServer::Subscription::destruct() */
-cx_void web_DDPServer_Subscription_destruct(web_DDPServer_Subscription _this) {
-/* $begin(::cortex::web::DDPServer::Subscription::destruct) */
-
-    /* << Insert implementation >> */
-
-/* $end */
-}
-
 /* ::cortex::web::DDPServer::Subscription::ready() */
 cx_void web_DDPServer_Subscription_ready(web_DDPServer_Subscription _this) {
 /* $begin(::cortex::web::DDPServer::Subscription::ready) */
     web_DDPServer_Session session = web_DDPServer_Subscription_getSession(_this);
     cx_string msg = NULL;
     cx_uint32 msgLength = 0;
-    cx_id id;
 
     /* Create message */
     msgLength = snprintf(NULL, 0, WEB_DDPSERVER_SUBSCRIPTION_READY,

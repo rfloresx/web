@@ -11,13 +11,11 @@
 /* $header() */
 
 #include "inttypes.h"
-
 #include "math.h"
 #include "mongoose.h"
 
 
 #define WEB_WEBSOCKETSERVER_DEFAULT_POLL_TIMEOUT 50
-
 
 /* Allocates memory and copies the content; free the memory manually when finished. */
 static char* web_WebSocketServer_copyConnectionContent(struct mg_connection *conn) {
@@ -25,14 +23,6 @@ static char* web_WebSocketServer_copyConnectionContent(struct mg_connection *con
     memcpy(content, conn->content, conn->content_len);
     content[conn->content_len] = '\0';
     return content;
-}
-
-/* Allocates memory and creates a new name; free the memory manually when finished. */
-static char* web_WebSocketServer_nextConnectionName(web_WebSocketServer _this) {
-    char *name = cx_malloc(log10(_this->nextConnectionId | 1) + 2);
-    sprintf(name, "c%d", _this->nextConnectionId);
-    _this->nextConnectionId++;
-    return name;
 }
 
 static void web_WebSocketServer_close(web_WebSocketServer _this, struct mg_connection *conn) {
@@ -46,7 +36,7 @@ static void web_WebSocketServer_close(web_WebSocketServer _this, struct mg_conne
 }
 
 static void web_WebSocketServer_open(web_WebSocketServer _this, struct mg_connection *conn) {
-    char *name = web_WebSocketServer_nextConnectionName(_this);
+    char *name = web_random(17);
     web_WebSocketConnection c = web_WebSocketConnection__declare(_this, name);
     cx_dealloc(name);
     c->conn = (cx_word)conn;
@@ -70,21 +60,6 @@ static void web_WebSocketServer_message(web_WebSocketServer _this, struct mg_con
         cx_call(_this->onMessage._parent.procedure, NULL, _this->onMessage._parent.instance, c, msg);
     }
     cx_dealloc(msg);
-}
-
-static const char *mgeventname(enum mg_event e) {
-    static const char *names[200];
-    names[MG_POLL] = "MG_POLL";
-    names[MG_CONNECT] = "MG_CONNECT";
-    names[MG_AUTH] = "MG_AUTH";
-    names[MG_REQUEST] = "MG_REQUEST";
-    names[MG_REPLY] = "MG_REPLY";
-    names[MG_RECV] = "MG_RECV";
-    names[MG_CLOSE] = "MG_CLOSE";
-    names[MG_WS_HANDSHAKE] = "MG_WS_HANDSHAKE";
-    names[MG_WS_CONNECT] = "MG_WS_CONNECT";
-    names[MG_HTTP_ERROR] = "MG_HTTP_ERROR";
-    return names[e];
 }
 
 static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event ev) {
@@ -128,11 +103,10 @@ static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event
 
 static void* web_WebSocketServer_threadRun(void *data) {
     web_WebSocketServer _this = web_WebSocketServer(data);
-    char *port = cx_malloc((int)(log10(_this->port | 1)) + 1);
+    char port[6];
     sprintf(port, "%"PRIu16, _this->port);
     struct mg_server *server = mg_create_server(_this, web_WebSocketServer_handler);
     mg_set_option(server, "listening_port", port);
-    cx_dealloc(port);
     _this->server = (cx_word)server;
     web_WebSocketServer_run(_this);
     mg_destroy_server(&server);

@@ -6,9 +6,6 @@ class WebSocketConnection::
     data: object
     conn: word, private|local
 
-    int16 construct()
-    void destruct()
-
     void send(string message)
 
 void handler(WebSocketConnection conn) delegate
@@ -22,7 +19,6 @@ class WebSocketServer::
     pollTimemoutMillis: uint16
 
     thread: word, private|local
-    nextConnectionId: uint32, private|local
     exiting: bool, private|local
     server: word, private|local
  
@@ -83,8 +79,6 @@ class DDPServer: SockJsServer, implements={dispatcher}::
         id: string
         value, meta, @scope: bool
 
-        int16 construct()
-        void destruct()
         void ready()
 
     class Session::

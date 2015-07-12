@@ -46,6 +46,8 @@ cx_void web_DDPServer_Collection_onAdded(web_DDPServer_Collection _this, cx_obje
     cx_uint32 msgLength = 0;
     cx_id id;
 
+    CX_UNUSED(source);
+
     cx_json_ser_t jsonData = {NULL, NULL, 0, 0, 0, _this->meta, _this->value, _this->scope, TRUE};
     cx_serialize(&serializer, observable, &jsonData);
 
@@ -76,6 +78,8 @@ cx_void web_DDPServer_Collection_onChanged(web_DDPServer_Collection _this, cx_ob
     cx_uint32 msgLength = 0;
     cx_id id;
 
+    CX_UNUSED(source);
+
     cx_json_ser_t jsonData = {NULL, NULL, 0, 0, 0, _this->meta, _this->value, _this->scope, TRUE};
     cx_serialize(&serializer, observable, &jsonData);
 
@@ -104,6 +108,8 @@ cx_void web_DDPServer_Collection_onRemoved(web_DDPServer_Collection _this, cx_ob
     cx_string msg = NULL;
     cx_uint32 msgLength = 0;
     cx_id id;
+
+    CX_UNUSED(source);
 
     /* Create message */
     msgLength = snprintf(NULL, 0, WEB_DDPSERVER_COLLECTION_REMOVED, 

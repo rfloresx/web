@@ -12,24 +12,6 @@
 #include "mongoose.h"
 /* $end */
 
-/* ::cortex::web::WebSocketConnection::construct() */
-cx_int16 web_WebSocketConnection_construct(web_WebSocketConnection _this) {
-/* $begin(::cortex::web::WebSocketConnection::construct) */
-
-    /* << Insert implementation >> */
-
-/* $end */
-}
-
-/* ::cortex::web::WebSocketConnection::destruct() */
-cx_void web_WebSocketConnection_destruct(web_WebSocketConnection _this) {
-/* $begin(::cortex::web::WebSocketConnection::destruct) */
-
-    /* << Insert implementation >> */
-
-/* $end */
-}
-
 /* ::cortex::web::WebSocketConnection::send(string message) */
 cx_void web_WebSocketConnection_send(web_WebSocketConnection _this, cx_string message) {
 /* $begin(::cortex::web::WebSocketConnection::send) */
