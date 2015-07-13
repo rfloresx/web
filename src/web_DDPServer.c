@@ -14,8 +14,8 @@
  * https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md
  */
 
-#include "mongoose.h"
 #include "parson.h"
+#include "json.h"
 
 #define WEB_DDP_SERVER_SIZE_THRESHOLD 100
 #define WEB_DDP_SERVER_BIG_LIST_SLEEP 10000000
@@ -80,6 +80,49 @@ static cx_void web_DDPServer_sub(web_DDPServer _this, web_SockJsServer_Connectio
     web_DDPServer_Session_sub(conn->data, (cx_string)id, (cx_string)name, meta, value, scope);
 }
 
+static cx_void web_DDPServer_api(web_DDPServer _this, web_SockJsServer_UriRequest *conn, cx_string uri) {
+    CX_UNUSED(_this);
+    
+    cx_object o = NULL;
+
+    /* Resolve object based on URI */
+    o = cx_resolve(NULL, uri + 4);
+
+    if (!o) {
+        web_SockJsServer_UriRequest_setStatus(conn, 404);
+        web_SockJsServer_UriRequest_write(conn, "404: resource not found\n");
+    } else {
+        cx_bool value = FALSE;
+        cx_bool meta = FALSE;
+        cx_bool scope = FALSE;
+
+        /* Set correct content type */
+        web_SockJsServer_UriRequest_setHeader(conn, "Content-Type", "application/json; charset=utf-8");
+
+        /* Determine what to show */
+        if (!strcmp(web_SockJsServer_UriRequest_getVar(conn, "value"), "true")) { value = TRUE; }
+        if (!strcmp(web_SockJsServer_UriRequest_getVar(conn, "meta"), "true")) { meta = TRUE; }
+        if (!strcmp(web_SockJsServer_UriRequest_getVar(conn, "scope"), "true")) { scope = TRUE; }
+        if (!(value || meta || scope)) {
+            value = TRUE;
+        }
+
+        /* Serialize object-value to JSON */
+        struct cx_serializer_s serializer = cx_json_ser(CX_PRIVATE, CX_NOT, CX_SERIALIZER_TRACE_NEVER);
+
+        if ((cx_typeof(o)->kind == CX_VOID) && (!meta && !scope)) {
+            web_SockJsServer_UriRequest_write(conn, "\n");
+        } else {
+            cx_json_ser_t jsonData = {NULL, NULL, 0, 0, 0, meta, value, scope, TRUE};
+            cx_serialize(&serializer, o, &jsonData);
+            web_SockJsServer_UriRequest_write(conn, jsonData.buffer);
+            cx_dealloc(jsonData.buffer);
+        }
+
+        cx_free(o);
+    }
+}
+
 /* $end */
 
 /* ::cortex::web::DDPServer::construct() */
@@ -92,6 +135,9 @@ cx_int16 web_DDPServer_construct(web_DDPServer _this) {
 
     cx_set(&web_SockJsServer(_this)->onMessage._parent.procedure, web_DDPServer_onMessage_o);
     cx_set(&web_SockJsServer(_this)->onMessage._parent.instance, _this);
+
+    cx_set(&web_SockJsServer(_this)->onUri._parent.procedure, web_DDPServer_onUri_o);
+    cx_set(&web_SockJsServer(_this)->onUri._parent.instance, _this);
 
     _this->sessions = cx_void__declare(_this, "__sessions");
 
@@ -159,6 +205,19 @@ cx_void web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connection
 msg_error:
     json_value_free(root);
 error:;
+/* $end */
+}
+
+/* ::cortex::web::DDPServer::onUri(::cortex::web::SockJsServer::UriRequest conn,string uri) */
+cx_void web_DDPServer_onUri(web_DDPServer _this, web_SockJsServer_UriRequest *conn, cx_string uri) {
+/* $begin(::cortex::web::DDPServer::onUri) */
+    CX_UNUSED(_this);
+    if (!memcmp(uri, "/api", 4)) {
+        web_DDPServer_api(_this, conn, uri);
+    } else {
+        web_SockJsServer_UriRequest_setStatus(conn, 404);
+        web_SockJsServer_UriRequest_write(conn, "Invalid URI");
+    }
 /* $end */
 }
 

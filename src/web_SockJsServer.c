@@ -43,6 +43,18 @@ static void web_SockJsServer_open(web_SockJsServer _this, struct mg_connection *
 error:;
 }
 
+static void web_SockJsServer_uri(web_SockJsServer _this, struct mg_connection *conn) {
+    if (_this->onUri._parent.procedure) {
+        web_SockJsServer_UriRequest request = {(cx_word)conn};
+        cx_call(
+            _this->onUri._parent.procedure, 
+            NULL, 
+            _this->onOpen._parent.instance, 
+            &request,
+            conn->uri);
+    }
+}
+
 static void web_SockJsServer_message(web_SockJsServer _this, struct mg_connection *conn) {
     web_SockJsServer_Connection c = web_SockJsServer_Connection(conn->connection_param);
     if (_this->onMessage._parent.procedure) {
@@ -97,6 +109,8 @@ static int web_SockJsServer_request(struct mg_connection *conn, enum mg_event ev
                     conn, 
                     "{\"websocket\":true,\"origins\":[\"*:*\"],\"cookie_needed\":false,\"entropy\":%u}", 
                     10000000000 * rand());
+            } else {
+                web_SockJsServer_uri(_this, conn);
             }
         }
         break;

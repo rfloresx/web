@@ -35,13 +35,22 @@ class SockJsServer::
         conn: word, private|local
         void send(string msg)
 
+    struct UriRequest::
+        conn: word, private|local
+        void setHeader(string name, string val)
+        void setStatus(uint16 status)
+        void write(string msg)
+        string getVar(string id)
+
     void handler(Connection conn) delegate
-    void msgHandler(Connection conn, string message) delegate
+    void messageHandler(Connection conn, string msg) delegate
+    void uriHandler(UriRequest conn, string uri) delegate
 
     port: uint16
     onMessage: messageHandler
     onOpen: handler
     onClose: handler
+    onUri: uriHandler
     pollTimemoutMillis: uint16
 
     thread: word, private|local
@@ -101,6 +110,7 @@ class DDPServer: SockJsServer, implements={dispatcher}::
     int16 construct()
     void onMessage(SockJsServer::Connection conn, string message)
     void onClose(SockJsServer::Connection conn)
+    void onUri(SockJsServer::UriRequest conn, string uri)
 
     void run()
     void post(event e)
