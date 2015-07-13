@@ -60,7 +60,24 @@ static cx_void web_DDPServer_sub(web_DDPServer _this, web_SockJsServer_Connectio
     CX_UNUSED(_this);
     const char *id = json_object_get_string(json, "id");
     const char *name = json_object_get_string(json, "name");
-    web_DDPServer_Session_sub(conn->data, (cx_string)id, (cx_string)name);
+    JSON_Array *params = json_object_get_array(json, "params");
+    JSON_Object *cxparams = json_array_get_object(params, 0);
+    cx_bool meta = FALSE, value = TRUE, scope = FALSE;
+    int v;
+
+    if ((v = json_object_get_boolean(cxparams, "meta")) != -1) {
+        meta = v;
+        value = FALSE;
+    }
+    if ((v = json_object_get_boolean(cxparams, "scope")) != -1) {
+        scope = v;
+        value = FALSE;
+    }
+    if ((v = json_object_get_boolean(cxparams, "value")) != -1) {
+        value = v;
+    }
+
+    web_DDPServer_Session_sub(conn->data, (cx_string)id, (cx_string)name, meta, value, scope);
 }
 
 /* $end */

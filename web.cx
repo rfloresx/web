@@ -90,8 +90,8 @@ class DDPServer: SockJsServer, implements={dispatcher}::
         void connected()
         void failed(SockJsServer::Connection conn) function
         void pong(string id)
-        void sub(string id, string name)
-        Subscription getSubscription(Publication pub, string id)
+        void sub(string id, string name, bool meta, bool value, bool @scope)
+        Subscription getSub(Publication pub, string id, bool meta, bool value, bool @scope)
         DDPServer::Collection getCollection(string name)
 
     autoPublish: bool

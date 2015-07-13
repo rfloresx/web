@@ -64,14 +64,14 @@ web_DDPServer_Collection web_DDPServer_Session_getCollection(web_DDPServer_Sessi
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::Session::getSubscription(::cortex::web::DDPServer::Publication pub,string id) */
-web_DDPServer_Subscription web_DDPServer_Session_getSubscription(web_DDPServer_Session _this, web_DDPServer_Publication pub, cx_string id) {
-/* $begin(::cortex::web::DDPServer::Session::getSubscription) */
+/* ::cortex::web::DDPServer::Session::getSub(::cortex::web::DDPServer::Publication pub,string id,bool meta,bool value,bool scope) */
+web_DDPServer_Subscription web_DDPServer_Session_getSub(web_DDPServer_Session _this, web_DDPServer_Publication pub, cx_string id, cx_bool meta, cx_bool value, cx_bool scope) {
+/* $begin(::cortex::web::DDPServer::Session::getSub) */
     web_DDPServer_Subscription result = NULL;
 
     if (!(result = cx_lookup(_this->subscriptions, id))) {
         result = web_DDPServer_Subscription__declare(_this->subscriptions, id);
-        web_DDPServer_Subscription__define(result, pub, id, TRUE, FALSE, FALSE);
+        web_DDPServer_Subscription__define(result, pub, id, value, meta, scope);
     }
 
     return result;
@@ -93,8 +93,8 @@ cx_void web_DDPServer_Session_pong(web_DDPServer_Session _this, cx_string id) {
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::Session::sub(string id,string name) */
-cx_void web_DDPServer_Session_sub(web_DDPServer_Session _this, cx_string id, cx_string name) {
+/* ::cortex::web::DDPServer::Session::sub(string id,string name,bool meta,bool value,bool scope) */
+cx_void web_DDPServer_Session_sub(web_DDPServer_Session _this, cx_string id, cx_string name, cx_bool meta, cx_bool value, cx_bool scope) {
 /* $begin(::cortex::web::DDPServer::Session::sub) */
     web_DDPServer server = web_DDPServer(cx_parentof(cx_parentof(_this)));
 
@@ -103,7 +103,7 @@ cx_void web_DDPServer_Session_sub(web_DDPServer_Session _this, cx_string id, cx_
     if (!pub) {
         web_DDPServer_Session_nosub(_this, id);
     } else {
-        web_DDPServer_Subscription sub = web_DDPServer_Session_getSubscription(_this, pub, id);
+        web_DDPServer_Subscription sub = web_DDPServer_Session_getSub(_this, pub, id, meta, value, scope);
         if (sub) {
             web_DDPServer_Publication_create(pub, _this, sub);
         } else {
