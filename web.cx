@@ -21,7 +21,7 @@ class WebSocketServer::
     thread: word, private|local
     exiting: bool, private|local
     server: word, private|local
- 
+
     int16 construct()
     void destruct()
 
@@ -100,6 +100,7 @@ class DDPServer: SockJsServer, implements={dispatcher}::
         void failed(SockJsServer::Connection conn) function
         void pong(string id)
         void sub(string id, string name, bool meta, bool value, bool @scope)
+        void error(string reason, string offendingMessage)
         Subscription getSub(Publication pub, string id, bool meta, bool value, bool @scope)
         DDPServer::Collection getCollection(string name)
 
@@ -115,4 +116,3 @@ class DDPServer: SockJsServer, implements={dispatcher}::
     void run()
     void post(event e)
     Publication getPublication(string name)
-

@@ -80,9 +80,128 @@ static cx_void web_DDPServer_sub(web_DDPServer _this, web_SockJsServer_Connectio
     web_DDPServer_Session_sub(conn->data, (cx_string)id, (cx_string)name, meta, value, scope);
 }
 
+static int strcmplast(const char* str1, const char* str2) {
+    return strcmp(str1 + strlen(str1) - strlen(str2), str2);
+}
+
+/*
+ * Gets the name of the collection from the method name without /insert,
+ * /update, or /delete. The pointer returned must be freed.
+ */
+static char* web_DDPServer_methodCollection(const JSON_Object* obj) {
+    const char* method = json_object_get_string(obj, "method");
+    const char* lastSlash = strrchr(method, '/');
+    size_t collectionLength = lastSlash - method;
+    char* collection = cx_malloc(collectionLength + 1);
+    strncat(collection, method, collectionLength);
+    return collection;
+}
+
+static cx_void web_DDPServer_method_insert(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value *json) {
+    CX_UNUSED(_this);
+    cx_assert(json_value_get_type(json), "Not a json object");
+    JSON_Object* jsonObj = json_value_get_object(json);
+    char* collection = web_DDPServer_methodCollection(jsonObj);
+    JSON_Array* params = json_object_get_array(jsonObj, "params");
+    int reasonLength = 0;
+    cx_string reason = NULL;
+    if (!params) {
+        reasonLength = snprintf(NULL, 0, "cannot find params");
+        reason = cx_malloc(reasonLength + 1);
+        sprintf(reason, "cannot find params");
+        goto error;
+    }
+    JSON_Value* params0 = json_array_get_value(params, 0);
+    if (!params0) {
+        reasonLength = snprintf(NULL, 0, "params is empty");
+        reason = cx_malloc(reasonLength + 1);
+        sprintf(reason, "params is empty");
+        goto error;
+    }
+    // TODO seems a bit wasteful!
+    char* serialization = json_serialize_to_string(params0);
+    cx_object o = cx_json_deser(serialization);
+    json_free_serialized_string(serialization);
+    if (o && cx_checkState(o, CX_DEFINED)) {
+        // TODO nothing
+    } else {
+        reasonLength = snprintf(NULL, 0, "could not define");
+        reason = cx_malloc(reasonLength + 1);
+        sprintf(reason, "could not define");
+        goto error;
+    }
+error:
+    if (reason) {
+        web_DDPServer_Session_error(conn->data, reason, NULL);
+        cx_dealloc(reason);
+    }
+    cx_dealloc(collection);
+}
+
+static cx_void web_DDPServer_method_remove(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value* json) {
+    CX_UNUSED(_this);
+    cx_assert(json_value_get_type(json), "Not a json object");
+    JSON_Object* jsonObj = json_value_get_object(json);
+    char* collection = web_DDPServer_methodCollection(jsonObj);
+    cx_object scope = cx_resolve(NULL, collection);
+    int reasonLength = 0;
+    cx_string reason = NULL;
+    if (!scope) {
+        reasonLength = snprintf(NULL, 0, "cannot find collection %s", collection);
+        reason = cx_malloc(reasonLength + 1);
+        sprintf(reason, "cannot find collection %s", collection);
+        goto error;
+    }
+    JSON_Array* params = json_object_get_array(jsonObj, "params");
+    if (!params) {
+        reasonLength = snprintf(NULL, 0, "cannot find params");
+        reason = cx_malloc(reasonLength + 1);
+        sprintf(reason, "cannot find params");
+        goto error;
+    }
+    JSON_Object* params0 = json_array_get_object(params, 0);
+    if (!params0) {
+        cx_warning("cannot find parameter, should send error back");
+        goto error;
+    }
+    const char* _id = json_object_get_string(params0, "_id");
+    if (!_id) {
+        cx_warning("cannot find _id, should send error back");
+        goto error;
+    }
+    cx_object toDestruct = cx_resolve(NULL, (cx_string)_id);
+    if (!toDestruct) {
+        cx_warning("cannot find toDestruct");
+        goto error;
+    }
+    if (cx_parentof(toDestruct) != scope) {
+        cx_warning("%d is not in scope of %s", _id, scope);
+        goto error;
+    }
+    cx_destruct(toDestruct);
+    // web_DDPServer_Session_removed(conn->data, collection, (cx_string)_id);
+error:
+    if (reason) {
+        web_DDPServer_Session_error(conn->data, reason, NULL);
+        cx_dealloc(reason);
+    }
+    cx_dealloc(collection);
+}
+
+static cx_void web_DDPServer_method(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value* json) {
+    const char *method = json_object_get_string(json_object(json), "method");
+    if (!strcmplast(method, "/insert")) {
+        web_DDPServer_method_insert(_this, conn, json);
+    } else if (!strcmplast(method, "/update")) {
+        puts("update");
+    } else if (!strcmplast(method, "/remove")) {
+        web_DDPServer_method_remove(_this, conn, json);
+    }
+}
+
 static cx_void web_DDPServer_api(web_DDPServer _this, web_SockJsServer_UriRequest *conn, cx_string uri) {
     CX_UNUSED(_this);
-    
+
     cx_object o = NULL;
 
     /* Resolve object based on URI */
@@ -195,6 +314,8 @@ cx_void web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connection
             web_DDPServer_ping(_this, conn, jsonObj);
         } else if (!strcmp(msg, "sub")) {
             web_DDPServer_sub(_this, conn, jsonObj);
+        } else if (!strcmp(msg, "method")) {
+            web_DDPServer_method(_this, conn, root);
         } else {
             goto msg_error;
         }
@@ -273,7 +394,7 @@ cx_void web_DDPServer_run(web_DDPServer _this) {
         if (web_SockJsServer(_this)->exiting) {
             break;
         }
-        
+
         cx_lock(_this);
         while ((e = cx_llTakeFirst(_this->events))) {
             cx_llAppend(events, e);
