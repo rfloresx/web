@@ -43,16 +43,11 @@ cx_int16 web_DDPServer_Session_construct(web_DDPServer_Session _this) {
 /* ::cortex::web::DDPServer::Session::error(string reason,string offendingMessage) */
 cx_void web_DDPServer_Session_error(web_DDPServer_Session _this, cx_string reason, cx_string offendingMessage) {
 /* $begin(::cortex::web::DDPServer::Session::error) */
-    int msgLength;
-    cx_string msg;
+    cx_string msg = NULL;
     if (offendingMessage) {
-        msgLength = snprintf(NULL, 0, "{\"msg\":\"error\",\"reason\":\"%s\",\"offendingMessage\":\"%s\"}", reason, offendingMessage);
-        msg = cx_malloc(msgLength + 1);
-        printf(msg, "{\"msg\":\"error\",\"reason\":\"%s\",\"offendingMessage\":\"%s\"}", reason, offendingMessage);
+        cx_asprintf(&msg, "{\"msg\":\"error\",\"reason\":\"%s\",\"offendingMessage\":\"%s\"}", reason, offendingMessage);
     } else {
-        msgLength = snprintf(NULL, 0, "{\"msg\":\"error\",\"reason\":\"%s\"}", reason);
-        msg = cx_malloc(msgLength + 1);
-        printf(msg, "{\"msg\":\"error\",\"reason\":\"%s\"}", reason);
+        cx_asprintf(&msg, "{\"msg\":\"error\",\"reason\":\"%s\"}", reason);
     }
     cx_dealloc(msg);
     web_SockJsServer_Connection_send(_this->conn, msg);
