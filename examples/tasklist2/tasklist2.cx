@@ -5,11 +5,10 @@ struct Date::
 struct Task::
     description: string
     date: ::Date
-    finished: bool
 
 void Tasklist::
-    Task a: "Buy butter", {20, 7, 2015}, true
-    Task b: "Buy ham", {21, 7, 2015}, false
-    Task c: "Make sandwich", {22, 7, 2015}, false // that's right--no bread
+    Task a: "Buy butter", {20, 7, 2015}
+    Task b: "Buy ham", {21, 7, 2015}
+    Task c: "Make sandwich", {22, 7, 2015} // that's right--no bread
 
 web::DDPServer s: 8000
