@@ -4,41 +4,14 @@ if (Meteor.isClient) {
   var Tasklist = new Meteor.Collection("Tasklist", remote);
   remote.subscribe("Tasklist");
 
+
   Template.body.helpers({
-    completed: function () {
-      result = Tasklist.find({"value.finished": true});
-      return result;
     },
-    pending: function () {
-      return Tasklist.find({"value.finished": false});
-    }
   });
 
   Template.body.events({
-    "submit #new-task": function (event) {
-      var desc = event.target["taskdesc"].value
-      var name = "task_" + parseInt(Math.random() * 1000, 0).toString();
-      Tasklist.insert({
-          _id: "::Tasklist::" + name,
-          meta: {
-              "name": name,
-              parent: "::Tasklist",
-              type: "::cortex::lang::string"
-          },
-          value: desc
-      });
-      event.target["taskdesc"] = "";
       return false;
-    }
-  });
-
-  Template.task.events({
-    "click .delete": function (event) {
-      Tasklist.remove(this._id);
     },
-    "click .edit": function (event) {
-      var description = window.prompt("Change the description of the task", this.value);
-      Tasklist.update(this._id, {$set: {value: description}});
     }
   });
 

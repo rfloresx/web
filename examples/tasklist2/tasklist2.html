@@ -1,43 +1,41 @@
 <head>
-  <title>Cortex tasklist</title>
+  <title>starmap</title>
 </head>
 
 <body>
-  <h1>Tasks to complete example</h1>
-  <form id="new-task">
-      <input type="text" name="taskdesc" placeholder="What's next?">
+  <h1>Cortex CRUD tasklist</h1>
+  <h2>Insert task</h2>
+  <form id="insert-task">
+    Desc: <input type="text" name="desc">
+    Day: <input type="number" name="day">
+    Month: <input type="number" name="month">
+    Year: <input type="number" name="year">
+    <input type="submit" value="Insert">
   </form>
-  <p>
-    <ul>
+  <h2>Update task</h2>
+  <form id="update-task">
+    Id: <input type="text" name="_id"><br>
+    Desc: <input type="text" name="desc">
+    Day: <input type="number" name="day">
+    Month: <input type="number" name="month">
+    Year: <input type="number" name="year">
+    <input type="submit" value="Update">
+  </form>
+  <h2>Remove task</h2>
+  <form id="remove-task">
+    Id: <input type="text" name="_id">
+    <input type="submit" value="Delete">
+  </form>
+  <h2>List of tasks</h2>
+  <ul>
     {{#each tasks}}
+    <li>
       {{> task}}
-    {{/each}}
-    </ul>
-  </p>
-  <h1>Tasks</h1>
-  <h2>Completed</h2>
-  <ul>
-    {{#each completed}}
-      {{> task}}
-    {{/each}}
-  </ul>
-  <h2>Pending</h2>
-  <ul>
-    {{#each pending}}
-      {{> task}}
+    </li>
     {{/each}}
   </ul>
 </body>
 
 <template name="task">
-  <li>
-    {{#if value.finished}}
-      [x]
-    {{else}}
-      [ ]
-    {{/if}}
-    {{value.description}} ({{value.date.year}}-{{value.date.month}}-{{value.date.day}})
-    <button class="edit">Edit</button>
-    <button class="delete">Delete</button>
-  </li>
+  ({{value.date.day}}/{{value.date.month}}/{{value.date.year}}) {{value.description}} [{{_id}}]
 </template>
