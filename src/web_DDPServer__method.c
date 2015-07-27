@@ -9,7 +9,7 @@ static char* web_DDPServer_methodCollection(const JSON_Object* obj) {
     const char* method = json_object_get_string(obj, "method");
     const char* lastSlash = strrchr(method, '/');
     size_t collectionLength = lastSlash - method;
-    char* collection = cx_malloc(collectionLength + 1);
+    char* collection = cx_alloc(collectionLength + 1);
     strncat(collection, method, collectionLength);
     return collection;
 }
@@ -32,8 +32,13 @@ cx_void web_DDPServer_methodInsert(web_DDPServer _this, web_SockJsServer_Connect
     }
     // TODO seems a bit wasteful!
     char* serialization = json_serialize_to_string(selector);
-    cx_object o = cx_json_deser(serialization);
+    cx_object o = cx_json_deser(NULL, serialization);
     json_free_serialized_string(serialization);
+    if (cx_define(o)) {
+      cx_id fullname;
+      cx_asprintf(&reason, "cannot define %s", cx_fullname(o, fullname));
+      goto error;
+    }
     if (!(o && cx_checkState(o, CX_DEFINED))) {
         cx_asprintf(&reason, "could not define");
         goto error;
@@ -90,7 +95,7 @@ cx_void web_DDPServer_methodRemove(web_DDPServer _this, web_SockJsServer_Connect
     if (!(object = web_DDPServer_methodInstancePrepare(json, &reason))) {
         goto error;
     }
-    cx_destruct(object);
+    cx_delete(object);
 error:
     if (reason) {
         web_DDPServer_Session_error(conn->data, reason, NULL);
@@ -167,7 +172,7 @@ error:
  * json - the value to the key $set
  */
 static cx_bool web_DDPServer_methodUpdateSet(cx_object object, JSON_Value* json, char** errorReason) {
-    size_t i = 0, j = 0, setCount = 0;
+    size_t i = 0, setCount = 0;
     JSON_Object* jsonObj = json_value_get_object(json);
     if (!jsonObj) {
         cx_asprintf(errorReason, "$set operation not a JSON object");
@@ -190,7 +195,7 @@ cx_void web_DDPServer_methodUpdate(web_DDPServer _this, web_SockJsServer_Connect
     CX_UNUSED(_this);
     cx_object object;
     char* reason = NULL;
-    if (!(object = web_DDPServer_methodInstancePrepare(json, &reason))) {
+    if ((object = web_DDPServer_methodInstancePrepare(json, &reason)) == NULL) {
         goto error;
     }
 
@@ -208,15 +213,24 @@ cx_void web_DDPServer_methodUpdate(web_DDPServer _this, web_SockJsServer_Connect
         if (!strcmp(modifier, "$set")) {
             modifierError = web_DDPServer_methodUpdateSet(object,
                 json_object_get_value(modifiers, modifier), &reason);
+        } else if (strncmp(modifier, "$", 1)) {
+            char* jsonStr = json_serialize_to_string(json_array_get_value(params, 1));
+            cx_object o = cx_json_deser(object, jsonStr);
+            json_free_serialized_string(jsonStr);
+            if (!o) {
+                cx_asprintf(&reason, "cannot update object");
+                goto error;
+            }
         } else {
-            cx_asprintf(&reason, "unsupported modifier");
-            goto error;
+          cx_asprintf(&reason, "modifier not supported: %s", modifier);
+          goto error;
         }
         if (modifierError) {
             // TODO should we leave the object in e.g. invalid state?
             goto error;
         }
     }
+    cx_update(object);
 error:
     if (reason) {
         web_DDPServer_Session_error(conn->data, reason, NULL);

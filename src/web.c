@@ -14,7 +14,7 @@ cx_string web_random(cx_uint16 n) {
 	static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	static char *alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
 	cx_uint16 i;
-	cx_string result = cx_malloc(n + 1);
+	cx_string result = cx_alloc(n + 1);
 
 	result[0] = alpha[rand() % strlen(alpha)];
 	for (i = 1; i < n; i++) {
@@ -22,7 +22,7 @@ cx_string web_random(cx_uint16 n) {
 	}
 
 	result[i] = '\0';
-    
+
 	return result;
 /* $end */
 }

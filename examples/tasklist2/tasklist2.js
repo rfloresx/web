@@ -5,8 +5,12 @@ if (Meteor.isClient) {
   remote.subscribe("Tasklist");
 
   Template.body.helpers({
-    tasks: function () {
-      return Tasklist.find();
+    completed: function () {
+      result = Tasklist.find({"value.finished": true});
+      return result;
+    },
+    pending: function () {
+      return Tasklist.find({"value.finished": false});
     }
   });
 
@@ -23,7 +27,7 @@ if (Meteor.isClient) {
           },
           value: desc
       });
-      event.target["taskdesc"].value = "";
+      event.target["taskdesc"] = "";
       return false;
     }
   });
@@ -34,8 +38,7 @@ if (Meteor.isClient) {
     },
     "click .edit": function (event) {
       var description = window.prompt("Change the description of the task", this.value);
-      // Tasklist.update(this._id, {$set: {value: description}});
-      Tasklist.update(this._id, {value: description});
+      Tasklist.update(this._id, {$set: {value: description}});
     }
   });
 

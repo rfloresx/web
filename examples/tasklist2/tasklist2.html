@@ -1,0 +1,43 @@
+<head>
+  <title>Cortex tasklist</title>
+</head>
+
+<body>
+  <h1>Tasks to complete example</h1>
+  <form id="new-task">
+      <input type="text" name="taskdesc" placeholder="What's next?">
+  </form>
+  <p>
+    <ul>
+    {{#each tasks}}
+      {{> task}}
+    {{/each}}
+    </ul>
+  </p>
+  <h1>Tasks</h1>
+  <h2>Completed</h2>
+  <ul>
+    {{#each completed}}
+      {{> task}}
+    {{/each}}
+  </ul>
+  <h2>Pending</h2>
+  <ul>
+    {{#each pending}}
+      {{> task}}
+    {{/each}}
+  </ul>
+</body>
+
+<template name="task">
+  <li>
+    {{#if value.finished}}
+      [x]
+    {{else}}
+      [ ]
+    {{/if}}
+    {{value.description}} ({{value.date.year}}-{{value.date.month}}-{{value.date.day}})
+    <button class="edit">Edit</button>
+    <button class="delete">Delete</button>
+  </li>
+</template>

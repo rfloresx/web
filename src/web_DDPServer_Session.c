@@ -11,7 +11,7 @@
 /* $header() */
 cx_void web_DDPServer_Session_nosub(web_DDPServer_Session _this, cx_string id) {
     int msgLength = snprintf(NULL, 0, "{\"msg\":\"nosub\",\"id\":\"%s\"}", id);
-    cx_string msg = cx_malloc(msgLength + 1);
+    cx_string msg = cx_alloc(msgLength + 1);
     sprintf(msg, "{\"msg\":\"nosub\",\"id\":\"%s\"}", id);
     web_SockJsServer_Connection_send(_this->conn, msg);
     cx_dealloc(msg);
@@ -22,7 +22,7 @@ cx_void web_DDPServer_Session_nosub(web_DDPServer_Session _this, cx_string id) {
 cx_void web_DDPServer_Session_connected(web_DDPServer_Session _this) {
 /* $begin(::cortex::web::DDPServer::Session::connected) */
     int msgLength = snprintf(NULL, 0, "{\"msg\":\"connected\",\"session\":\"%s\"}", cx_nameof(_this));
-    cx_string msg = cx_malloc(msgLength + 1);
+    cx_string msg = cx_alloc(msgLength + 1);
     sprintf(msg, "{\"msg\":\"connected\",\"session\":\"%s\"}", cx_nameof(_this));
     web_SockJsServer_Connection_send(_this->conn, msg);
     cx_dealloc(msg);
@@ -97,7 +97,7 @@ cx_void web_DDPServer_Session_pong(web_DDPServer_Session _this, cx_string id) {
 /* $begin(::cortex::web::DDPServer::Session::pong) */
     if (id) {
         int msgLength = snprintf(NULL, 0, "{\"msg\":\"pong\",\"id\":\"%s\"}", id);
-        cx_string msg = cx_malloc(msgLength + 1);
+        cx_string msg = cx_alloc(msgLength + 1);
         sprintf(msg, "{\"msg\":\"pong\",\"id\":\"%s\"}", id);
         web_SockJsServer_Connection_send(_this->conn, msg);
         cx_dealloc(msg);
