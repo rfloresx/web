@@ -1,3 +1,18 @@
+var entityMap = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': '&quot;',
+  "'": '&#39;',
+  "/": '&#x2F;'
+};
+
+function escapeHtml(string) {
+  return String(string).replace(/[&<>"'\/]/g, function (s) {
+    return entityMap[s];
+  });
+}
+
 if (Meteor.isClient) {
   var remote = DDP.connect("http://127.0.0.1:8000");
   var Tasklist = new Meteor.Collection("Tasklist", remote);
@@ -11,6 +26,21 @@ if (Meteor.isClient) {
     Session.set('nextTaskNumber', n + 1);
     return name;
   };
+
+  Template.task.helpers({
+    valueField: function () {
+      return '<td class="description" contenteditable="true">' + escapeHtml(this.description) + '</td>';
+    },
+    dayField: function() {
+      return '<td class="day" contenteditable="true">' + escapeHtml(this.date.day) + '</td>';
+    },
+    monthField: function () {
+      return '<td class="month" contenteditable="true">' + escapeHtml(this.date.month) + '</td>';
+    },
+    yearField: function () {
+      return '<td class="year" contenteditable="true">' + escapeHtml(this.date.year) + '</td>';
+    },
+  })
 
   Template.body.helpers({
     tasks: function () {
@@ -77,6 +107,9 @@ if (Meteor.isClient) {
       var day = parseInt($day.text());
       var month = parseInt($month.text());
       var year = parseInt($year.text());
+      day = day ? day : 0;
+      month = month ? month : 0;
+      year = year ? year : 0;
       Tasklist.insert({
         _id: "::Tasklist::" + name,
         meta: {name: name, parent: "::Tasklist", type: "::Task"},

@@ -16,30 +16,32 @@
       </tr>
     </thead>
     <tbody>
-      {{#each tasks}}
-      <tr>
-        {{>task}}
-      </tr>
-      {{/each}}
       <tr class="insert">
-        <td class="description" contenteditable="true">{{value.description}}</td>
-        <td class="day" contenteditable="true">{{value.date.day}}</td>
-        <td class="month" contenteditable="true">{{value.date.month}}</td>
-        <td class="year" contenteditable="true">{{value.date.year}}</td>
+        <td class="description" contenteditable="true"></td>
+        <td class="day" contenteditable="true"></td>
+        <td class="month" contenteditable="true"></td>
+        <td class="year" contenteditable="true"></td>
         <td></td>
         <td>
           <button class="insert">Insert</button>
         </td>
       </tr>
+      {{#each tasks}}
+      <tr>
+        {{>task}}
+      </tr>
+      {{/each}}
     </tbody>
   </table>
 </body>
 
 <template name="task">
-  <td class="description" contenteditable="true">{{value.description}}</td>
-  <td class="day" contenteditable="true">{{value.date.day}}</td>
-  <td class="month" contenteditable="true">{{value.date.month}}</td>
-  <td class="year" contenteditable="true">{{value.date.year}}</td>
+  {{#with value}}
+    {{{valueField}}}
+    {{{dayField}}}
+    {{{monthField}}}
+    {{{yearField}}}
+  {{/with}}
   <td>
     {{#if value.finished}}
       <input type="checkbox" checked="true">
