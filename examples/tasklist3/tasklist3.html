@@ -1,0 +1,54 @@
+<head>
+  <title>Cortex CRUD tasklist</title>
+</head>
+
+<body>
+  <h1>Cortex CRUD tasklist</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Day</th>
+        <th>Month</th>
+        <th>Year</th>
+        <th>Finished</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each tasks}}
+      <tr>
+        {{>task}}
+      </tr>
+      {{/each}}
+      <tr class="insert">
+        <td class="description" contenteditable="true">{{value.description}}</td>
+        <td class="day" contenteditable="true">{{value.date.day}}</td>
+        <td class="month" contenteditable="true">{{value.date.month}}</td>
+        <td class="year" contenteditable="true">{{value.date.year}}</td>
+        <td></td>
+        <td>
+          <button class="insert">Insert</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+<template name="task">
+  <td class="description" contenteditable="true">{{value.description}}</td>
+  <td class="day" contenteditable="true">{{value.date.day}}</td>
+  <td class="month" contenteditable="true">{{value.date.month}}</td>
+  <td class="year" contenteditable="true">{{value.date.year}}</td>
+  <td>
+    {{#if value.finished}}
+      <input type="checkbox" checked="true">
+    {{else}}
+      <input type="checkbox">
+    {{/if}}
+  </td>
+  <td>
+    <button class="update">Update</button>
+    <button class="remove">Remove</button>
+  </td>
+</template>
