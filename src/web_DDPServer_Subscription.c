@@ -28,7 +28,8 @@ cx_void web_DDPServer_Subscription_ready(web_DDPServer_Subscription _this) {
             _this->id);
 
     msg = cx_alloc(msgLength + 1);
-    snprintf(msg, msgLength + 1, WEB_DDPSERVER_SUBSCRIPTION_READY, 
+
+    snprintf(msg, msgLength + 1, WEB_DDPSERVER_SUBSCRIPTION_READY,
             _this->id);
 
     web_SockJsServer_Connection_send(session->conn, msg);

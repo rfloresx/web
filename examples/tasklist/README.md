@@ -1,5 +1,5 @@
 # Tasklist example
-The tasklist example demonstrates a simple app that shows Cortex integration with Meteor/DDP. 
+The tasklist example demonstrates a simple app that shows Cortex integration with Meteor/DDP.
 
 ## Run the example
 Ensure that the latest versions of [Meteor](https://www.meteor.com/install), [Cortex](http://www.github.com/cortexlang/cortex) and [web](http://www.github.com/cortexlang/web)
@@ -9,7 +9,7 @@ are properly installed on your machine (check the README's of cortex and web). P
 2. Run `source configure` from the Cortex installation directory
 3. Go to the `<web installation directory>/examples/tasklist` directory
 4. Run `meteor run &`
-5. Run `cxsh ../../bin/libweb.so tasklist.cx`
+5. Run `cxsh tasklist.cx`
 6. Open `http://localhost:3000` in your webbrowser
 
 ### Modify the list

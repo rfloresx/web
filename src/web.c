@@ -22,7 +22,7 @@ cx_string web_random(cx_uint16 n) {
 	}
 
 	result[i] = '\0';
-    
+
 	return result;
 /* $end */
 }

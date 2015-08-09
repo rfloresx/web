@@ -14,7 +14,7 @@ cx_void web_DDPServer_Session_nosub(web_DDPServer_Session _this, cx_string id) {
     cx_string msg = cx_alloc(msgLength + 1);
     sprintf(msg, "{\"msg\":\"nosub\",\"id\":\"%s\"}", id);
     web_SockJsServer_Connection_send(_this->conn, msg);
-    cx_dealloc(msg);    
+    cx_dealloc(msg);
 }
 /* $end */
 
@@ -37,6 +37,20 @@ cx_int16 web_DDPServer_Session_construct(web_DDPServer_Session _this) {
     _this->subscriptions = cx_void__createChild(_this, "__subscriptions");
 
     return 0;
+/* $end */
+}
+
+/* ::cortex::web::DDPServer::Session::error(string reason,string offendingMessage) */
+cx_void web_DDPServer_Session_error(web_DDPServer_Session _this, cx_string reason, cx_string offendingMessage) {
+/* $begin(::cortex::web::DDPServer::Session::error) */
+    cx_string msg = NULL;
+    if (offendingMessage) {
+        cx_asprintf(&msg, "{\"msg\":\"error\",\"reason\":\"%s\",\"offendingMessage\":\"%s\"}", reason, offendingMessage);
+    } else {
+        cx_asprintf(&msg, "{\"msg\":\"error\",\"reason\":\"%s\"}", reason);
+    }
+    cx_dealloc(msg);
+    web_SockJsServer_Connection_send(_this->conn, msg);
 /* $end */
 }
 
@@ -108,6 +122,5 @@ cx_void web_DDPServer_Session_sub(web_DDPServer_Session _this, cx_string id, cx_
             web_DDPServer_Session_nosub(_this, id);
         }
     }
-
 /* $end */
 }

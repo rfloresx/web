@@ -53,13 +53,14 @@ cx_void web_DDPServer_Collection_onAdded(web_DDPServer_Collection _this, cx_obje
 
     /* Create message */
     msgLength = snprintf(NULL, 0, WEB_DDPSERVER_COLLECTION_ADDED,
-            cx_nameof(_this->obj), 
+            cx_nameof(_this->obj),
             cx_fullname(observable, id),
             jsonData.buffer);
 
     msg = cx_alloc(msgLength + 1);
-    snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_ADDED, 
-            cx_nameof(_this->obj), 
+
+    snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_ADDED,
+            cx_nameof(_this->obj),
             id,
             jsonData.buffer);
 
@@ -84,14 +85,15 @@ cx_void web_DDPServer_Collection_onChanged(web_DDPServer_Collection _this, cx_ob
     cx_serialize(&serializer, observable, &jsonData);
 
     /* Create message */
-    msgLength = snprintf(NULL, 0, WEB_DDPSERVER_COLLECTION_CHANGED, 
-            cx_nameof(_this->obj), 
+    msgLength = snprintf(NULL, 0, WEB_DDPSERVER_COLLECTION_CHANGED,
+            cx_nameof(_this->obj),
             cx_fullname(observable, id),
             jsonData.buffer);
 
     msg = cx_alloc(msgLength + 1);
-    snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_CHANGED, 
-            cx_nameof(_this->obj), 
+
+    snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_CHANGED,
+            cx_nameof(_this->obj),
             id,
             jsonData.buffer);
 
@@ -112,13 +114,14 @@ cx_void web_DDPServer_Collection_onRemoved(web_DDPServer_Collection _this, cx_ob
     CX_UNUSED(source);
 
     /* Create message */
-    msgLength = snprintf(NULL, 0, WEB_DDPSERVER_COLLECTION_REMOVED, 
-            cx_nameof(_this->obj), 
+    msgLength = snprintf(NULL, 0, WEB_DDPSERVER_COLLECTION_REMOVED,
+            cx_nameof(_this->obj),
             cx_fullname(observable, id));
 
     msg = cx_alloc(msgLength + 1);
-    snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_REMOVED, 
-            cx_nameof(_this->obj), 
+
+    snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_REMOVED,
+            cx_nameof(_this->obj),
             id);
 
     web_SockJsServer_Connection_send(session->conn, msg);

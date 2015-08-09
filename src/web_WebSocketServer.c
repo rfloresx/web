@@ -64,7 +64,7 @@ static void web_WebSocketServer_message(web_WebSocketServer _this, struct mg_con
 
 static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event ev) {
     int result = MG_TRUE;
-    
+
     web_WebSocketServer _this = web_WebSocketServer(conn->server_param);
     switch (ev) {
     case MG_AUTH:
@@ -77,7 +77,7 @@ static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event
             web_WebSocketServer_close(_this, conn);
         }
         break;
-    case MG_REQUEST: 
+    case MG_REQUEST:
         if (conn->is_websocket) {
             web_WebSocketServer_message(_this, conn);
         } else {

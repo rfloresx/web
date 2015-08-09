@@ -3,7 +3,7 @@
 void Tasklist::
     string task_01: "Go to tasklist directory"
     string task_02: "Run 'meteor run'"
-    string task_03: "Run cxsh <path to libweb.so> tasklist.cx"
+    string task_03: "Run cxsh tasklist.cx"
     string task_04: "Open browser"
     string task_05: "Go to 'http://localhost:3000'"
     string task_06: "Go to cxsh"

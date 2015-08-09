@@ -15,7 +15,10 @@
  */
 
 #include "parson.h"
+
 #include "json.h"
+#include "web_DDPServer__method.h"
+
 
 #define WEB_DDP_SERVER_SIZE_THRESHOLD 100
 #define WEB_DDP_SERVER_BIG_LIST_SLEEP 10000000
@@ -80,9 +83,31 @@ static cx_void web_DDPServer_sub(web_DDPServer _this, web_SockJsServer_Connectio
     web_DDPServer_Session_sub(conn->data, (cx_string)id, (cx_string)name, meta, value, scope);
 }
 
+static int strcmplast(const char* str1, const char* str2) {
+    return strcmp(str1 + strlen(str1) - strlen(str2), str2);
+}
+
+static cx_void web_DDPServer_method(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value* json) {
+    const char *method = json_object_get_string(json_object(json), "method");
+    if (!strcmplast(method, "/insert")) {
+        web_DDPServer_methodInsert(_this, conn, json);
+    } else if (!strcmplast(method, "/update")) {
+        web_DDPServer_methodUpdate(_this, conn, json);
+    } else if (!strcmplast(method, "/remove")) {
+        web_DDPServer_methodRemove(_this, conn, json);
+    } else {
+        cx_warning("received unrecognized DDP method: %s", method);
+        // TODO offending message
+        char* reason = NULL;
+        cx_asprintf(&reason, "unrecognized method \"%s\"", method);
+        web_DDPServer_Session_error(conn->data, reason, NULL);
+        cx_release(reason);
+    }
+}
+
 static cx_void web_DDPServer_api(web_DDPServer _this, web_SockJsServer_UriRequest *conn, cx_string uri) {
     CX_UNUSED(_this);
-    
+
     cx_object o = NULL;
 
     /* Resolve object based on URI */
@@ -188,13 +213,14 @@ cx_void web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connection
     if (json_value_get_type(root) == JSONObject) {
         JSON_Object *jsonObj = json_value_get_object(root);
         const char *msg = json_object_get_string(jsonObj, "msg");
-
         if (!strcmp(msg, "connect")) {
             web_DDPServer_connect(_this, conn, jsonObj);
         } else if (!strcmp(msg, "ping")) {
             web_DDPServer_ping(_this, conn, jsonObj);
         } else if (!strcmp(msg, "sub")) {
             web_DDPServer_sub(_this, conn, jsonObj);
+        } else if (!strcmp(msg, "method")) {
+            web_DDPServer_method(_this, conn, root);
         } else {
             goto msg_error;
         }
@@ -273,7 +299,7 @@ cx_void web_DDPServer_run(web_DDPServer _this) {
         if (web_SockJsServer(_this)->exiting) {
             break;
         }
-        
+
         cx_lock(_this);
         while ((e = cx_llTakeFirst(_this->events))) {
             cx_llAppend(events, e);
