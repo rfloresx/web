@@ -22,7 +22,7 @@ static void web_SockJsServer_close(web_SockJsServer _this, struct mg_connection 
             cx_call(_this->onClose._parent.procedure, NULL, _this->onClose._parent.instance, c);
         }
         c->conn = 0;
-        cx_destruct(c);
+        cx_delete(c);
         conn->connection_param = NULL;
     }
 }
@@ -30,7 +30,7 @@ static void web_SockJsServer_close(web_SockJsServer _this, struct mg_connection 
 static void web_SockJsServer_open(web_SockJsServer _this, struct mg_connection *conn) {
     cx_string id = web_random(17);
     web_SockJsServer_Connection c = 
-        web_SockJsServer_Connection__declare(_this->connections, id);
+        web_SockJsServer_Connection__declareChild(_this->connections, id);
     cx_dealloc(id);
     c->conn = (cx_word)conn;
     if (web_SockJsServer_Connection__define(c, NULL)) {
@@ -59,7 +59,7 @@ static void web_SockJsServer_message(web_SockJsServer _this, struct mg_connectio
     web_SockJsServer_Connection c = web_SockJsServer_Connection(conn->connection_param);
     if (_this->onMessage._parent.procedure) {
         if (conn->content_len) {
-            char *msg = cx_malloc(conn->content_len + 1);
+            char *msg = cx_alloc(conn->content_len + 1);
             memcpy(msg, conn->content, conn->content_len);
             msg[conn->content_len] = '\0';
 
@@ -149,7 +149,7 @@ cx_int16 web_SockJsServer_construct(web_SockJsServer _this) {
         _this->pollTimemoutMillis = WEB_SOCKJSSERVER_DEFAULT_POLL_TIMEOUT;
     }
     _this->thread = (cx_word)cx_threadNew(web_SockJsServer_threadRun, _this);
-    _this->connections = cx_void__declare(_this, "__connections");
+    _this->connections = cx_void__createChild(_this, "__connections");
     return 0;
 /* $end */
 }

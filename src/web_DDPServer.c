@@ -32,14 +32,14 @@ static cx_void web_DDPServer_connect(web_DDPServer _this, web_SockJsServer_Conne
     } else {
         if (!session || !(ddpSession = cx_resolve(_this->sessions, (cx_string)session))) {
             char *sessionId = web_random(17);
-            ddpSession = web_DDPServer_Session__declare(_this->sessions, sessionId);
+            ddpSession = web_DDPServer_Session__declareChild(_this->sessions, sessionId);
             web_DDPServer_Session__define(ddpSession, conn);
-            cx_set(&conn->data, ddpSession);
+            cx_setref(&conn->data, ddpSession);
             cx_dealloc(sessionId);
         } else {
-            cx_set(&ddpSession->conn, conn);
-            cx_set(&conn->data, ddpSession);
-            cx_free(ddpSession);
+            cx_setref(&ddpSession->conn, conn);
+            cx_setref(&conn->data, ddpSession);
+            cx_release(ddpSession);
         }
 
         web_DDPServer_Session_connected(ddpSession);
@@ -119,7 +119,7 @@ static cx_void web_DDPServer_api(web_DDPServer _this, web_SockJsServer_UriReques
             cx_dealloc(jsonData.buffer);
         }
 
-        cx_free(o);
+        cx_release(o);
     }
 }
 
@@ -130,16 +130,16 @@ cx_int16 web_DDPServer_construct(web_DDPServer _this) {
 /* $begin(::cortex::web::DDPServer::construct) */
 
     /* Set the handlers of the SockJsServer base */
-    cx_set(&web_SockJsServer(_this)->onClose._parent.procedure, web_DDPServer_onClose_o);
-    cx_set(&web_SockJsServer(_this)->onClose._parent.instance, _this);
+    cx_setref(&web_SockJsServer(_this)->onClose._parent.procedure, web_DDPServer_onClose_o);
+    cx_setref(&web_SockJsServer(_this)->onClose._parent.instance, _this);
 
-    cx_set(&web_SockJsServer(_this)->onMessage._parent.procedure, web_DDPServer_onMessage_o);
-    cx_set(&web_SockJsServer(_this)->onMessage._parent.instance, _this);
+    cx_setref(&web_SockJsServer(_this)->onMessage._parent.procedure, web_DDPServer_onMessage_o);
+    cx_setref(&web_SockJsServer(_this)->onMessage._parent.instance, _this);
 
-    cx_set(&web_SockJsServer(_this)->onUri._parent.procedure, web_DDPServer_onUri_o);
-    cx_set(&web_SockJsServer(_this)->onUri._parent.instance, _this);
+    cx_setref(&web_SockJsServer(_this)->onUri._parent.procedure, web_DDPServer_onUri_o);
+    cx_setref(&web_SockJsServer(_this)->onUri._parent.instance, _this);
 
-    _this->sessions = cx_void__declare(_this, "__sessions");
+    _this->sessions = cx_void__createChild(_this, "__sessions");
 
     return web_SockJsServer_construct(web_SockJsServer(_this));
 /* $end */
@@ -154,9 +154,9 @@ web_DDPServer_Publication web_DDPServer_getPublication(web_DDPServer _this, cx_s
     if (!pub) {
         cx_object o = cx_resolve(NULL, name);
         if (o) {
-            pub = web_DDPServer_Publication__declare(_this, name);
+            pub = web_DDPServer_Publication__declareChild(_this, name);
             web_DDPServer_Publication__define(pub, o);
-            cx_free(o);
+            cx_release(o);
         }
     }
 
@@ -169,7 +169,7 @@ cx_void web_DDPServer_onClose(web_DDPServer _this, web_SockJsServer_Connection c
 /* $begin(::cortex::web::DDPServer::onClose) */
     CX_UNUSED(_this);
     if (conn->data) {
-        cx_destruct(conn->data);
+        cx_delete(conn->data);
     }
 /* $end */
 }
@@ -248,7 +248,7 @@ cx_void web_DDPServer_post(web_DDPServer _this, cx_event e) {
      * if so, replace event with latest update. */
     if ((e2 = web_DDPServer_findRelatedEvent(_this, cx_observableEvent(e)))) {
         cx_llReplace(_this->events, e2, e);
-        cx_free(e2);
+        cx_release(e2);
     } else {
         cx_llAppend(_this->events, e);
     }
@@ -281,7 +281,7 @@ cx_void web_DDPServer_run(web_DDPServer _this) {
         cx_unlock(_this);
         while ((e = cx_llTakeFirst(events))) {
             cx_event_handle(e);
-            cx_free(e);
+            cx_release(e);
             web_SockJsServer_poll(web_SockJsServer(_this), 1);
         }
     }

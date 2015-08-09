@@ -27,7 +27,7 @@ cx_void web_DDPServer_Subscription_ready(web_DDPServer_Subscription _this) {
     msgLength = snprintf(NULL, 0, WEB_DDPSERVER_SUBSCRIPTION_READY,
             _this->id);
 
-    msg = cx_malloc(msgLength + 1);
+    msg = cx_alloc(msgLength + 1);
     snprintf(msg, msgLength + 1, WEB_DDPSERVER_SUBSCRIPTION_READY, 
             _this->id);
 

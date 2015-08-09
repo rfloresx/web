@@ -19,7 +19,7 @@
 
 /* Allocates memory and copies the content; free the memory manually when finished. */
 static char* web_WebSocketServer_copyConnectionContent(struct mg_connection *conn) {
-    char *content = cx_malloc(conn->content_len + 1);
+    char *content = cx_alloc(conn->content_len + 1);
     memcpy(content, conn->content, conn->content_len);
     content[conn->content_len] = '\0';
     return content;
@@ -32,12 +32,12 @@ static void web_WebSocketServer_close(web_WebSocketServer _this, struct mg_conne
     }
     c->conn = 0;
     conn->connection_param = NULL;
-    cx_destruct(c);
+    cx_delete(c);
 }
 
 static void web_WebSocketServer_open(web_WebSocketServer _this, struct mg_connection *conn) {
     char *name = web_random(17);
-    web_WebSocketConnection c = web_WebSocketConnection__declare(_this, name);
+    web_WebSocketConnection c = web_WebSocketConnection__declareChild(_this, name);
     cx_dealloc(name);
     c->conn = (cx_word)conn;
     if (web_WebSocketConnection__define(c, NULL)) {

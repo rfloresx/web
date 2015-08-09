@@ -11,7 +11,7 @@
 /* $header() */
 cx_void web_DDPServer_Session_nosub(web_DDPServer_Session _this, cx_string id) {
     int msgLength = snprintf(NULL, 0, "{\"msg\":\"nosub\",\"id\":\"%s\"}", id);
-    cx_string msg = cx_malloc(msgLength + 1);
+    cx_string msg = cx_alloc(msgLength + 1);
     sprintf(msg, "{\"msg\":\"nosub\",\"id\":\"%s\"}", id);
     web_SockJsServer_Connection_send(_this->conn, msg);
     cx_dealloc(msg);    
@@ -22,7 +22,7 @@ cx_void web_DDPServer_Session_nosub(web_DDPServer_Session _this, cx_string id) {
 cx_void web_DDPServer_Session_connected(web_DDPServer_Session _this) {
 /* $begin(::cortex::web::DDPServer::Session::connected) */
     int msgLength = snprintf(NULL, 0, "{\"msg\":\"connected\",\"session\":\"%s\"}", cx_nameof(_this));
-    cx_string msg = cx_malloc(msgLength + 1);
+    cx_string msg = cx_alloc(msgLength + 1);
     sprintf(msg, "{\"msg\":\"connected\",\"session\":\"%s\"}", cx_nameof(_this));
     web_SockJsServer_Connection_send(_this->conn, msg);
     cx_dealloc(msg);
@@ -33,8 +33,8 @@ cx_void web_DDPServer_Session_connected(web_DDPServer_Session _this) {
 cx_int16 web_DDPServer_Session_construct(web_DDPServer_Session _this) {
 /* $begin(::cortex::web::DDPServer::Session::construct) */
 
-    _this->collections = cx_void__declare(_this, "__collections");
-    _this->subscriptions = cx_void__declare(_this, "__subscriptions");
+    _this->collections = cx_void__createChild(_this, "__collections");
+    _this->subscriptions = cx_void__createChild(_this, "__subscriptions");
 
     return 0;
 /* $end */
@@ -55,8 +55,7 @@ web_DDPServer_Collection web_DDPServer_Session_getCollection(web_DDPServer_Sessi
     if (!(result = cx_lookup(_this->collections, name))) {
         cx_object o = cx_resolve(NULL, name);
         if (o) {
-            result = web_DDPServer_Collection__declare(_this->collections, name);
-            web_DDPServer_Collection__define(result, o, FALSE, FALSE, FALSE);
+            result = web_DDPServer_Collection__createChild(_this->collections, name, o, FALSE, FALSE, FALSE);
         }
     }
 
@@ -70,8 +69,7 @@ web_DDPServer_Subscription web_DDPServer_Session_getSub(web_DDPServer_Session _t
     web_DDPServer_Subscription result = NULL;
 
     if (!(result = cx_lookup(_this->subscriptions, id))) {
-        result = web_DDPServer_Subscription__declare(_this->subscriptions, id);
-        web_DDPServer_Subscription__define(result, pub, id, value, meta, scope);
+        result = web_DDPServer_Subscription__createChild(_this->subscriptions, id, pub, id, value, meta, scope);
     }
 
     return result;
@@ -83,7 +81,7 @@ cx_void web_DDPServer_Session_pong(web_DDPServer_Session _this, cx_string id) {
 /* $begin(::cortex::web::DDPServer::Session::pong) */
     if (id) {
         int msgLength = snprintf(NULL, 0, "{\"msg\":\"pong\",\"id\":\"%s\"}", id);
-        cx_string msg = cx_malloc(msgLength + 1);
+        cx_string msg = cx_alloc(msgLength + 1);
         sprintf(msg, "{\"msg\":\"pong\",\"id\":\"%s\"}", id);
         web_SockJsServer_Connection_send(_this->conn, msg);
         cx_dealloc(msg);

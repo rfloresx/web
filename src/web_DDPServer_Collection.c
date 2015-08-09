@@ -57,7 +57,7 @@ cx_void web_DDPServer_Collection_onAdded(web_DDPServer_Collection _this, cx_obje
             cx_fullname(observable, id),
             jsonData.buffer);
 
-    msg = cx_malloc(msgLength + 1);
+    msg = cx_alloc(msgLength + 1);
     snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_ADDED, 
             cx_nameof(_this->obj), 
             id,
@@ -89,7 +89,7 @@ cx_void web_DDPServer_Collection_onChanged(web_DDPServer_Collection _this, cx_ob
             cx_fullname(observable, id),
             jsonData.buffer);
 
-    msg = cx_malloc(msgLength + 1);
+    msg = cx_alloc(msgLength + 1);
     snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_CHANGED, 
             cx_nameof(_this->obj), 
             id,
@@ -116,7 +116,7 @@ cx_void web_DDPServer_Collection_onRemoved(web_DDPServer_Collection _this, cx_ob
             cx_nameof(_this->obj), 
             cx_fullname(observable, id));
 
-    msg = cx_malloc(msgLength + 1);
+    msg = cx_alloc(msgLength + 1);
     snprintf(msg, msgLength + 1, WEB_DDPSERVER_COLLECTION_REMOVED, 
             cx_nameof(_this->obj), 
             id);
