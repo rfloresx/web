@@ -32,7 +32,7 @@ cx_void web_DDPServer_methodInsert(web_DDPServer _this, web_SockJsServer_Connect
     }
     // TODO seems a bit wasteful!
     char* serialization = json_serialize_to_string(selector);
-    cx_object o = cx_json_deser(NULL, serialization);
+    cx_object o = cx_json_deser(serialization);
     json_free_serialized_string(serialization);
     if (cx_define(o)) {
       cx_id fullname;
@@ -141,6 +141,8 @@ static cx_bool web_DDPServer_methodUpdateSetPrimitive(void** dest, cx_type* type
         case CX_TEXT:
             error = web_DDPServer_methodUpdateSetText(*dest, *type, value);
             break;
+        default:
+            break;
     }
     return error;
 }
@@ -159,6 +161,8 @@ static cx_bool web_DDPServer_methodUpdateSetEach(cx_object object, const char* k
     switch (type->kind) {
         case CX_PRIMITIVE:
             web_DDPServer_methodUpdateSetPrimitive(&dest, &type, &reference, value);
+            break;
+        default:
             break;
     }
     free(keyCopy);
@@ -215,7 +219,7 @@ cx_void web_DDPServer_methodUpdate(web_DDPServer _this, web_SockJsServer_Connect
                 json_object_get_value(modifiers, modifier), &reason);
         } else if (strncmp(modifier, "$", 1)) {
             char* jsonStr = json_serialize_to_string(json_array_get_value(params, 1));
-            cx_object o = cx_json_deser(object, jsonStr);
+            cx_object o = cx_json_deser(jsonStr);
             json_free_serialized_string(jsonStr);
             if (!o) {
                 cx_asprintf(&reason, "cannot update object");

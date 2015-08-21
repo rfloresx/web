@@ -21,7 +21,7 @@ web_DDPServer_Session web_DDPServer_Collection_getSession(web_DDPServer_Collecti
 /* $end */
 
 /* ::cortex::web::DDPServer::Collection::construct() */
-cx_int16 web_DDPServer_Collection_construct(web_DDPServer_Collection _this) {
+cx_int16 _web_DDPServer_Collection_construct(web_DDPServer_Collection _this) {
 /* $begin(::cortex::web::DDPServer::Collection::construct) */
 	web_DDPServer server = web_DDPServer(cx_parentof(cx_parentof(cx_parentof(cx_parentof(_this)))));
 
@@ -38,7 +38,7 @@ cx_int16 web_DDPServer_Collection_construct(web_DDPServer_Collection _this) {
 }
 
 /* ::cortex::web::DDPServer::Collection::onAdded */
-cx_void web_DDPServer_Collection_onAdded(web_DDPServer_Collection _this, cx_object *observable, cx_object *source) {
+cx_void _web_DDPServer_Collection_onAdded(web_DDPServer_Collection _this, cx_object *observable, cx_object *source) {
 /* $begin(::cortex::web::DDPServer::Collection::onAdded) */
     struct cx_serializer_s serializer = cx_json_ser(CX_PRIVATE, CX_NOT, CX_SERIALIZER_TRACE_NEVER);
     web_DDPServer_Session session = web_DDPServer_Collection_getSession(_this);
@@ -71,7 +71,7 @@ cx_void web_DDPServer_Collection_onAdded(web_DDPServer_Collection _this, cx_obje
 }
 
 /* ::cortex::web::DDPServer::Collection::onChanged */
-cx_void web_DDPServer_Collection_onChanged(web_DDPServer_Collection _this, cx_object *observable, cx_object *source) {
+cx_void _web_DDPServer_Collection_onChanged(web_DDPServer_Collection _this, cx_object *observable, cx_object *source) {
 /* $begin(::cortex::web::DDPServer::Collection::onChanged) */
     struct cx_serializer_s serializer = cx_json_ser(CX_PRIVATE, CX_NOT, CX_SERIALIZER_TRACE_NEVER);
     web_DDPServer_Session session = web_DDPServer_Collection_getSession(_this);
@@ -104,7 +104,7 @@ cx_void web_DDPServer_Collection_onChanged(web_DDPServer_Collection _this, cx_ob
 }
 
 /* ::cortex::web::DDPServer::Collection::onRemoved */
-cx_void web_DDPServer_Collection_onRemoved(web_DDPServer_Collection _this, cx_object *observable, cx_object *source) {
+cx_void _web_DDPServer_Collection_onRemoved(web_DDPServer_Collection _this, cx_object *observable, cx_object *source) {
 /* $begin(::cortex::web::DDPServer::Collection::onRemoved) */
     web_DDPServer_Session session = web_DDPServer_Collection_getSession(_this);
     cx_string msg = NULL;
@@ -131,7 +131,7 @@ cx_void web_DDPServer_Collection_onRemoved(web_DDPServer_Collection _this, cx_ob
 }
 
 /* ::cortex::web::DDPServer::Collection::subscribe(bool value,bool meta,bool scope) */
-cx_void web_DDPServer_Collection_subscribe(web_DDPServer_Collection _this, cx_bool value, cx_bool meta, cx_bool scope) {
+cx_void _web_DDPServer_Collection_subscribe(web_DDPServer_Collection _this, cx_bool value, cx_bool meta, cx_bool scope) {
 /* $begin(::cortex::web::DDPServer::Collection::subscribe) */
 
     _this->value |= value;

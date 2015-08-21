@@ -145,7 +145,7 @@ static void* web_SockJsServer_threadRun(void *data) {
 /* $end */
 
 /* ::cortex::web::SockJsServer::construct() */
-cx_int16 web_SockJsServer_construct(web_SockJsServer _this) {
+cx_int16 _web_SockJsServer_construct(web_SockJsServer _this) {
 /* $begin(::cortex::web::SockJsServer::construct) */
     if (_this->pollTimemoutMillis == 0) {
         _this->pollTimemoutMillis = WEB_SOCKJSSERVER_DEFAULT_POLL_TIMEOUT;
@@ -157,7 +157,7 @@ cx_int16 web_SockJsServer_construct(web_SockJsServer _this) {
 }
 
 /* ::cortex::web::SockJsServer::destruct() */
-cx_void web_SockJsServer_destruct(web_SockJsServer _this) {
+cx_void _web_SockJsServer_destruct(web_SockJsServer _this) {
 /* $begin(::cortex::web::SockJsServer::destruct) */
     _this->exiting = TRUE;
     cx_threadJoin((cx_thread)_this->thread, NULL);
@@ -165,7 +165,7 @@ cx_void web_SockJsServer_destruct(web_SockJsServer _this) {
 }
 
 /* ::cortex::web::SockJsServer::poll(uint32 msec) */
-cx_void web_SockJsServer_poll(web_SockJsServer _this, cx_uint32 msec) {
+cx_void _web_SockJsServer_poll(web_SockJsServer _this, cx_uint32 msec) {
 /* $begin(::cortex::web::SockJsServer::poll) */
     struct mg_server *server = (struct mg_server *)_this->server;
     if (!msec) {
@@ -193,7 +193,7 @@ cx_void web_SockJsServer_poll(web_SockJsServer _this, cx_uint32 msec) {
 }
 
 /* ::cortex::web::SockJsServer::run() */
-cx_void web_SockJsServer_run_v(web_SockJsServer _this) {
+cx_void _web_SockJsServer_run_v(web_SockJsServer _this) {
 /* $begin(::cortex::web::SockJsServer::run) */
     while (TRUE) {
         web_SockJsServer_poll(_this, 0);

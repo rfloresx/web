@@ -19,7 +19,7 @@ cx_void web_DDPServer_Session_nosub(web_DDPServer_Session _this, cx_string id) {
 /* $end */
 
 /* ::cortex::web::DDPServer::Session::connected() */
-cx_void web_DDPServer_Session_connected(web_DDPServer_Session _this) {
+cx_void _web_DDPServer_Session_connected(web_DDPServer_Session _this) {
 /* $begin(::cortex::web::DDPServer::Session::connected) */
     int msgLength = snprintf(NULL, 0, "{\"msg\":\"connected\",\"session\":\"%s\"}", cx_nameof(_this));
     cx_string msg = cx_alloc(msgLength + 1);
@@ -30,7 +30,7 @@ cx_void web_DDPServer_Session_connected(web_DDPServer_Session _this) {
 }
 
 /* ::cortex::web::DDPServer::Session::construct() */
-cx_int16 web_DDPServer_Session_construct(web_DDPServer_Session _this) {
+cx_int16 _web_DDPServer_Session_construct(web_DDPServer_Session _this) {
 /* $begin(::cortex::web::DDPServer::Session::construct) */
 
     _this->collections = cx_void__createChild(_this, "__collections");
@@ -41,7 +41,7 @@ cx_int16 web_DDPServer_Session_construct(web_DDPServer_Session _this) {
 }
 
 /* ::cortex::web::DDPServer::Session::error(string reason,string offendingMessage) */
-cx_void web_DDPServer_Session_error(web_DDPServer_Session _this, cx_string reason, cx_string offendingMessage) {
+cx_void _web_DDPServer_Session_error(web_DDPServer_Session _this, cx_string reason, cx_string offendingMessage) {
 /* $begin(::cortex::web::DDPServer::Session::error) */
     cx_string msg = NULL;
     if (offendingMessage) {
@@ -55,14 +55,14 @@ cx_void web_DDPServer_Session_error(web_DDPServer_Session _this, cx_string reaso
 }
 
 /* ::cortex::web::DDPServer::Session::failed(::cortex::web::SockJsServer::Connection conn) */
-cx_void web_DDPServer_Session_failed(web_SockJsServer_Connection conn) {
+cx_void _web_DDPServer_Session_failed(web_SockJsServer_Connection conn) {
 /* $begin(::cortex::web::DDPServer::Session::failed) */
     web_SockJsServer_Connection_send(conn, "{\"msg\":\"failed\",\"version\":\"1\"}");
 /* $end */
 }
 
 /* ::cortex::web::DDPServer::Session::getCollection(string name) */
-web_DDPServer_Collection web_DDPServer_Session_getCollection(web_DDPServer_Session _this, cx_string name) {
+web_DDPServer_Collection _web_DDPServer_Session_getCollection(web_DDPServer_Session _this, cx_string name) {
 /* $begin(::cortex::web::DDPServer::Session::getCollection) */
     web_DDPServer_Collection result = NULL;
 
@@ -78,7 +78,7 @@ web_DDPServer_Collection web_DDPServer_Session_getCollection(web_DDPServer_Sessi
 }
 
 /* ::cortex::web::DDPServer::Session::getSub(::cortex::web::DDPServer::Publication pub,string id,bool meta,bool value,bool scope) */
-web_DDPServer_Subscription web_DDPServer_Session_getSub(web_DDPServer_Session _this, web_DDPServer_Publication pub, cx_string id, cx_bool meta, cx_bool value, cx_bool scope) {
+web_DDPServer_Subscription _web_DDPServer_Session_getSub(web_DDPServer_Session _this, web_DDPServer_Publication pub, cx_string id, cx_bool meta, cx_bool value, cx_bool scope) {
 /* $begin(::cortex::web::DDPServer::Session::getSub) */
     web_DDPServer_Subscription result = NULL;
 
@@ -91,7 +91,7 @@ web_DDPServer_Subscription web_DDPServer_Session_getSub(web_DDPServer_Session _t
 }
 
 /* ::cortex::web::DDPServer::Session::pong(string id) */
-cx_void web_DDPServer_Session_pong(web_DDPServer_Session _this, cx_string id) {
+cx_void _web_DDPServer_Session_pong(web_DDPServer_Session _this, cx_string id) {
 /* $begin(::cortex::web::DDPServer::Session::pong) */
     if (id) {
         int msgLength = snprintf(NULL, 0, "{\"msg\":\"pong\",\"id\":\"%s\"}", id);
@@ -106,7 +106,7 @@ cx_void web_DDPServer_Session_pong(web_DDPServer_Session _this, cx_string id) {
 }
 
 /* ::cortex::web::DDPServer::Session::sub(string id,string name,bool meta,bool value,bool scope) */
-cx_void web_DDPServer_Session_sub(web_DDPServer_Session _this, cx_string id, cx_string name, cx_bool meta, cx_bool value, cx_bool scope) {
+cx_void _web_DDPServer_Session_sub(web_DDPServer_Session _this, cx_string id, cx_string name, cx_bool meta, cx_bool value, cx_bool scope) {
 /* $begin(::cortex::web::DDPServer::Session::sub) */
     web_DDPServer server = web_DDPServer(cx_parentof(cx_parentof(_this)));
 

@@ -13,7 +13,7 @@
 /* $end */
 
 /* ::cortex::web::SockJsServer::Connection::send(string msg) */
-cx_void web_SockJsServer_Connection_send(web_SockJsServer_Connection _this, cx_string msg) {
+cx_void _web_SockJsServer_Connection_send(web_SockJsServer_Connection _this, cx_string msg) {
 /* $begin(::cortex::web::SockJsServer::Connection::send) */
 	int escapedLength;
 	cx_string sockJsMsg;

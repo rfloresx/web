@@ -13,7 +13,7 @@
 /* $end */
 
 /* ::cortex::web::WebSocketConnection::send(string message) */
-cx_void web_WebSocketConnection_send(web_WebSocketConnection _this, cx_string message) {
+cx_void _web_WebSocketConnection_send(web_WebSocketConnection _this, cx_string message) {
 /* $begin(::cortex::web::WebSocketConnection::send) */
     mg_websocket_printf((struct mg_connection *)_this->conn, WEBSOCKET_OPCODE_TEXT, message);
 /* $end */
