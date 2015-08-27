@@ -1,6 +1,6 @@
 
-PACKAGE = 'cortex::web'
+PACKAGE = 'corto::web'
 
 USE_COMPONENT = ['json']
 
-require "#{ENV['CORTEX_BUILD']}/package"
+require "#{ENV['CORTO_BUILD']}/package"

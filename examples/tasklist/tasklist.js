@@ -19,7 +19,7 @@ if (Meteor.isClient) {
           meta: {
               "name": name,
               parent: "::Tasklist",
-              type: "::cortex::lang::string"
+              type: "::corto::lang::string"
           },
           value: desc
       });

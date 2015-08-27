@@ -8,9 +8,9 @@
 
 #include "web.h"
 
-/* ::cortex::web::random(uint16 n) */
+/* ::corto::web::random(uint16 n) */
 cx_string _web_random(cx_uint16 n) {
-/* $begin(::cortex::web::random) */
+/* $begin(::corto::web::random) */
 	static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	static char *alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
 	cx_uint16 i;

@@ -12,9 +12,9 @@
 #include "mongoose.h"
 /* $end */
 
-/* ::cortex::web::SockJsServer::Connection::send(string msg) */
+/* ::corto::web::SockJsServer::Connection::send(string msg) */
 cx_void _web_SockJsServer_Connection_send(web_SockJsServer_Connection _this, cx_string msg) {
-/* $begin(::cortex::web::SockJsServer::Connection::send) */
+/* $begin(::corto::web::SockJsServer::Connection::send) */
 	int escapedLength;
 	cx_string sockJsMsg;
 

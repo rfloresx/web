@@ -16,9 +16,9 @@ web_DDPServer_Session web_DDPServer_Subscription_getSession(web_DDPServer_Subscr
 }
 /* $end */
 
-/* ::cortex::web::DDPServer::Subscription::ready() */
+/* ::corto::web::DDPServer::Subscription::ready() */
 cx_void _web_DDPServer_Subscription_ready(web_DDPServer_Subscription _this) {
-/* $begin(::cortex::web::DDPServer::Subscription::ready) */
+/* $begin(::corto::web::DDPServer::Subscription::ready) */
     web_DDPServer_Session session = web_DDPServer_Subscription_getSession(_this);
     cx_string msg = NULL;
     cx_uint32 msgLength = 0;

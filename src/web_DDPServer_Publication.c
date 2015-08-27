@@ -8,9 +8,9 @@
 
 #include "web.h"
 
-/* ::cortex::web::DDPServer::Publication::create(object session,object sub) */
+/* ::corto::web::DDPServer::Publication::create(object session,object sub) */
 cx_int16 _web_DDPServer_Publication_create(web_DDPServer_Publication _this, cx_object session, cx_object sub) {
-/* $begin(::cortex::web::DDPServer::Publication::create) */
+/* $begin(::corto::web::DDPServer::Publication::create) */
 	web_DDPServer_Session _session = web_DDPServer_Session(session);
 	web_DDPServer_Subscription _sub = web_DDPServer_Subscription(sub);
 

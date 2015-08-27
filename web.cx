@@ -1,4 +1,4 @@
-#package ::cortex::web
+#package ::corto::web
 
 string random(uint16 n)
 

@@ -115,9 +115,9 @@ static void* web_WebSocketServer_threadRun(void *data) {
 
 /* $end */
 
-/* ::cortex::web::WebSocketServer::construct() */
+/* ::corto::web::WebSocketServer::construct() */
 cx_int16 _web_WebSocketServer_construct(web_WebSocketServer _this) {
-/* $begin(::cortex::web::WebSocketServer::construct) */
+/* $begin(::corto::web::WebSocketServer::construct) */
     if (_this->pollTimemoutMillis == 0) {
         _this->pollTimemoutMillis = WEB_WEBSOCKETSERVER_DEFAULT_POLL_TIMEOUT;
     }
@@ -132,25 +132,25 @@ cx_int16 _web_WebSocketServer_construct(web_WebSocketServer _this) {
 /* $end */
 }
 
-/* ::cortex::web::WebSocketServer::destruct() */
+/* ::corto::web::WebSocketServer::destruct() */
 cx_void _web_WebSocketServer_destruct(web_WebSocketServer _this) {
-/* $begin(::cortex::web::WebSocketServer::destruct) */
+/* $begin(::corto::web::WebSocketServer::destruct) */
     _this->exiting = TRUE;
     cx_threadJoin((cx_thread)_this->thread, NULL);
 /* $end */
 }
 
-/* ::cortex::web::WebSocketServer::poll() */
+/* ::corto::web::WebSocketServer::poll() */
 cx_void _web_WebSocketServer_poll(web_WebSocketServer _this) {
-/* $begin(::cortex::web::WebSocketServer::poll) */
+/* $begin(::corto::web::WebSocketServer::poll) */
     struct mg_server *server = (struct mg_server *)_this->server;
     mg_poll_server(server, _this->pollTimemoutMillis);
 /* $end */
 }
 
-/* ::cortex::web::WebSocketServer::run() */
+/* ::corto::web::WebSocketServer::run() */
 cx_void _web_WebSocketServer_run_v(web_WebSocketServer _this) {
-/* $begin(::cortex::web::WebSocketServer::run) */
+/* $begin(::corto::web::WebSocketServer::run) */
     while (TRUE) {
         web_WebSocketServer_poll(_this);
         if (_this->exiting) {

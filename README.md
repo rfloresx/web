@@ -1,11 +1,11 @@
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cortexlang/web?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cortolang/web?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 
-HTTP, WebSocket, SockJS and DDP server implementations for cortex
+HTTP, WebSocket, SockJS and DDP server implementations for corto
 
 ## Building web
-Web requires [cortex](http://www.github.com/cortexlang/cortex) to be installed on your machine. Before building web, please ensure that cortex is available in your environment (you can quickly check by typing `cxsh`). If not, run `source configure` from the cortex installation folder.
+Web requires [corto](http://www.github.com/cortolang/corto) to be installed on your machine. Before building web, please ensure that corto is available in your environment (you can quickly check by typing `cxsh`). If not, run `source configure` from the corto installation folder.
 
-When cortex is succesfully installed, go to the `web` installation folder. Run the following command:
+When corto is succesfully installed, go to the `web` installation folder. Run the following command:
 ```
 rake
 ```
@@ -13,32 +13,32 @@ After rake has finished, a library called `libweb.so` will now be located in <we
 ```
 cxsh ./bin/libweb.so
 ```
-That will start the cortex shell and load the web library. In the cortex shell, you can now type:
+That will start the corto shell and load the web library. In the corto shell, you can now type:
 ```
 web::DDPServer s: 8000
 ```
-This will start a DDP server on port 8000. Also, check out our [DDP example](https://github.com/cortexlang/web/tree/master/examples/tasklist)! Enjoy!
+This will start a DDP server on port 8000. Also, check out our [DDP example](https://github.com/cortolang/web/tree/master/examples/tasklist)! Enjoy!
 
 ## Contents
 ### HTTP server
-_::cortex::web::HTTPServer_
+_::corto::web::HTTPServer_
 
 To be done
 
 ### WebSocket server
-_::cortex::web::WebSocketServer_
+_::corto::web::WebSocketServer_
 
 To be done
 
 ### SockJS server
-_::cortex::web::SockJsServer_
+_::corto::web::SockJsServer_
 
 The SockJS server implements a subset (for now) of the [SockJS protocol](http://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html) that allows for setting up a WebSocket connection. 
 This will allow applications to connect with JS clients that use SockJS as a library.
 
 ### DDP server
-_::cortex::web::DDPServer_
+_::corto::web::DDPServer_
 
 The DDP server is an implementation of the [DDP protocol](https://www.meteor.com/ddp) used by Meteor to synchronize data between a server and a client cache. 
-The server maps DDP collections on Cortex scopes. This server enables writing Meteor apps with a Cortex backend.
-The `examples/tasklist` example is a simple demonstration of Cortex & Meteor/DDP integration.
+The server maps DDP collections on Corto scopes. This server enables writing Meteor apps with a Corto backend.
+The `examples/tasklist` example is a simple demonstration of Corto & Meteor/DDP integration.

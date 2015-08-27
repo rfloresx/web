@@ -150,9 +150,9 @@ static cx_void web_DDPServer_api(web_DDPServer _this, web_SockJsServer_UriReques
 
 /* $end */
 
-/* ::cortex::web::DDPServer::construct() */
+/* ::corto::web::DDPServer::construct() */
 cx_int16 _web_DDPServer_construct(web_DDPServer _this) {
-/* $begin(::cortex::web::DDPServer::construct) */
+/* $begin(::corto::web::DDPServer::construct) */
 
     /* Set the handlers of the SockJsServer base */
     cx_setref(&web_SockJsServer(_this)->onClose._parent.procedure, web_DDPServer_onClose_o);
@@ -170,9 +170,9 @@ cx_int16 _web_DDPServer_construct(web_DDPServer _this) {
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::getPublication(string name) */
+/* ::corto::web::DDPServer::getPublication(string name) */
 web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer _this, cx_string name) {
-/* $begin(::cortex::web::DDPServer::getPublication) */
+/* $begin(::corto::web::DDPServer::getPublication) */
 
     /* Find matching publication */
     web_DDPServer_Publication pub = cx_lookup(_this, name);
@@ -189,9 +189,9 @@ web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer _this, cx_
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::onClose(::cortex::web::SockJsServer::Connection conn) */
+/* ::corto::web::DDPServer::onClose(::corto::web::SockJsServer::Connection conn) */
 cx_void _web_DDPServer_onClose(web_DDPServer _this, web_SockJsServer_Connection conn) {
-/* $begin(::cortex::web::DDPServer::onClose) */
+/* $begin(::corto::web::DDPServer::onClose) */
     CX_UNUSED(_this);
     if (conn->data) {
         cx_delete(conn->data);
@@ -199,9 +199,9 @@ cx_void _web_DDPServer_onClose(web_DDPServer _this, web_SockJsServer_Connection 
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::onMessage(::cortex::web::SockJsServer::Connection conn,string message) */
+/* ::corto::web::DDPServer::onMessage(::corto::web::SockJsServer::Connection conn,string message) */
 cx_void _web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connection conn, cx_string message) {
-/* $begin(::cortex::web::DDPServer::onMessage) */
+/* $begin(::corto::web::DDPServer::onMessage) */
     CX_UNUSED(_this);
     CX_UNUSED(conn);
 
@@ -234,9 +234,9 @@ error:;
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::onUri(::cortex::web::SockJsServer::UriRequest conn,string uri) */
+/* ::corto::web::DDPServer::onUri(::corto::web::SockJsServer::UriRequest conn,string uri) */
 cx_void _web_DDPServer_onUri(web_DDPServer _this, web_SockJsServer_UriRequest *conn, cx_string uri) {
-/* $begin(::cortex::web::DDPServer::onUri) */
+/* $begin(::corto::web::DDPServer::onUri) */
     CX_UNUSED(_this);
     if (!memcmp(uri, "/api", 4)) {
         web_DDPServer_api(_this, conn, uri);
@@ -247,8 +247,8 @@ cx_void _web_DDPServer_onUri(web_DDPServer _this, web_SockJsServer_UriRequest *c
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::post(event e) */
-/* $header(::cortex::web::DDPServer::post) */
+/* ::corto::web::DDPServer::post(event e) */
+/* $header(::corto::web::DDPServer::post) */
 static cx_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer _this, cx_observableEvent e) {
     cx_iter iter = cx_llIter(_this->events);
     cx_observableEvent e2;
@@ -265,7 +265,7 @@ static cx_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer _this, cx
 }
 /* $end */
 cx_void _web_DDPServer_post(web_DDPServer _this, cx_event e) {
-/* $begin(::cortex::web::DDPServer::post) */
+/* $begin(::corto::web::DDPServer::post) */
     cx_uint32 size = 0;
     cx_observableEvent e2;
 
@@ -288,9 +288,9 @@ cx_void _web_DDPServer_post(web_DDPServer _this, cx_event e) {
 /* $end */
 }
 
-/* ::cortex::web::DDPServer::run() */
+/* ::corto::web::DDPServer::run() */
 cx_void _web_DDPServer_run(web_DDPServer _this) {
-/* $begin(::cortex::web::DDPServer::run) */
+/* $begin(::corto::web::DDPServer::run) */
     cx_event e;
     cx_ll events = cx_llNew();
 
