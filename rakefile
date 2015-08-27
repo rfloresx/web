@@ -1,9 +1,6 @@
 
 PACKAGE = 'cortex::web'
 
-INCLUDE = ["#{ENV['CORTEX_HOME']}/interface/json/include"]
+USE_COMPONENT = ['json']
 
-CORTEX_LIB = ['json']
-
-require "#{ENV['CORTEX_HOME']}/build/package"
-
+require "#{ENV['CORTEX_BUILD']}/package"
