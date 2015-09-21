@@ -6,6 +6,7 @@
  * code in interface functions isn't replaced when code is re-generated.
  */
 
+#define corto_web_LIB
 #include "web.h"
 
 /* $header() */
@@ -23,8 +24,8 @@
 #define WEB_DDP_SERVER_SIZE_THRESHOLD 100
 #define WEB_DDP_SERVER_BIG_LIST_SLEEP 10000000
 
-static cx_void web_DDPServer_connect(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
-    CX_UNUSED(_this);
+static cx_void web_DDPServer_connect(web_DDPServer this, web_SockJsServer_Connection conn, JSON_Object *json) {
+    CX_UNUSED(this);
     const char *session = json_object_get_string(json, "session");
     const char *version = json_object_get_string(json, "version");
     web_DDPServer_Session ddpSession = NULL;
@@ -33,10 +34,10 @@ static cx_void web_DDPServer_connect(web_DDPServer _this, web_SockJsServer_Conne
     if (version && strcmp(version, "1")) {
         goto failed;
     } else {
-        if (!session || !(ddpSession = cx_resolve(_this->sessions, (cx_string)session))) {
+        if (!session || !(ddpSession = cx_resolve(this->sessions, (cx_string)session))) {
             char *sessionId = web_random(17);
-            ddpSession = web_DDPServer_Session__declareChild(_this->sessions, sessionId);
-            web_DDPServer_Session__define(ddpSession, conn);
+            ddpSession = web_DDPServer_SessionDeclareChild(this->sessions, sessionId);
+            web_DDPServer_SessionDefine(ddpSession, conn);
             cx_setref(&conn->data, ddpSession);
             cx_dealloc(sessionId);
         } else {
@@ -53,14 +54,14 @@ failed:;
     web_DDPServer_Session_failed(conn);
 }
 
-static cx_void web_DDPServer_ping(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
-    CX_UNUSED(_this);
+static cx_void web_DDPServer_ping(web_DDPServer this, web_SockJsServer_Connection conn, JSON_Object *json) {
+    CX_UNUSED(this);
     const char *id = json_object_get_string(json, "id");
     web_DDPServer_Session_pong(conn->data, (cx_string)id);
 }
 
-static cx_void web_DDPServer_sub(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Object *json) {
-    CX_UNUSED(_this);
+static cx_void web_DDPServer_sub(web_DDPServer this, web_SockJsServer_Connection conn, JSON_Object *json) {
+    CX_UNUSED(this);
     const char *id = json_object_get_string(json, "id");
     const char *name = json_object_get_string(json, "name");
     JSON_Array *params = json_object_get_array(json, "params");
@@ -83,30 +84,110 @@ static cx_void web_DDPServer_sub(web_DDPServer _this, web_SockJsServer_Connectio
     web_DDPServer_Session_sub(conn->data, (cx_string)id, (cx_string)name, meta, value, scope);
 }
 
-static int strcmplast(const char* str1, const char* str2) {
-    return strcmp(str1 + strlen(str1) - strlen(str2), str2);
-}
+static cx_void web_DDPServer_callMethod(web_DDPServer this, web_SockJsServer_Connection conn, cx_method m, cx_object instance, JSON_Array*params) {
+    cx_int32 i = 1;
 
-static cx_void web_DDPServer_method(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value* json) {
-    const char *method = json_object_get_string(json_object(json), "method");
-    if (!strcmplast(method, "/insert")) {
-        web_DDPServer_methodInsert(_this, conn, json);
-    } else if (!strcmplast(method, "/update")) {
-        web_DDPServer_methodUpdate(_this, conn, json);
-    } else if (!strcmplast(method, "/remove")) {
-        web_DDPServer_methodRemove(_this, conn, json);
-    } else {
-        cx_warning("received unrecognized DDP method: %s", method);
-        // TODO offending message
-        char* reason = NULL;
-        cx_asprintf(&reason, "unrecognized method \"%s\"", method);
-        web_DDPServer_Session_error(conn->data, reason, NULL);
-        cx_release(reason);
+    /* Allocate buffer for arguments */
+    void *buffer = alloca(cx_function(m)->size);
+    void *ptr = buffer;
+
+    /* Set this pointer in buffer */
+    *(cx_object*)buffer = instance; 
+    ptr = CX_OFFSET(ptr, sizeof(cx_object));
+
+    /* Parse parameters */
+    cx_parameterseqForeach(cx_function(m)->parameters, p) {
+        JSON_Value *arg = json_array_get_value(params, i);
+
+        /* Determine the JSON type, call appropriate conversion */
+        switch(json_value_get_type(arg)) {
+        case JSONNull: {
+            cx_object n = NULL;
+            cx_convert(cx_primitive(cx_object_o), &n, cx_primitive(p.type), ptr);
+            break;
+        }
+        case JSONString: {
+            cx_string str = (char*)json_value_get_string(arg);
+            cx_convert(cx_primitive(cx_string_o), &str, cx_primitive(p.type), ptr);
+            break;
+        }
+        case JSONNumber: {
+            double num = json_value_get_number(arg);
+            cx_convert(cx_primitive(cx_float64_o), &num, cx_primitive(p.type), ptr);
+            break;
+        }
+        case JSONObject:
+        case JSONArray: {
+            web_DDPServer_Session_error(conn->data, "complex arguments are not yet supported", NULL);
+            goto error;
+        }
+        case JSONBoolean: {
+            cx_bool b = json_value_get_boolean(arg);
+            cx_convert(cx_primitive(cx_bool_o), &b, cx_primitive(p.type), ptr);
+            break;
+        }
+        default:
+            break;
+        }
+
+        /* Progress parameter buffer to next parameter */
+        ptr = CX_OFFSET(ptr, cx_type_sizeof(p.type));
+        i++;
     }
+
+    /* Call method */
+    cx_callb(cx_function(m), NULL, buffer);
+
+    return;
+error:
+    return;
 }
 
-static cx_void web_DDPServer_api(web_DDPServer _this, web_SockJsServer_UriRequest *conn, cx_string uri) {
-    CX_UNUSED(_this);
+static cx_void web_DDPServer_method(web_DDPServer this, web_SockJsServer_Connection conn, JSON_Value* json) {
+    cx_string reason = NULL;
+    cx_object instance = NULL;
+    char *method = (char*)json_object_get_string(json_object(json), "method");
+    JSON_Array* params = json_object_get_array(json_object(json), "params");
+    
+    if (!params) {
+        cx_asprintf(&reason, "method %s: cannot find params", method);
+        goto error;
+    }
+
+    /* Is the method an instance method? */
+    if (method[0] == '.') {
+        /* Instance is always the first parameter in the argument list */
+        char* query = (char*)json_array_get_string(params, 0);
+        if (!(instance = cx_resolve(NULL, query))) {
+            cx_asprintf(&reason, "Instance '%s' for method '%s' not found!", query, method);
+            goto error;
+        }
+
+        /* Resolve method on instance */
+        cx_method m = cx_interface_resolveMethod(cx_typeof(instance), method + 1);
+        if (m) {
+            /* Method found, invoke it */
+            web_DDPServer_callMethod(this, conn, m, instance, params);
+        } else {
+            cx_id id;
+            cx_asprintf(&reason, "Method '%s' not found in type '%s' of instance '%s'!", 
+                method, cx_fullname(cx_typeof(instance), id), query);
+            goto error;            
+        }
+
+        cx_release(instance);
+    } else {
+        /* Ordinary methods not yet supported */
+    }
+
+    return;
+error:
+    web_DDPServer_Session_error(conn->data, reason, NULL);
+    cx_dealloc(reason);
+}
+
+static cx_void web_DDPServer_api(web_DDPServer this, web_SockJsServer_UriRequest *conn, cx_string uri) {
+    CX_UNUSED(this);
 
     cx_object o = NULL;
 
@@ -151,36 +232,36 @@ static cx_void web_DDPServer_api(web_DDPServer _this, web_SockJsServer_UriReques
 /* $end */
 
 /* ::corto::web::DDPServer::construct() */
-cx_int16 _web_DDPServer_construct(web_DDPServer _this) {
+cx_int16 _web_DDPServer_construct(web_DDPServer this) {
 /* $begin(::corto::web::DDPServer::construct) */
 
     /* Set the handlers of the SockJsServer base */
-    cx_setref(&web_SockJsServer(_this)->onClose._parent.procedure, web_DDPServer_onClose_o);
-    cx_setref(&web_SockJsServer(_this)->onClose._parent.instance, _this);
+    cx_setref(&web_SockJsServer(this)->onClose._parent.procedure, web_DDPServer_onClose_o);
+    cx_setref(&web_SockJsServer(this)->onClose._parent.instance, this);
 
-    cx_setref(&web_SockJsServer(_this)->onMessage._parent.procedure, web_DDPServer_onMessage_o);
-    cx_setref(&web_SockJsServer(_this)->onMessage._parent.instance, _this);
+    cx_setref(&web_SockJsServer(this)->onMessage._parent.procedure, web_DDPServer_onMessage_o);
+    cx_setref(&web_SockJsServer(this)->onMessage._parent.instance, this);
 
-    cx_setref(&web_SockJsServer(_this)->onUri._parent.procedure, web_DDPServer_onUri_o);
-    cx_setref(&web_SockJsServer(_this)->onUri._parent.instance, _this);
+    cx_setref(&web_SockJsServer(this)->onUri._parent.procedure, web_DDPServer_onUri_o);
+    cx_setref(&web_SockJsServer(this)->onUri._parent.instance, this);
 
-    _this->sessions = cx_void__createChild(_this, "__sessions");
+    this->sessions = cx_voidCreateChild(this, "__sessions");
 
-    return web_SockJsServer_construct(web_SockJsServer(_this));
+    return web_SockJsServer_construct(web_SockJsServer(this));
 /* $end */
 }
 
 /* ::corto::web::DDPServer::getPublication(string name) */
-web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer _this, cx_string name) {
+web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer this, cx_string name) {
 /* $begin(::corto::web::DDPServer::getPublication) */
 
     /* Find matching publication */
-    web_DDPServer_Publication pub = cx_lookup(_this, name);
+    web_DDPServer_Publication pub = cx_lookup(this, name);
     if (!pub) {
         cx_object o = cx_resolve(NULL, name);
         if (o) {
-            pub = web_DDPServer_Publication__declareChild(_this, name);
-            web_DDPServer_Publication__define(pub, o);
+            pub = web_DDPServer_PublicationDeclareChild(this, name);
+            web_DDPServer_PublicationDefine(pub, o);
             cx_release(o);
         }
     }
@@ -190,9 +271,9 @@ web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer _this, cx_
 }
 
 /* ::corto::web::DDPServer::onClose(::corto::web::SockJsServer::Connection conn) */
-cx_void _web_DDPServer_onClose(web_DDPServer _this, web_SockJsServer_Connection conn) {
+cx_void _web_DDPServer_onClose(web_DDPServer this, web_SockJsServer_Connection conn) {
 /* $begin(::corto::web::DDPServer::onClose) */
-    CX_UNUSED(_this);
+    CX_UNUSED(this);
     if (conn->data) {
         cx_delete(conn->data);
     }
@@ -200,9 +281,9 @@ cx_void _web_DDPServer_onClose(web_DDPServer _this, web_SockJsServer_Connection 
 }
 
 /* ::corto::web::DDPServer::onMessage(::corto::web::SockJsServer::Connection conn,string message) */
-cx_void _web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connection conn, cx_string message) {
+cx_void _web_DDPServer_onMessage(web_DDPServer this, web_SockJsServer_Connection conn, cx_string message) {
 /* $begin(::corto::web::DDPServer::onMessage) */
-    CX_UNUSED(_this);
+    CX_UNUSED(this);
     CX_UNUSED(conn);
 
     JSON_Value *root = json_parse_string(message);
@@ -214,13 +295,13 @@ cx_void _web_DDPServer_onMessage(web_DDPServer _this, web_SockJsServer_Connectio
         JSON_Object *jsonObj = json_value_get_object(root);
         const char *msg = json_object_get_string(jsonObj, "msg");
         if (!strcmp(msg, "connect")) {
-            web_DDPServer_connect(_this, conn, jsonObj);
+            web_DDPServer_connect(this, conn, jsonObj);
         } else if (!strcmp(msg, "ping")) {
-            web_DDPServer_ping(_this, conn, jsonObj);
+            web_DDPServer_ping(this, conn, jsonObj);
         } else if (!strcmp(msg, "sub")) {
-            web_DDPServer_sub(_this, conn, jsonObj);
+            web_DDPServer_sub(this, conn, jsonObj);
         } else if (!strcmp(msg, "method")) {
-            web_DDPServer_method(_this, conn, root);
+            web_DDPServer_method(this, conn, root);
         } else {
             goto msg_error;
         }
@@ -235,11 +316,11 @@ error:;
 }
 
 /* ::corto::web::DDPServer::onUri(::corto::web::SockJsServer::UriRequest conn,string uri) */
-cx_void _web_DDPServer_onUri(web_DDPServer _this, web_SockJsServer_UriRequest *conn, cx_string uri) {
+cx_void _web_DDPServer_onUri(web_DDPServer this, web_SockJsServer_UriRequest *conn, cx_string uri) {
 /* $begin(::corto::web::DDPServer::onUri) */
-    CX_UNUSED(_this);
+    CX_UNUSED(this);
     if (!memcmp(uri, "/api", 4)) {
-        web_DDPServer_api(_this, conn, uri);
+        web_DDPServer_api(this, conn, uri);
     } else {
         web_SockJsServer_UriRequest_setStatus(conn, 404);
         web_SockJsServer_UriRequest_write(conn, "Invalid URI");
@@ -249,8 +330,8 @@ cx_void _web_DDPServer_onUri(web_DDPServer _this, web_SockJsServer_UriRequest *c
 
 /* ::corto::web::DDPServer::post(event e) */
 /* $header(::corto::web::DDPServer::post) */
-static cx_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer _this, cx_observableEvent e) {
-    cx_iter iter = cx_llIter(_this->events);
+static cx_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer this, cx_observableEvent e) {
+    cx_iter iter = cx_llIter(this->events);
     cx_observableEvent e2;
     while ((cx_iterHasNext(&iter))) {
         e2 = cx_iterNext(&iter);
@@ -264,22 +345,22 @@ static cx_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer _this, cx
     return NULL;
 }
 /* $end */
-cx_void _web_DDPServer_post(web_DDPServer _this, cx_event e) {
+cx_void _web_DDPServer_post(web_DDPServer this, cx_event e) {
 /* $begin(::corto::web::DDPServer::post) */
     cx_uint32 size = 0;
     cx_observableEvent e2;
 
-    cx_lock(_this);
+    cx_lock(this);
     /* Check if there is already another event in the queue for the same object.
      * if so, replace event with latest update. */
-    if ((e2 = web_DDPServer_findRelatedEvent(_this, cx_observableEvent(e)))) {
-        cx_llReplace(_this->events, e2, e);
+    if ((e2 = web_DDPServer_findRelatedEvent(this, cx_observableEvent(e)))) {
+        cx_llReplace(this->events, e2, e);
         cx_release(e2);
     } else {
-        cx_llAppend(_this->events, e);
+        cx_llAppend(this->events, e);
     }
-    size = cx_llSize(_this->events);
-    cx_unlock(_this);
+    size = cx_llSize(this->events);
+    cx_unlock(this);
 
     /* If queue is getting big, slow down publisher */
     if (size > WEB_DDP_SERVER_SIZE_THRESHOLD) {
@@ -289,26 +370,26 @@ cx_void _web_DDPServer_post(web_DDPServer _this, cx_event e) {
 }
 
 /* ::corto::web::DDPServer::run() */
-cx_void _web_DDPServer_run(web_DDPServer _this) {
+cx_void _web_DDPServer_run(web_DDPServer this) {
 /* $begin(::corto::web::DDPServer::run) */
     cx_event e;
     cx_ll events = cx_llNew();
 
     while (TRUE) {
-        web_SockJsServer_poll(web_SockJsServer(_this), 0);
-        if (web_SockJsServer(_this)->exiting) {
+        web_SockJsServer_poll(web_SockJsServer(this), 0);
+        if (web_SockJsServer(this)->exiting) {
             break;
         }
 
-        cx_lock(_this);
-        while ((e = cx_llTakeFirst(_this->events))) {
+        cx_lock(this);
+        while ((e = cx_llTakeFirst(this->events))) {
             cx_llAppend(events, e);
         }
-        cx_unlock(_this);
+        cx_unlock(this);
         while ((e = cx_llTakeFirst(events))) {
             cx_event_handle(e);
             cx_release(e);
-            web_SockJsServer_poll(web_SockJsServer(_this), 1);
+            web_SockJsServer_poll(web_SockJsServer(this), 1);
         }
     }
 /* $end */

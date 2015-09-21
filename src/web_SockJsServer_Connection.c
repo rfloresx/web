@@ -6,6 +6,7 @@
  * code in interface functions isn't replaced when code is re-generated.
  */
 
+#define corto_web_LIB
 #include "web.h"
 
 /* $header() */
@@ -13,7 +14,7 @@
 /* $end */
 
 /* ::corto::web::SockJsServer::Connection::send(string msg) */
-cx_void _web_SockJsServer_Connection_send(web_SockJsServer_Connection _this, cx_string msg) {
+cx_void _web_SockJsServer_Connection_send(web_SockJsServer_Connection this, cx_string msg) {
 /* $begin(::corto::web::SockJsServer::Connection::send) */
 	int escapedLength;
 	cx_string sockJsMsg;
@@ -24,8 +25,8 @@ cx_void _web_SockJsServer_Connection_send(web_SockJsServer_Connection _this, cx_
 	sprintf(sockJsMsg, "a[\"%*s\"]", escapedLength, " ");
 	stresc(sockJsMsg + 3, escapedLength, msg);
 
-	if (_this->conn) {
-		mg_websocket_printf((struct mg_connection *)_this->conn, WEBSOCKET_OPCODE_TEXT, sockJsMsg);
+	if (this->conn) {
+		mg_websocket_printf((struct mg_connection *)this->conn, WEBSOCKET_OPCODE_TEXT, sockJsMsg);
 	}
 
 	cx_dealloc(sockJsMsg);

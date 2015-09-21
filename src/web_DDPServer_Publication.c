@@ -6,15 +6,16 @@
  * code in interface functions isn't replaced when code is re-generated.
  */
 
+#define corto_web_LIB
 #include "web.h"
 
 /* ::corto::web::DDPServer::Publication::create(object session,object sub) */
-cx_int16 _web_DDPServer_Publication_create(web_DDPServer_Publication _this, cx_object session, cx_object sub) {
+cx_int16 _web_DDPServer_Publication_create(web_DDPServer_Publication this, cx_object session, cx_object sub) {
 /* $begin(::corto::web::DDPServer::Publication::create) */
 	web_DDPServer_Session _session = web_DDPServer_Session(session);
 	web_DDPServer_Subscription _sub = web_DDPServer_Subscription(sub);
 
-	web_DDPServer_Collection coll = web_DDPServer_Session_getCollection(_session, cx_nameof(_this->scope));
+	web_DDPServer_Collection coll = web_DDPServer_Session_getCollection(_session, cx_nameof(this->scope));
 	if (!coll) {
 		goto error;
 	}

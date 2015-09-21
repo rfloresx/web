@@ -14,8 +14,8 @@ static char* web_DDPServer_methodCollection(const JSON_Object* obj) {
     return collection;
 }
 
-cx_void web_DDPServer_methodInsert(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value *json) {
-    CX_UNUSED(_this);
+cx_void web_DDPServer_methodInsert(web_DDPServer this, web_SockJsServer_Connection conn, JSON_Value *json) {
+    CX_UNUSED(this);
     cx_assert(json_value_get_type(json), "Not a json object");
     JSON_Object* jsonObj = json_value_get_object(json);
     char* collection = web_DDPServer_methodCollection(jsonObj);
@@ -88,8 +88,8 @@ error:
     return NULL;
 }
 
-cx_void web_DDPServer_methodRemove(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value* json) {
-    CX_UNUSED(_this);
+cx_void web_DDPServer_methodRemove(web_DDPServer this, web_SockJsServer_Connection conn, JSON_Value* json) {
+    CX_UNUSED(this);
     cx_object object;
     char* reason = NULL;
     if (!(object = web_DDPServer_methodInstancePrepare(json, &reason))) {
@@ -195,8 +195,8 @@ error:
     return TRUE;
 }
 
-cx_void web_DDPServer_methodUpdate(web_DDPServer _this, web_SockJsServer_Connection conn, JSON_Value* json) {
-    CX_UNUSED(_this);
+cx_void web_DDPServer_methodUpdate(web_DDPServer this, web_SockJsServer_Connection conn, JSON_Value* json) {
+    CX_UNUSED(this);
     cx_object object;
     char* reason = NULL;
     if ((object = web_DDPServer_methodInstancePrepare(json, &reason)) == NULL) {

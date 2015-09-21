@@ -6,6 +6,7 @@
  * code in interface functions isn't replaced when code is re-generated.
  */
 
+#define corto_web_LIB
 #include "web.h"
 
 /* $header() */
@@ -25,39 +26,39 @@ static char* web_WebSocketServer_copyConnectionContent(struct mg_connection *con
     return content;
 }
 
-static void web_WebSocketServer_close(web_WebSocketServer _this, struct mg_connection *conn) {
+static void web_WebSocketServer_close(web_WebSocketServer this, struct mg_connection *conn) {
     web_WebSocketConnection c = web_WebSocketConnection(conn->connection_param);
-    if (_this->onClose._parent.procedure) {
-        cx_call(_this->onClose._parent.procedure, NULL, _this->onClose._parent.instance, c);
+    if (this->onClose._parent.procedure) {
+        cx_call(this->onClose._parent.procedure, NULL, this->onClose._parent.instance, c);
     }
     c->conn = 0;
     conn->connection_param = NULL;
     cx_delete(c);
 }
 
-static void web_WebSocketServer_open(web_WebSocketServer _this, struct mg_connection *conn) {
+static void web_WebSocketServer_open(web_WebSocketServer this, struct mg_connection *conn) {
     char *name = web_random(17);
-    web_WebSocketConnection c = web_WebSocketConnection__declareChild(_this, name);
+    web_WebSocketConnection c = web_WebSocketConnectionDeclareChild(this, name);
     cx_dealloc(name);
     c->conn = (cx_word)conn;
-    if (web_WebSocketConnection__define(c, NULL)) {
+    if (web_WebSocketConnectionDefine(c, NULL)) {
         goto error;
     }
 
     conn->connection_param = c;
 
-    if (_this->onOpen._parent.procedure) {
+    if (this->onOpen._parent.procedure) {
         web_WebSocketConnection c = web_WebSocketConnection(conn->connection_param);
-        cx_call(_this->onOpen._parent.procedure, NULL, _this->onOpen._parent.instance, c);
+        cx_call(this->onOpen._parent.procedure, NULL, this->onOpen._parent.instance, c);
     }
 error:;
 }
 
-static void web_WebSocketServer_message(web_WebSocketServer _this, struct mg_connection *conn) {
+static void web_WebSocketServer_message(web_WebSocketServer this, struct mg_connection *conn) {
     web_WebSocketConnection c = web_WebSocketConnection(conn->connection_param);
     char *msg = web_WebSocketServer_copyConnectionContent(conn);
-    if (_this->onMessage._parent.procedure) {
-        cx_call(_this->onMessage._parent.procedure, NULL, _this->onMessage._parent.instance, c, msg);
+    if (this->onMessage._parent.procedure) {
+        cx_call(this->onMessage._parent.procedure, NULL, this->onMessage._parent.instance, c, msg);
     }
     cx_dealloc(msg);
 }
@@ -65,21 +66,21 @@ static void web_WebSocketServer_message(web_WebSocketServer _this, struct mg_con
 static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event ev) {
     int result = MG_TRUE;
 
-    web_WebSocketServer _this = web_WebSocketServer(conn->server_param);
+    web_WebSocketServer this = web_WebSocketServer(conn->server_param);
     switch (ev) {
     case MG_AUTH:
         break;
     case MG_WS_CONNECT:
-        web_WebSocketServer_open(_this, conn);
+        web_WebSocketServer_open(this, conn);
         break;
     case MG_CLOSE:
         if (conn->is_websocket) {
-            web_WebSocketServer_close(_this, conn);
+            web_WebSocketServer_close(this, conn);
         }
         break;
     case MG_REQUEST:
         if (conn->is_websocket) {
-            web_WebSocketServer_message(_this, conn);
+            web_WebSocketServer_message(this, conn);
         } else {
             cx_error("WebSocketServer received Http message");
         }
@@ -102,13 +103,13 @@ static int web_WebSocketServer_handler(struct mg_connection *conn, enum mg_event
 }
 
 static void* web_WebSocketServer_threadRun(void *data) {
-    web_WebSocketServer _this = web_WebSocketServer(data);
+    web_WebSocketServer this = web_WebSocketServer(data);
     char port[6];
-    sprintf(port, "%"PRIu16, _this->port);
-    struct mg_server *server = mg_create_server(_this, web_WebSocketServer_handler);
+    sprintf(port, "%"PRIu16, this->port);
+    struct mg_server *server = mg_create_server(this, web_WebSocketServer_handler);
     mg_set_option(server, "listening_port", port);
-    _this->server = (cx_word)server;
-    web_WebSocketServer_run(_this);
+    this->server = (cx_word)server;
+    web_WebSocketServer_run(this);
     mg_destroy_server(&server);
     return NULL;
 }
@@ -116,44 +117,44 @@ static void* web_WebSocketServer_threadRun(void *data) {
 /* $end */
 
 /* ::corto::web::WebSocketServer::construct() */
-cx_int16 _web_WebSocketServer_construct(web_WebSocketServer _this) {
+cx_int16 _web_WebSocketServer_construct(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::construct) */
-    if (_this->pollTimemoutMillis == 0) {
-        _this->pollTimemoutMillis = WEB_WEBSOCKETSERVER_DEFAULT_POLL_TIMEOUT;
+    if (this->pollTimemoutMillis == 0) {
+        this->pollTimemoutMillis = WEB_WEBSOCKETSERVER_DEFAULT_POLL_TIMEOUT;
     }
-    _this->thread = (cx_word)cx_threadNew(web_WebSocketServer_threadRun, _this);
+    this->thread = (cx_word)cx_threadNew(web_WebSocketServer_threadRun, this);
     // TODO THIS IS AN UGLY HACK, WHY DOESNT IT WORK
-    cx_object onMessage = cx_resolve(cx_typeof(_this), "onMessage");
+    cx_object onMessage = cx_resolve(cx_typeof(this), "onMessage");
     if (onMessage) {
-        _this->onMessage._parent.procedure = onMessage;
-        _this->onMessage._parent.instance = _this;
+        this->onMessage._parent.procedure = onMessage;
+        this->onMessage._parent.instance = this;
     }
     return 0;
 /* $end */
 }
 
 /* ::corto::web::WebSocketServer::destruct() */
-cx_void _web_WebSocketServer_destruct(web_WebSocketServer _this) {
+cx_void _web_WebSocketServer_destruct(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::destruct) */
-    _this->exiting = TRUE;
-    cx_threadJoin((cx_thread)_this->thread, NULL);
+    this->exiting = TRUE;
+    cx_threadJoin((cx_thread)this->thread, NULL);
 /* $end */
 }
 
 /* ::corto::web::WebSocketServer::poll() */
-cx_void _web_WebSocketServer_poll(web_WebSocketServer _this) {
+cx_void _web_WebSocketServer_poll(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::poll) */
-    struct mg_server *server = (struct mg_server *)_this->server;
-    mg_poll_server(server, _this->pollTimemoutMillis);
+    struct mg_server *server = (struct mg_server *)this->server;
+    mg_poll_server(server, this->pollTimemoutMillis);
 /* $end */
 }
 
 /* ::corto::web::WebSocketServer::run() */
-cx_void _web_WebSocketServer_run_v(web_WebSocketServer _this) {
+cx_void _web_WebSocketServer_run_v(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::run) */
     while (TRUE) {
-        web_WebSocketServer_poll(_this);
-        if (_this->exiting) {
+        web_WebSocketServer_poll(this);
+        if (this->exiting) {
             break;
         }
     }
