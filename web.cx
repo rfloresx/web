@@ -47,11 +47,11 @@ class SockJsServer::
     void uriHandler(UriRequest conn, string uri) delegate
 
     port: uint16
-    onMessage: messageHandler
-    onOpen: handler
-    onClose: handler
-    onUri: uriHandler
-    pollTimemoutMillis: uint16
+    onMessage: messageHandler, hidden
+    onOpen: handler, hidden
+    onClose: handler, hidden
+    onUri: uriHandler, hidden
+    pollTimemoutMillis: uint16, hidden
 
     thread: word, private|local
     exiting: bool, private|local
@@ -104,7 +104,7 @@ class DDPServer: SockJsServer, implements={dispatcher}::
         Subscription getSub(Publication pub, string id, bool meta, bool value, bool @scope)
         DDPServer::Collection getCollection(string name)
 
-    autoPublish: bool
+    autoPublish: bool, hidden
     events: list{event}, private|local
     sessions: object, private|local
 

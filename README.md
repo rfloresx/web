@@ -1,44 +1,170 @@
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cortolang/web?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+# ::corto::web
+### random(uint16 n)
+#### n
+#### Returns
 
-HTTP, WebSocket, SockJS and DDP server implementations for corto
+## DDPServer
+### autoPublish
+### Collection
+### construct()
+#### Returns
+### events
+### getPublication(string name)
+#### name
+#### Returns
+### onClose(::corto::web::SockJsServer::Connection conn)
+#### conn
+### onMessage(::corto::web::SockJsServer::Connection conn,string message)
+#### conn
+#### message
+### onUri(::corto::web::SockJsServer::UriRequest conn,string uri)
+#### conn
+#### uri
+### post(event e)
+#### e
+### Publication
+### readyEvent
+### run()
+### Session
+### sessions
+### Subscription
 
-## Building web
-Web requires [corto](http://www.github.com/cortolang/corto) to be installed on your machine. Before building web, please ensure that corto is available in your environment (you can quickly check by typing `cxsh`). If not, run `source configure` from the corto installation folder.
+## DDPServer::Collection
+### construct()
+#### Returns
+### meta
+### obj
+### onAdded
+#### observable
+### onChanged
+#### observable
+### onRemoved
+#### observable
+### scope
+### subscribe(bool value,bool meta,bool scope)
+#### value
+#### meta
+#### scope
+### value
 
-When corto is succesfully installed, go to the `web` installation folder. Run the following command:
-```
-rake
-```
-After rake has finished, a library called `libweb.so` will now be located in <web install dir>/bin. To use it, run the following command:
-```
-cxsh ./bin/libweb.so
-```
-That will start the corto shell and load the web library. In the corto shell, you can now type:
-```
-web::DDPServer s: 8000
-```
-This will start a DDP server on port 8000. Also, check out our [DDP example](https://github.com/cortolang/web/tree/master/examples/tasklist)! Enjoy!
+## DDPServer::Publication
+### create(object session,object sub)
+#### session
+#### sub
+#### Returns
+### scope
 
-## Contents
-### HTTP server
-_::corto::web::HTTPServer_
+## DDPServer::readyEvent
 
-To be done
+## DDPServer::Session
+### collections
+### conn
+### connected()
+### construct()
+#### Returns
+### error(string reason,string offendingMessage)
+#### reason
+#### offendingMessage
+### failed(::corto::web::SockJsServer::Connection conn)
+#### conn
+### getCollection(string name)
+#### name
+#### Returns
+### getSub(::corto::web::DDPServer::Publication pub,string id,bool meta,bool value,bool scope)
+#### pub
+#### id
+#### meta
+#### value
+#### scope
+#### Returns
+### pong(string id)
+#### id
+### sub(string id,string name,bool meta,bool value,bool scope)
+#### id
+#### name
+#### meta
+#### value
+#### scope
+### subscriptions
 
-### WebSocket server
-_::corto::web::WebSocketServer_
+## DDPServer::Subscription
+### id
+### meta
+### pub
+### ready()
+### scope
+### value
 
-To be done
+## handler
 
-### SockJS server
-_::corto::web::SockJsServer_
+## messageHandler
 
-The SockJS server implements a subset (for now) of the [SockJS protocol](http://sockjs.github.io/sockjs-protocol/sockjs-protocol-0.3.3.html) that allows for setting up a WebSocket connection. 
-This will allow applications to connect with JS clients that use SockJS as a library.
+## SockJsServer
+### Connection
+### connections
+### construct()
+#### Returns
+### destruct()
+### exiting
+### handler
+### messageHandler
+### onClose
+### onMessage
+### onOpen
+### onUri
+### poll(uint32 msec)
+#### msec
+### pollTimemoutMillis
+### port
+### run()
+### server
+### thread
+### timeElapsed
+### uriHandler
+### UriRequest
 
-### DDP server
-_::corto::web::DDPServer_
+## SockJsServer::Connection
+### conn
+### data
+### send(string msg)
+#### msg
 
-The DDP server is an implementation of the [DDP protocol](https://www.meteor.com/ddp) used by Meteor to synchronize data between a server and a client cache. 
-The server maps DDP collections on Corto scopes. This server enables writing Meteor apps with a Corto backend.
-The `examples/tasklist` example is a simple demonstration of Corto & Meteor/DDP integration.
+## SockJsServer::handler
+
+## SockJsServer::messageHandler
+
+## SockJsServer::uriHandler
+
+## SockJsServer::UriRequest
+### conn
+### getVar(string id)
+#### id
+#### Returns
+### setHeader(string name,string val)
+#### name
+#### val
+### setStatus(uint16 status)
+#### status
+### write(string msg)
+#### msg
+
+## WebSocketConnection
+### conn
+### data
+### send(string message)
+#### message
+
+## WebSocketServer
+### construct()
+#### Returns
+### destruct()
+### exiting
+### onClose
+### onMessage
+### onOpen
+### poll()
+### pollTimemoutMillis
+### port
+### run()
+### server
+### thread

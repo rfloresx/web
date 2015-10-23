@@ -6,16 +6,15 @@
  * code in interface functions isn't replaced when code is re-generated.
  */
 
-#define corto_web_LIB
 #include "web.h"
 
 /* ::corto::web::random(uint16 n) */
-cx_string _web_random(cx_uint16 n) {
+corto_string _web_random(corto_uint16 n) {
 /* $begin(::corto::web::random) */
 	static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	static char *alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
-	cx_uint16 i;
-	cx_string result = cx_alloc(n + 1);
+	corto_uint16 i;
+	corto_string result = corto_alloc(n + 1);
 
 	result[0] = alpha[rand() % strlen(alpha)];
 	for (i = 1; i < n; i++) {
@@ -31,8 +30,8 @@ cx_string _web_random(cx_uint16 n) {
 int webMain(int argc, char* argv[]) {
 /* $begin(main) */
     /* Insert code that must be run when component is loaded */
-    CX_UNUSED(argc);
-    CX_UNUSED(argv);
+    CORTO_UNUSED(argc);
+    CORTO_UNUSED(argv);
     return 0;
 /* $end */
 }
