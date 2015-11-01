@@ -1,9 +1,9 @@
-/* web_DDPServer_Session.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_DDPServer_Session.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -18,7 +18,6 @@ corto_void web_DDPServer_Session_nosub(web_DDPServer_Session this, corto_string 
 }
 /* $end */
 
-/* ::corto::web::DDPServer::Session::connected() */
 corto_void _web_DDPServer_Session_connected(web_DDPServer_Session this) {
 /* $begin(::corto::web::DDPServer::Session::connected) */
     int msgLength = snprintf(NULL, 0, "{\"msg\":\"connected\",\"session\":\"%s\"}", corto_nameof(this));
@@ -29,7 +28,6 @@ corto_void _web_DDPServer_Session_connected(web_DDPServer_Session this) {
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Session::construct() */
 corto_int16 _web_DDPServer_Session_construct(web_DDPServer_Session this) {
 /* $begin(::corto::web::DDPServer::Session::construct) */
 
@@ -40,7 +38,6 @@ corto_int16 _web_DDPServer_Session_construct(web_DDPServer_Session this) {
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Session::error(string reason,string offendingMessage) */
 corto_void _web_DDPServer_Session_error(web_DDPServer_Session this, corto_string reason, corto_string offendingMessage) {
 /* $begin(::corto::web::DDPServer::Session::error) */
     corto_string msg = NULL;
@@ -54,22 +51,22 @@ corto_void _web_DDPServer_Session_error(web_DDPServer_Session this, corto_string
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Session::failed(::corto::web::SockJsServer::Connection conn) */
 corto_void _web_DDPServer_Session_failed(web_SockJsServer_Connection conn) {
 /* $begin(::corto::web::DDPServer::Session::failed) */
     web_SockJsServer_Connection_send(conn, "{\"msg\":\"failed\",\"version\":\"1\"}");
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Session::getCollection(string name) */
 web_DDPServer_Collection _web_DDPServer_Session_getCollection(web_DDPServer_Session this, corto_string name) {
 /* $begin(::corto::web::DDPServer::Session::getCollection) */
+    corto_id collectionName;
     web_DDPServer_Collection result = NULL;
+    sprintf(collectionName, "c_%s", name ? name : "");
 
-    if (!(result = corto_lookup(this->collections, name))) {
+    if (!(result = corto_lookup(this->collections, collectionName))) {
         corto_object o = corto_resolve(NULL, name);
         if (o) {
-            result = web_DDPServer_CollectionCreateChild(this->collections, name, o, FALSE, FALSE, FALSE);
+            result = web_DDPServer_CollectionCreateChild(this->collections, collectionName, o, FALSE, FALSE, FALSE);
         }
     }
 
@@ -77,7 +74,6 @@ web_DDPServer_Collection _web_DDPServer_Session_getCollection(web_DDPServer_Sess
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Session::getSub(::corto::web::DDPServer::Publication pub,string id,bool meta,bool value,bool scope) */
 web_DDPServer_Subscription _web_DDPServer_Session_getSub(web_DDPServer_Session this, web_DDPServer_Publication pub, corto_string id, corto_bool meta, corto_bool value, corto_bool scope) {
 /* $begin(::corto::web::DDPServer::Session::getSub) */
     web_DDPServer_Subscription result = NULL;
@@ -90,7 +86,6 @@ web_DDPServer_Subscription _web_DDPServer_Session_getSub(web_DDPServer_Session t
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Session::pong(string id) */
 corto_void _web_DDPServer_Session_pong(web_DDPServer_Session this, corto_string id) {
 /* $begin(::corto::web::DDPServer::Session::pong) */
     if (id) {
@@ -105,7 +100,6 @@ corto_void _web_DDPServer_Session_pong(web_DDPServer_Session this, corto_string 
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Session::sub(string id,string name,bool meta,bool value,bool scope) */
 corto_void _web_DDPServer_Session_sub(web_DDPServer_Session this, corto_string id, corto_string name, corto_bool meta, corto_bool value, corto_bool scope) {
 /* $begin(::corto::web::DDPServer::Session::sub) */
     web_DDPServer server = web_DDPServer(corto_parentof(corto_parentof(this)));

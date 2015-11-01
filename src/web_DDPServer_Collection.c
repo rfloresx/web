@@ -1,9 +1,9 @@
-/* web_DDPServer_Collection.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_DDPServer_Collection.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -20,7 +20,6 @@ web_DDPServer_Session web_DDPServer_Collection_getSession(web_DDPServer_Collecti
 }
 /* $end */
 
-/* ::corto::web::DDPServer::Collection::construct() */
 corto_int16 _web_DDPServer_Collection_construct(web_DDPServer_Collection this) {
 /* $begin(::corto::web::DDPServer::Collection::construct) */
     corto_any thisAny = {corto_typeof(this), this, FALSE};
@@ -38,7 +37,6 @@ corto_int16 _web_DDPServer_Collection_construct(web_DDPServer_Collection this) {
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Collection::onAdded */
 corto_void _web_DDPServer_Collection_onAdded(web_DDPServer_Collection this, corto_object observable) {
 /* $begin(::corto::web::DDPServer::Collection::onAdded) */
     struct corto_serializer_s serializer = corto_json_ser(CORTO_PRIVATE, CORTO_NOT, CORTO_SERIALIZER_TRACE_NEVER);
@@ -69,7 +67,6 @@ corto_void _web_DDPServer_Collection_onAdded(web_DDPServer_Collection this, cort
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Collection::onChanged */
 corto_void _web_DDPServer_Collection_onChanged(web_DDPServer_Collection this, corto_object observable) {
 /* $begin(::corto::web::DDPServer::Collection::onChanged) */
     struct corto_serializer_s serializer = corto_json_ser(CORTO_PRIVATE, CORTO_NOT, CORTO_SERIALIZER_TRACE_NEVER);
@@ -100,7 +97,6 @@ corto_void _web_DDPServer_Collection_onChanged(web_DDPServer_Collection this, co
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Collection::onRemoved */
 corto_void _web_DDPServer_Collection_onRemoved(web_DDPServer_Collection this, corto_object observable) {
 /* $begin(::corto::web::DDPServer::Collection::onRemoved) */
     web_DDPServer_Session session = web_DDPServer_Collection_getSession(this);
@@ -125,7 +121,6 @@ corto_void _web_DDPServer_Collection_onRemoved(web_DDPServer_Collection this, co
 /* $end */
 }
 
-/* ::corto::web::DDPServer::Collection::subscribe(bool value,bool meta,bool scope) */
 corto_void _web_DDPServer_Collection_subscribe(web_DDPServer_Collection this, corto_bool value, corto_bool meta, corto_bool scope) {
 /* $begin(::corto::web::DDPServer::Collection::subscribe) */
 

@@ -1,14 +1,13 @@
-/* web_DDPServer_Publication.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_DDPServer_Publication.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
 
-/* ::corto::web::DDPServer::Publication::create(object session,object sub) */
 corto_int16 _web_DDPServer_Publication_create(web_DDPServer_Publication this, corto_object session, corto_object sub) {
 /* $begin(::corto::web::DDPServer::Publication::create) */
 	web_DDPServer_Session _session = web_DDPServer_Session(session);

@@ -1,9 +1,9 @@
-/* web_DDPServer_Subscription.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_DDPServer_Subscription.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -16,7 +16,6 @@ web_DDPServer_Session web_DDPServer_Subscription_getSession(web_DDPServer_Subscr
 }
 /* $end */
 
-/* ::corto::web::DDPServer::Subscription::ready() */
 corto_void _web_DDPServer_Subscription_ready(web_DDPServer_Subscription this) {
 /* $begin(::corto::web::DDPServer::Subscription::ready) */
     web_DDPServer_Session session = web_DDPServer_Subscription_getSession(this);

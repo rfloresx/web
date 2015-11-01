@@ -1,14 +1,13 @@
-/* web.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
 
-/* ::corto::web::random(uint16 n) */
 corto_string _web_random(corto_uint16 n) {
 /* $begin(::corto::web::random) */
 	static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

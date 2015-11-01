@@ -1,9 +1,9 @@
-/* web_WebSocketConnection.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_WebSocketConnection.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -12,7 +12,6 @@
 #include "mongoose.h"
 /* $end */
 
-/* ::corto::web::WebSocketConnection::send(string message) */
 corto_void _web_WebSocketConnection_send(web_WebSocketConnection this, corto_string message) {
 /* $begin(::corto::web::WebSocketConnection::send) */
     mg_websocket_printf((struct mg_connection *)this->conn, WEBSOCKET_OPCODE_TEXT, message);

@@ -1,9 +1,9 @@
-/* web_SockJsServer.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_SockJsServer.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -144,7 +144,6 @@ static void* web_SockJsServer_threadRun(void *data) {
 }
 /* $end */
 
-/* ::corto::web::SockJsServer::construct() */
 corto_int16 _web_SockJsServer_construct(web_SockJsServer this) {
 /* $begin(::corto::web::SockJsServer::construct) */
     if (this->pollTimemoutMillis == 0) {
@@ -156,7 +155,6 @@ corto_int16 _web_SockJsServer_construct(web_SockJsServer this) {
 /* $end */
 }
 
-/* ::corto::web::SockJsServer::destruct() */
 corto_void _web_SockJsServer_destruct(web_SockJsServer this) {
 /* $begin(::corto::web::SockJsServer::destruct) */
     this->exiting = TRUE;
@@ -164,7 +162,6 @@ corto_void _web_SockJsServer_destruct(web_SockJsServer this) {
 /* $end */
 }
 
-/* ::corto::web::SockJsServer::poll(uint32 msec) */
 corto_void _web_SockJsServer_poll(web_SockJsServer this, corto_uint32 msec) {
 /* $begin(::corto::web::SockJsServer::poll) */
     struct mg_server *server = (struct mg_server *)this->server;
@@ -192,7 +189,6 @@ corto_void _web_SockJsServer_poll(web_SockJsServer this, corto_uint32 msec) {
 /* $end */
 }
 
-/* ::corto::web::SockJsServer::run() */
 corto_void _web_SockJsServer_run_v(web_SockJsServer this) {
 /* $begin(::corto::web::SockJsServer::run) */
     while (TRUE) {

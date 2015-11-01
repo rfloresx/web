@@ -1,9 +1,9 @@
-/* web_SockJsServer_Connection.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_SockJsServer_Connection.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -12,7 +12,6 @@
 #include "mongoose.h"
 /* $end */
 
-/* ::corto::web::SockJsServer::Connection::send(string msg) */
 corto_void _web_SockJsServer_Connection_send(web_SockJsServer_Connection this, corto_string msg) {
 /* $begin(::corto::web::SockJsServer::Connection::send) */
 	int escapedLength;

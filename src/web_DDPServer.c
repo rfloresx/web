@@ -1,9 +1,9 @@
-/* web_DDPServer.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_DDPServer.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -230,7 +230,6 @@ static corto_void web_DDPServer_api(web_DDPServer this, web_SockJsServer_UriRequ
 
 /* $end */
 
-/* ::corto::web::DDPServer::construct() */
 corto_int16 _web_DDPServer_construct(web_DDPServer this) {
 /* $begin(::corto::web::DDPServer::construct) */
 
@@ -250,7 +249,6 @@ corto_int16 _web_DDPServer_construct(web_DDPServer this) {
 /* $end */
 }
 
-/* ::corto::web::DDPServer::getPublication(string name) */
 web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer this, corto_string name) {
 /* $begin(::corto::web::DDPServer::getPublication) */
 
@@ -269,7 +267,6 @@ web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer this, cort
 /* $end */
 }
 
-/* ::corto::web::DDPServer::onClose(::corto::web::SockJsServer::Connection conn) */
 corto_void _web_DDPServer_onClose(web_DDPServer this, web_SockJsServer_Connection conn) {
 /* $begin(::corto::web::DDPServer::onClose) */
     CORTO_UNUSED(this);
@@ -279,7 +276,6 @@ corto_void _web_DDPServer_onClose(web_DDPServer this, web_SockJsServer_Connectio
 /* $end */
 }
 
-/* ::corto::web::DDPServer::onMessage(::corto::web::SockJsServer::Connection conn,string message) */
 corto_void _web_DDPServer_onMessage(web_DDPServer this, web_SockJsServer_Connection conn, corto_string message) {
 /* $begin(::corto::web::DDPServer::onMessage) */
     CORTO_UNUSED(this);
@@ -289,6 +285,8 @@ corto_void _web_DDPServer_onMessage(web_DDPServer this, web_SockJsServer_Connect
     if (!root) {
         goto error;
     }
+
+    printf("message = %s\n", message);
 
     if (json_value_get_type(root) == JSONObject) {
         JSON_Object *jsonObj = json_value_get_object(root);
@@ -314,7 +312,6 @@ error:;
 /* $end */
 }
 
-/* ::corto::web::DDPServer::onUri(::corto::web::SockJsServer::UriRequest conn,string uri) */
 corto_void _web_DDPServer_onUri(web_DDPServer this, web_SockJsServer_UriRequest *conn, corto_string uri) {
 /* $begin(::corto::web::DDPServer::onUri) */
     CORTO_UNUSED(this);
@@ -327,7 +324,6 @@ corto_void _web_DDPServer_onUri(web_DDPServer this, web_SockJsServer_UriRequest 
 /* $end */
 }
 
-/* ::corto::web::DDPServer::post(event e) */
 /* $header(::corto::web::DDPServer::post) */
 static corto_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer this, corto_observableEvent e) {
     corto_iter iter = corto_llIter(this->events);
@@ -368,7 +364,6 @@ corto_void _web_DDPServer_post(web_DDPServer this, corto_event e) {
 /* $end */
 }
 
-/* ::corto::web::DDPServer::run() */
 corto_void _web_DDPServer_run(web_DDPServer this) {
 /* $begin(::corto::web::DDPServer::run) */
     corto_event e;

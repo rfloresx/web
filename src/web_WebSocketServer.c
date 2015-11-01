@@ -1,9 +1,9 @@
-/* web_WebSocketServer.c
+/* $CORTO_GENERATED
  *
- * This file contains the implementation for the generated interface.
+ * web_WebSocketServer.c
  *
- * Don't mess with the begin and end tags, since these will ensure that modified
- * code in interface functions isn't replaced when code is re-generated.
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
  */
 
 #include "web.h"
@@ -115,7 +115,6 @@ static void* web_WebSocketServer_threadRun(void *data) {
 
 /* $end */
 
-/* ::corto::web::WebSocketServer::construct() */
 corto_int16 _web_WebSocketServer_construct(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::construct) */
     if (this->pollTimemoutMillis == 0) {
@@ -132,7 +131,6 @@ corto_int16 _web_WebSocketServer_construct(web_WebSocketServer this) {
 /* $end */
 }
 
-/* ::corto::web::WebSocketServer::destruct() */
 corto_void _web_WebSocketServer_destruct(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::destruct) */
     this->exiting = TRUE;
@@ -140,7 +138,6 @@ corto_void _web_WebSocketServer_destruct(web_WebSocketServer this) {
 /* $end */
 }
 
-/* ::corto::web::WebSocketServer::poll() */
 corto_void _web_WebSocketServer_poll(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::poll) */
     struct mg_server *server = (struct mg_server *)this->server;
@@ -148,7 +145,6 @@ corto_void _web_WebSocketServer_poll(web_WebSocketServer this) {
 /* $end */
 }
 
-/* ::corto::web::WebSocketServer::run() */
 corto_void _web_WebSocketServer_run_v(web_WebSocketServer this) {
 /* $begin(::corto::web::WebSocketServer::run) */
     while (TRUE) {
