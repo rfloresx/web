@@ -17,7 +17,7 @@ web_DDPServer_Session web_DDPServer_Subscription_getSession(web_DDPServer_Subscr
 /* $end */
 
 corto_void _web_DDPServer_Subscription_ready(web_DDPServer_Subscription this) {
-/* $begin(::corto::web::DDPServer::Subscription::ready) */
+/* $begin(corto/web/DDPServer/Subscription/ready) */
     web_DDPServer_Session session = web_DDPServer_Subscription_getSession(this);
     corto_string msg = NULL;
     corto_uint32 msgLength = 0;

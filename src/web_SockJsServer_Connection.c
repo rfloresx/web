@@ -13,7 +13,7 @@
 /* $end */
 
 corto_void _web_SockJsServer_Connection_send(web_SockJsServer_Connection this, corto_string msg) {
-/* $begin(::corto::web::SockJsServer::Connection::send) */
+/* $begin(corto/web/SockJsServer/Connection/send) */
 	int escapedLength;
 	corto_string sockJsMsg;
 

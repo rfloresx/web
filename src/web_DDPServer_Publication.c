@@ -9,7 +9,7 @@
 #include "web.h"
 
 corto_int16 _web_DDPServer_Publication_create(web_DDPServer_Publication this, corto_object session, corto_object sub) {
-/* $begin(::corto::web::DDPServer::Publication::create) */
+/* $begin(corto/web/DDPServer/Publication/create) */
 	web_DDPServer_Session _session = web_DDPServer_Session(session);
 	web_DDPServer_Subscription _sub = web_DDPServer_Subscription(sub);
 

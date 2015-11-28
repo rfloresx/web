@@ -21,7 +21,7 @@ web_DDPServer_Session web_DDPServer_Collection_getSession(web_DDPServer_Collecti
 /* $end */
 
 corto_int16 _web_DDPServer_Collection_construct(web_DDPServer_Collection this) {
-/* $begin(::corto::web::DDPServer::Collection::construct) */
+/* $begin(corto/web/DDPServer/Collection/construct) */
     corto_any thisAny = {corto_typeof(this), this, FALSE};
 	web_DDPServer server = web_DDPServer(corto_parentof(corto_parentof(corto_parentof(corto_parentof(this)))));
 
@@ -38,7 +38,7 @@ corto_int16 _web_DDPServer_Collection_construct(web_DDPServer_Collection this) {
 }
 
 corto_void _web_DDPServer_Collection_onAdded(web_DDPServer_Collection this, corto_object observable) {
-/* $begin(::corto::web::DDPServer::Collection::onAdded) */
+/* $begin(corto/web/DDPServer/Collection/onAdded) */
     struct corto_serializer_s serializer = corto_json_ser(CORTO_PRIVATE, CORTO_NOT, CORTO_SERIALIZER_TRACE_NEVER);
     web_DDPServer_Session session = web_DDPServer_Collection_getSession(this);
     corto_string msg = NULL;
@@ -68,7 +68,7 @@ corto_void _web_DDPServer_Collection_onAdded(web_DDPServer_Collection this, cort
 }
 
 corto_void _web_DDPServer_Collection_onChanged(web_DDPServer_Collection this, corto_object observable) {
-/* $begin(::corto::web::DDPServer::Collection::onChanged) */
+/* $begin(corto/web/DDPServer/Collection/onChanged) */
     struct corto_serializer_s serializer = corto_json_ser(CORTO_PRIVATE, CORTO_NOT, CORTO_SERIALIZER_TRACE_NEVER);
     web_DDPServer_Session session = web_DDPServer_Collection_getSession(this);
     corto_string msg = NULL;
@@ -98,7 +98,7 @@ corto_void _web_DDPServer_Collection_onChanged(web_DDPServer_Collection this, co
 }
 
 corto_void _web_DDPServer_Collection_onRemoved(web_DDPServer_Collection this, corto_object observable) {
-/* $begin(::corto::web::DDPServer::Collection::onRemoved) */
+/* $begin(corto/web/DDPServer/Collection/onRemoved) */
     web_DDPServer_Session session = web_DDPServer_Collection_getSession(this);
     corto_string msg = NULL;
     corto_uint32 msgLength = 0;
@@ -122,7 +122,7 @@ corto_void _web_DDPServer_Collection_onRemoved(web_DDPServer_Collection this, co
 }
 
 corto_void _web_DDPServer_Collection_subscribe(web_DDPServer_Collection this, corto_bool value, corto_bool meta, corto_bool scope) {
-/* $begin(::corto::web::DDPServer::Collection::subscribe) */
+/* $begin(corto/web/DDPServer/Collection/subscribe) */
 
     this->value |= value;
     this->meta |= meta;

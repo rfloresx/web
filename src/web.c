@@ -9,7 +9,7 @@
 #include "web.h"
 
 corto_string _web_random(corto_uint16 n) {
-/* $begin(::corto::web::random) */
+/* $begin(corto/web/random) */
 	static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	static char *alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
 	corto_uint16 i;

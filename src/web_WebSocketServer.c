@@ -116,7 +116,7 @@ static void* web_WebSocketServer_threadRun(void *data) {
 /* $end */
 
 corto_int16 _web_WebSocketServer_construct(web_WebSocketServer this) {
-/* $begin(::corto::web::WebSocketServer::construct) */
+/* $begin(corto/web/WebSocketServer/construct) */
     if (this->pollTimemoutMillis == 0) {
         this->pollTimemoutMillis = WEB_WEBSOCKETSERVER_DEFAULT_POLL_TIMEOUT;
     }
@@ -132,21 +132,21 @@ corto_int16 _web_WebSocketServer_construct(web_WebSocketServer this) {
 }
 
 corto_void _web_WebSocketServer_destruct(web_WebSocketServer this) {
-/* $begin(::corto::web::WebSocketServer::destruct) */
+/* $begin(corto/web/WebSocketServer/destruct) */
     this->exiting = TRUE;
     corto_threadJoin((corto_thread)this->thread, NULL);
 /* $end */
 }
 
 corto_void _web_WebSocketServer_poll(web_WebSocketServer this) {
-/* $begin(::corto::web::WebSocketServer::poll) */
+/* $begin(corto/web/WebSocketServer/poll) */
     struct mg_server *server = (struct mg_server *)this->server;
     mg_poll_server(server, this->pollTimemoutMillis);
 /* $end */
 }
 
 corto_void _web_WebSocketServer_run_v(web_WebSocketServer this) {
-/* $begin(::corto::web::WebSocketServer::run) */
+/* $begin(corto/web/WebSocketServer/run) */
     while (TRUE) {
         web_WebSocketServer_poll(this);
         if (this->exiting) {

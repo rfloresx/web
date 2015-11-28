@@ -231,7 +231,7 @@ static corto_void web_DDPServer_api(web_DDPServer this, web_SockJsServer_UriRequ
 /* $end */
 
 corto_int16 _web_DDPServer_construct(web_DDPServer this) {
-/* $begin(::corto::web::DDPServer::construct) */
+/* $begin(corto/web/DDPServer/construct) */
 
     /* Set the handlers of the SockJsServer base */
     corto_setref(&web_SockJsServer(this)->onClose._parent.procedure, web_DDPServer_onClose_o);
@@ -250,7 +250,7 @@ corto_int16 _web_DDPServer_construct(web_DDPServer this) {
 }
 
 web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer this, corto_string name) {
-/* $begin(::corto::web::DDPServer::getPublication) */
+/* $begin(corto/web/DDPServer/getPublication) */
 
     /* Find matching publication */
     web_DDPServer_Publication pub = corto_lookup(this, name);
@@ -268,7 +268,7 @@ web_DDPServer_Publication _web_DDPServer_getPublication(web_DDPServer this, cort
 }
 
 corto_void _web_DDPServer_onClose(web_DDPServer this, web_SockJsServer_Connection conn) {
-/* $begin(::corto::web::DDPServer::onClose) */
+/* $begin(corto/web/DDPServer/onClose) */
     CORTO_UNUSED(this);
     if (conn->data) {
         corto_delete(conn->data);
@@ -277,7 +277,7 @@ corto_void _web_DDPServer_onClose(web_DDPServer this, web_SockJsServer_Connectio
 }
 
 corto_void _web_DDPServer_onMessage(web_DDPServer this, web_SockJsServer_Connection conn, corto_string message) {
-/* $begin(::corto::web::DDPServer::onMessage) */
+/* $begin(corto/web/DDPServer/onMessage) */
     CORTO_UNUSED(this);
     CORTO_UNUSED(conn);
 
@@ -313,7 +313,7 @@ error:;
 }
 
 corto_void _web_DDPServer_onUri(web_DDPServer this, web_SockJsServer_UriRequest *conn, corto_string uri) {
-/* $begin(::corto::web::DDPServer::onUri) */
+/* $begin(corto/web/DDPServer/onUri) */
     CORTO_UNUSED(this);
     if (!memcmp(uri, "/api", 4)) {
         web_DDPServer_api(this, conn, uri);
@@ -324,7 +324,7 @@ corto_void _web_DDPServer_onUri(web_DDPServer this, web_SockJsServer_UriRequest 
 /* $end */
 }
 
-/* $header(::corto::web::DDPServer::post) */
+/* $header(corto/web/DDPServer/post) */
 static corto_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer this, corto_observableEvent e) {
     corto_iter iter = corto_llIter(this->events);
     corto_observableEvent e2;
@@ -341,7 +341,7 @@ static corto_observableEvent web_DDPServer_findRelatedEvent(web_DDPServer this, 
 }
 /* $end */
 corto_void _web_DDPServer_post(web_DDPServer this, corto_event e) {
-/* $begin(::corto::web::DDPServer::post) */
+/* $begin(corto/web/DDPServer/post) */
     corto_uint32 size = 0;
     corto_observableEvent e2;
 
@@ -365,7 +365,7 @@ corto_void _web_DDPServer_post(web_DDPServer this, corto_event e) {
 }
 
 corto_void _web_DDPServer_run(web_DDPServer this) {
-/* $begin(::corto::web::DDPServer::run) */
+/* $begin(corto/web/DDPServer/run) */
     corto_event e;
     corto_ll events = corto_llNew();
 

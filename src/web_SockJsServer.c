@@ -145,7 +145,7 @@ static void* web_SockJsServer_threadRun(void *data) {
 /* $end */
 
 corto_int16 _web_SockJsServer_construct(web_SockJsServer this) {
-/* $begin(::corto::web::SockJsServer::construct) */
+/* $begin(corto/web/SockJsServer/construct) */
     if (this->pollTimemoutMillis == 0) {
         this->pollTimemoutMillis = WEB_SOCKJSSERVER_DEFAULT_POLL_TIMEOUT;
     }
@@ -156,14 +156,14 @@ corto_int16 _web_SockJsServer_construct(web_SockJsServer this) {
 }
 
 corto_void _web_SockJsServer_destruct(web_SockJsServer this) {
-/* $begin(::corto::web::SockJsServer::destruct) */
+/* $begin(corto/web/SockJsServer/destruct) */
     this->exiting = TRUE;
     corto_threadJoin((corto_thread)this->thread, NULL);
 /* $end */
 }
 
 corto_void _web_SockJsServer_poll(web_SockJsServer this, corto_uint32 msec) {
-/* $begin(::corto::web::SockJsServer::poll) */
+/* $begin(corto/web/SockJsServer/poll) */
     struct mg_server *server = (struct mg_server *)this->server;
     if (!msec) {
         msec = this->pollTimemoutMillis;
@@ -190,7 +190,7 @@ corto_void _web_SockJsServer_poll(web_SockJsServer this, corto_uint32 msec) {
 }
 
 corto_void _web_SockJsServer_run_v(web_SockJsServer this) {
-/* $begin(::corto::web::SockJsServer::run) */
+/* $begin(corto/web/SockJsServer/run) */
     while (TRUE) {
         web_SockJsServer_poll(this, 0);
         if (this->exiting) {
