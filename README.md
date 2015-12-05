@@ -1,4 +1,4 @@
-# ::corto::web
+# /corto/web
 ### random(uint16 n)
 #### n
 #### Returns
@@ -12,12 +12,12 @@
 ### getPublication(string name)
 #### name
 #### Returns
-### onClose(::corto::web::SockJsServer::Connection conn)
+### onClose(/corto/web/SockJsServer/Connection conn)
 #### conn
-### onMessage(::corto::web::SockJsServer::Connection conn,string message)
+### onMessage(/corto/web/SockJsServer/Connection conn,string message)
 #### conn
 #### message
-### onUri(::corto::web::SockJsServer::UriRequest conn,string uri)
+### onUri(/corto/web/SockJsServer/UriRequest conn,string uri)
 #### conn
 #### uri
 ### post(event e)
@@ -29,7 +29,7 @@
 ### sessions
 ### Subscription
 
-## DDPServer::Collection
+## DDPServer/Collection
 ### construct()
 #### Returns
 ### meta
@@ -47,16 +47,16 @@
 #### scope
 ### value
 
-## DDPServer::Publication
+## DDPServer/Publication
 ### create(object session,object sub)
 #### session
 #### sub
 #### Returns
 ### scope
 
-## DDPServer::readyEvent
+## DDPServer/readyEvent
 
-## DDPServer::Session
+## DDPServer/Session
 ### collections
 ### conn
 ### connected()
@@ -65,12 +65,12 @@
 ### error(string reason,string offendingMessage)
 #### reason
 #### offendingMessage
-### failed(::corto::web::SockJsServer::Connection conn)
+### failed(/corto/web/SockJsServer/Connection conn)
 #### conn
 ### getCollection(string name)
 #### name
 #### Returns
-### getSub(::corto::web::DDPServer::Publication pub,string id,bool meta,bool value,bool scope)
+### getSub(/corto/web/DDPServer/Publication pub,string id,bool meta,bool value,bool scope)
 #### pub
 #### id
 #### meta
@@ -87,7 +87,7 @@
 #### scope
 ### subscriptions
 
-## DDPServer::Subscription
+## DDPServer/Subscription
 ### id
 ### meta
 ### pub
@@ -97,7 +97,77 @@
 
 ## handler
 
+## HTTP
+### addService(/corto/web/Service s)
+#### s
+### Connection
+### destruct()
+### doClose(/corto/web/HTTP/Connection c)
+#### c
+### doMessage(/corto/web/HTTP/Connection c,string msg)
+#### c
+#### msg
+### doOpen(/corto/web/HTTP/Connection c)
+#### c
+### doRequest(/corto/web/HTTP/Connection c,/corto/web/HTTP/Request r)
+#### c
+#### r
+### get(uint16 port)
+#### port
+#### Returns
+### port
+### removeService(/corto/web/Service s)
+#### s
+### Request
+### services
+### set(uint16 port,/corto/web/HTTP server)
+#### port
+#### server
+#### Returns
+
+## HTTP/Connection
+### conn
+### udata
+
+## HTTP/Request
+### conn
+### getVar(string id)
+#### id
+#### Returns
+### reply(string msg)
+#### msg
+### setHeader(string name,string val)
+#### name
+#### val
+### setStatus(uint16 status)
+#### status
+### uri
+
 ## messageHandler
+
+## REST
+### construct()
+#### Returns
+### onRequest(/corto/web/HTTP/Connection c,/corto/web/HTTP/Request r)
+#### c
+#### r
+### prefix
+
+## Service
+### construct()
+#### Returns
+### onClose(/corto/web/HTTP/Connection c)
+#### c
+### onMessage(/corto/web/HTTP/Connection c,string msg)
+#### c
+#### msg
+### onOpen(/corto/web/HTTP/Connection c)
+#### c
+### onRequest(/corto/web/HTTP/Connection c,/corto/web/HTTP/Request r)
+#### c
+#### r
+### port
+### server
 
 ## SockJsServer
 ### Connection
@@ -123,19 +193,19 @@
 ### uriHandler
 ### UriRequest
 
-## SockJsServer::Connection
+## SockJsServer/Connection
 ### conn
 ### data
 ### send(string msg)
 #### msg
 
-## SockJsServer::handler
+## SockJsServer/handler
 
-## SockJsServer::messageHandler
+## SockJsServer/messageHandler
 
-## SockJsServer::uriHandler
+## SockJsServer/uriHandler
 
-## SockJsServer::UriRequest
+## SockJsServer/UriRequest
 ### conn
 ### getVar(string id)
 #### id
@@ -147,6 +217,15 @@
 #### status
 ### write(string msg)
 #### msg
+
+## StandaloneHTTP
+### construct()
+#### Returns
+### destruct()
+### exiting
+### pollInterval
+### server
+### thread
 
 ## WebSocketConnection
 ### conn

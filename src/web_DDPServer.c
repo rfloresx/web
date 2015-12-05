@@ -91,7 +91,7 @@ static corto_void web_DDPServer_callMethod(web_DDPServer this, web_SockJsServer_
     void *ptr = buffer;
 
     /* Set this pointer in buffer */
-    *(corto_object*)buffer = instance; 
+    *(corto_object*)buffer = instance;
     ptr = CORTO_OFFSET(ptr, sizeof(corto_object));
 
     /* Parse parameters */
@@ -147,7 +147,7 @@ static corto_void web_DDPServer_method(web_DDPServer this, web_SockJsServer_Conn
     corto_object instance = NULL;
     char *method = (char*)json_object_get_string(json_object(json), "method");
     JSON_Array* params = json_object_get_array(json_object(json), "params");
-    
+
     if (!params) {
         corto_asprintf(&reason, "method %s: cannot find params", method);
         goto error;
@@ -169,9 +169,9 @@ static corto_void web_DDPServer_method(web_DDPServer this, web_SockJsServer_Conn
             web_DDPServer_callMethod(this, conn, m, instance, params);
         } else {
             corto_id id;
-            corto_asprintf(&reason, "Method '%s' not found in type '%s' of instance '%s'!", 
+            corto_asprintf(&reason, "Method '%s' not found in type '%s' of instance '%s'!",
                 method, corto_fullname(corto_typeof(instance), id), query);
-            goto error;            
+            goto error;
         }
 
         corto_release(instance);

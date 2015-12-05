@@ -2,10 +2,83 @@
 
 string random(uint16 n)
 
+class Service
+
+// Abstraction for server-side HTTP. Multiple services (like REST, DDP, custom)
+// may use the same HTTP instance to avoid using multiple ports.
+// There can only be one HTTP server active per port, per process. A maximum of
+// 64 servers can be active per process.
+class HTTP::
+    // Manages connection & user data
+    class Connection::
+        udata: object
+        conn: word, private|local
+
+    // Provides request data and reply interface
+    struct Request::
+        void setHeader(string name, string val)
+        void setStatus(uint16 status)
+        void reply(string msg)
+        string getVar(string id)
+        uri: string
+        conn: word, private|local
+
+    port: uint16
+    services: list{Service}, private|local
+
+    // Register a service with the server
+    void addService(Service s)
+
+    // Unregister a service with the server
+    void removeService(Service s)
+
+    // Acquire singleton server for specified port
+    HTTP get(uint16 port) function
+
+    // Set a singleton server for a specific port. Returns true if success,
+    // false when the slot is already occupied. When NULL is provided for server
+    // the slot is reset, and the function will always return TRUE.
+    bool set(uint16 port, HTTP server) function
+
+    // Private methods
+    void doOpen(HTTP::Connection c)
+    void doClose (HTTP::Connection c)
+    void doRequest(HTTP::Connection c, HTTP::Request r)
+    void doMessage(HTTP::Connection c, string msg)
+
+    void destruct()
+
+// Standalone HTTP server
+class StandaloneHTTP: HTTP::
+    pollInterval: uint16
+    thread: word, private|local
+    server: word, private|local
+    exiting: bool, private|local
+    int16 construct()
+    void destruct()
+
+// Service built on top of an HTTP instance
+class Service::
+    port: uint16
+    server: HTTP, private|local
+
+    int16 construct()
+
+    void onOpen(HTTP::Connection c) virtual
+    void onClose(HTTP::Connection c) virtual
+    void onRequest(HTTP::Connection c, HTTP::Request r) virtual
+    void onMessage(HTTP::Connection c, string msg) virtual
+
+
+// REST interface that provides access to Corto store
+class REST: Service::
+    prefix: string // Prefix of the API
+    int16 construct()
+    void onRequest(HTTP::Connection c, HTTP::Request r)
+
 class WebSocketConnection::
     data: object
     conn: word, private|local
-
     void send(string message)
 
 void handler(WebSocketConnection conn) delegate

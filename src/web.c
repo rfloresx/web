@@ -10,19 +10,19 @@
 
 corto_string _web_random(corto_uint16 n) {
 /* $begin(corto/web/random) */
-	static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	static char *alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
-	corto_uint16 i;
-	corto_string result = corto_alloc(n + 1);
+    static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static char *alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
+    corto_uint16 i;
+    corto_string result = corto_alloc(n + 1);
 
-	result[0] = alpha[rand() % strlen(alpha)];
-	for (i = 1; i < n; i++) {
-		result[i] = alphanum[rand() % strlen(alphanum)];
-	}
+    result[0] = alpha[rand() % strlen(alpha)];
+    for (i = 1; i < n; i++) {
+        result[i] = alphanum[rand() % strlen(alphanum)];
+    }
 
-	result[i] = '\0';
+    result[i] = '\0';
 
-	return result;
+    return result;
 /* $end */
 }
 
