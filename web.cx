@@ -46,6 +46,8 @@ class HTTP::
 
     // Write a websocket message to an open connection
     void write(HTTP::Connection c, string msg) virtual
+
+    // Write a message to all open connections
     void broadcast(string msg)
 
     // Private methods
@@ -96,8 +98,9 @@ class SockJs: Service::
     int16 onRequest(HTTP::Connection c, HTTP::Request r)
     void onMessage(HTTP::Connection c, string msg)
     void onPoll() virtual
+    void onData(HTTP::Connection c, string msg) virtual
 
-    void onData(HTTP::Connection c, string msg)
+    void write(HTTP::Connection c, string msg) function
 
 
 class DDP: SockJs, implements={dispatcher}::
@@ -141,6 +144,7 @@ class DDP: SockJs, implements={dispatcher}::
     events: list{event}, private|local
     sessions: object, private|local
 
+    int16 construct()
     void onData(HTTP::Connection c, string msg)
     void onPoll()
 

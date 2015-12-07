@@ -11,7 +11,7 @@
 corto_void _web_HTTP_Connection_write(web_HTTP_Connection this, corto_string msg) {
 /* $begin(corto/web/HTTP/Connection/write) */
 
-    /* << Insert implementation >> */
+    web_HTTP_write(this->server, this, msg);
 
 /* $end */
 }

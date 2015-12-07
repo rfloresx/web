@@ -30,8 +30,7 @@ static corto_void web_DDP_connect(web_DDP this, web_HTTP_Connection conn, JSON_O
     } else {
         if (!session || !(ddpSession = corto_resolve(this->sessions, (corto_string)session))) {
             char *sessionId = web_random(17);
-            ddpSession = web_DDP_SessionDeclareChild(this->sessions, sessionId);
-            web_DDP_SessionDefine(ddpSession, conn);
+            ddpSession = web_DDP_SessionCreateChild(this->sessions, sessionId, conn);
             corto_setref(&conn->udata, ddpSession);
             corto_dealloc(sessionId);
         } else {
@@ -180,6 +179,15 @@ error:
     corto_dealloc(reason);
 }
 /* $end */
+
+corto_int16 _web_DDP_construct(web_DDP this) {
+/* $begin(corto/web/DDP/construct) */
+
+    this->sessions = corto_voidCreateChild(this, "__sessions");
+
+    return web_SockJs_construct(this);
+/* $end */
+}
 
 web_DDP_Publication _web_DDP_getPublication(web_DDP this, corto_string name) {
 /* $begin(corto/web/DDP/getPublication) */

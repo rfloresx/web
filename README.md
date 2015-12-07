@@ -6,6 +6,8 @@
 ## DDP
 ### autoPublish
 ### Collection
+### construct()
+#### Returns
 ### events
 ### getPublication(string name)
 #### name
@@ -191,6 +193,9 @@
 #### r
 #### Returns
 ### timeElapsed
+### write(/corto/web/HTTP/Connection c,string msg)
+#### c
+#### msg
 
 ## StandaloneHTTP
 ### construct()

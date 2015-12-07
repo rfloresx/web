@@ -29,7 +29,7 @@ corto_void _web_SockJs_onClose(web_SockJs this, web_HTTP_Connection c) {
 /* $end */
 }
 
-corto_void _web_SockJs_onData(web_SockJs this, web_HTTP_Connection c, corto_string msg) {
+corto_void _web_SockJs_onData_v(web_SockJs this, web_HTTP_Connection c, corto_string msg) {
 /* $begin(corto/web/SockJs/onData) */
 
     /* virtual method */
@@ -99,6 +99,26 @@ corto_int16 _web_SockJs_onRequest(web_SockJs this, web_HTTP_Connection c, web_HT
     } else {
         return 0;
     }
+
+/* $end */
+}
+
+corto_void _web_SockJs_write(web_HTTP_Connection c, corto_string msg) {
+/* $begin(corto/web/SockJs/write) */
+    int escapedLength;
+    corto_string sockJsMsg;
+
+    /* Escape & pack message in SockJS header */
+    escapedLength = stresc(NULL, 0, msg);
+    sockJsMsg = corto_alloc(escapedLength + strlen("a[\"\"]") + 1);
+    sprintf(sockJsMsg, "a[\"%*s\"]", escapedLength, " ");
+    stresc(sockJsMsg + 3, escapedLength, msg);
+
+    if (c) {
+      web_HTTP_Connection_write(c, sockJsMsg);
+    }
+
+    corto_dealloc(sockJsMsg);
 
 /* $end */
 }

@@ -32,7 +32,7 @@ corto_void _web_DDP_Session_connected(web_DDP_Session this) {
     sprintf(msg,
         "{\"msg\":\"connected\",\"session\":\"%s\"}", corto_nameof(this));
 
-    web_HTTP_Connection_write(this->conn, msg);
+    web_SockJs_write(this->conn, msg);
     corto_dealloc(msg);
 /* $end */
 }
@@ -60,13 +60,13 @@ corto_void _web_DDP_Session_error(web_DDP_Session this, corto_string reason, cor
           reason);
     }
     corto_dealloc(msg);
-    web_HTTP_Connection_write(this->conn, msg);
+    web_SockJs_write(this->conn, msg);
 /* $end */
 }
 
 corto_void _web_DDP_Session_failed(web_HTTP_Connection conn) {
 /* $begin(corto/web/DDP/Session/failed) */
-    web_HTTP_Connection_write(conn,
+    web_SockJs_write(conn,
         "{\"msg\":\"failed\",\"version\":\"1\"}");
 /* $end */
 }
@@ -109,10 +109,10 @@ corto_void _web_DDP_Session_pong(web_DDP_Session this, corto_string id) {
             "{\"msg\":\"pong\",\"id\":\"%s\"}", id);
         corto_string msg = corto_alloc(msgLength + 1);
         sprintf(msg, "{\"msg\":\"pong\",\"id\":\"%s\"}", id);
-        web_HTTP_Connection_write(this->conn, msg);
+        web_SockJs_write(this->conn, msg);
         corto_dealloc(msg);
     } else {
-        web_HTTP_Connection_write(this->conn, "{\"msg\":\"pong\"}");
+        web_SockJs_write(this->conn, "{\"msg\":\"pong\"}");
     }
 /* $end */
 }

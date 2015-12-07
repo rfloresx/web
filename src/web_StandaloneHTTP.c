@@ -23,14 +23,10 @@ static char* web_StandaloneHTTP_copyConnectionContent(struct mg_connection *conn
 
 static int web_StandaloneHTTP_handler(struct mg_connection *conn, enum mg_event ev) {
     int result = MG_TRUE;
-    web_HTTP_Connection c;
+    web_HTTP_Connection c = NULL;
 
     web_StandaloneHTTP this = web_StandaloneHTTP(conn->server_param);
-    if (!conn->connection_param) {
-        c = web_HTTP_ConnectionCreate(NULL, this);
-        c->conn = (corto_word)conn;
-        conn->connection_param = c;
-    } else {
+    if (conn->connection_param) {
         c = web_HTTP_Connection(conn->connection_param);
     }
 
@@ -38,11 +34,18 @@ static int web_StandaloneHTTP_handler(struct mg_connection *conn, enum mg_event 
     case MG_AUTH:
         break;
     case MG_WS_CONNECT:
+        if (!conn->connection_param) {
+            c = web_HTTP_ConnectionCreate(NULL, this);
+            c->conn = (corto_word)conn;
+            conn->connection_param = c;
+        }
         web_HTTP_doOpen(this, c);
         break;
     case MG_CLOSE:
-        web_HTTP_doClose(this, c);
-        corto_delete(c);
+        if (c) {
+            web_HTTP_doClose(this, c);
+            corto_delete(c);
+        }
         break;
     case MG_REQUEST:
         if (conn->is_websocket) {
