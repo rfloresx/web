@@ -35,7 +35,7 @@ void web_REST_apiRequest(
 
     /* Select objects with URI */
     corto_iter iter;
-    if (corto_select(root_o, r->uri + 4, &iter)) {
+    if (corto_select(root_o, r->uri + strlen(this->prefix), &iter)) {
         web_HTTP_Request_setStatus(r, 400);
         web_HTTP_Request_reply(r, "400: bad request\n");
         return;
@@ -61,8 +61,6 @@ void web_REST_apiRequest(
             corto_asprintf(
               &metaTxt,
               "\"meta\":{\"type\":\"%s\"}",
-              result.name,
-              result.parent,
               result.type
             );
         }
@@ -90,7 +88,7 @@ void web_REST_apiRequest(
 
     if (!corto_llSize(items)) {
         if (multiple) {
-            web_HTTP_Request_reply(r, "{}");
+            web_HTTP_Request_reply(r, "[]");
             return;
         } else {
             web_HTTP_Request_setStatus(r, 404);
@@ -164,7 +162,7 @@ corto_int16 _web_REST_onRequest(web_REST this, web_HTTP_Connection c, web_HTTP_R
 /* $begin(corto/web/REST/onRequest) */
     CORTO_UNUSED(this);
 
-    if (!memcmp(r->uri, this->prefix, 4)) {
+    if (!strlen(this->prefix) || !memcmp(r->uri, this->prefix, strlen(this->prefix))) {
         web_REST_apiRequest(this, c, r);
         return 1;
     } else {
