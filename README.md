@@ -12,6 +12,8 @@
 ### getPublication(string name)
 #### name
 #### Returns
+### init()
+#### Returns
 ### onData(/corto/web/HTTP/Connection c,string msg)
 #### c
 #### msg
@@ -40,6 +42,10 @@
 #### value
 #### meta
 #### scope
+### unsubscribe(bool value,bool meta,bool scope)
+#### value
+#### meta
+#### scope
 ### value
 
 ## DDP/Publication
@@ -62,8 +68,11 @@
 #### offendingMessage
 ### failed(/corto/web/HTTP/Connection conn)
 #### conn
-### getCollection(string name)
+### getCollection(string name,bool meta,bool value,bool scope)
 #### name
+#### meta
+#### value
+#### scope
 #### Returns
 ### getSub(/corto/web/DDP/Publication pub,string id,bool meta,bool value,bool scope)
 #### pub
@@ -81,6 +90,8 @@
 #### value
 #### scope
 ### subscriptions
+### unsub(string id)
+#### id
 
 ## DDP/Subscription
 ### id

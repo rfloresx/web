@@ -9,6 +9,8 @@
 #include "web.h"
 
 /* $header() */
+#define WEB_DDP_COLLECTION_REMOVE "{\"msg\":\"removed\",\"collection\":\"%s\"}"
+
 corto_void web_DDP_Session_nosub(web_DDP_Session this, corto_string id) {
     web_HTTP server = web_Service(corto_parentof(corto_parentof(this)))->server;
     int msgLength = snprintf(NULL, 0, "{\"msg\":\"nosub\",\"id\":\"%s\"}", id);
@@ -71,7 +73,7 @@ corto_void _web_DDP_Session_failed(web_HTTP_Connection conn) {
 /* $end */
 }
 
-web_DDP_Collection _web_DDP_Session_getCollection(web_DDP_Session this, corto_string name) {
+web_DDP_Collection _web_DDP_Session_getCollection(web_DDP_Session this, corto_string name, corto_bool meta, corto_bool value, corto_bool scope) {
 /* $begin(corto/web/DDP/Session/getCollection) */
     corto_id collectionName;
     web_DDP_Collection result = NULL;
@@ -81,7 +83,7 @@ web_DDP_Collection _web_DDP_Session_getCollection(web_DDP_Session this, corto_st
         corto_object o = corto_resolve(NULL, name);
         if (o) {
             result = web_DDP_CollectionCreateChild(
-                this->collections, collectionName, o, FALSE, FALSE, FALSE);
+                this->collections, collectionName, o, value, meta, scope);
         }
     }
 
@@ -133,6 +135,30 @@ corto_void _web_DDP_Session_sub(web_DDP_Session this, corto_string id, corto_str
         } else {
             web_DDP_Session_nosub(this, id);
         }
+    }
+/* $end */
+}
+
+corto_void _web_DDP_Session_unsub(web_DDP_Session this, corto_string id) {
+/* $begin(corto/web/DDP/Session/unsub) */
+    web_DDP_Subscription sub = corto_lookup(this->subscriptions, id);
+    if (sub) {
+        corto_id collectionName;
+        corto_string name = corto_nameof(sub->pub->scope);
+        sprintf(collectionName, "c_%s", name ? name : "");
+        web_DDP_Collection c = corto_lookup(
+            this->collections, collectionName);
+        if (c) {
+            web_DDP_Collection_unsubscribe(c, sub->value, sub->meta, sub->scope);
+            if (!(c->meta || c->value || c->scope)) {
+                corto_string msg;
+                corto_asprintf(&msg, WEB_DDP_COLLECTION_REMOVE, name);
+                web_SockJs_write(this->conn, msg);
+                corto_dealloc(msg);
+                corto_delete(c);
+            }
+        }
+        corto_delete(sub);
     }
 /* $end */
 }

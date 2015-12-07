@@ -15,14 +15,16 @@ corto_int16 _web_DDP_Publication_create(web_DDP_Publication this, corto_object s
 
     web_DDP_Collection coll = web_DDP_Session_getCollection(
         _session,
-        corto_nameof(this->scope));
+        corto_nameof(this->scope),
+        _sub->meta,
+        _sub->value,
+        _sub->scope);
+
     if (!coll) {
       goto error;
     }
 
     web_DDP_Subscription_ready(_sub);
-
-    web_DDP_Collection_subscribe(coll, _sub->value, _sub->meta, _sub->scope);
 
     return 0;
 error:

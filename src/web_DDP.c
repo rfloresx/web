@@ -77,6 +77,13 @@ static corto_void web_DDP_sub(web_DDP this, web_HTTP_Connection conn, JSON_Objec
     web_DDP_Session_sub(conn->udata, (corto_string)id, (corto_string)name, meta, value, scope);
 }
 
+static corto_void web_DDP_unsub(web_DDP this, web_HTTP_Connection conn, JSON_Object *json) {
+    CORTO_UNUSED(this);
+    const char *id = json_object_get_string(json, "id");
+    web_DDP_Session_unsub(conn->udata, (corto_string)id);
+}
+
+
 static corto_void web_DDP_callMethod(web_DDP this, web_HTTP_Connection conn, corto_method m, corto_object instance, JSON_Array*params) {
     corto_int32 i = 1;
 
@@ -206,6 +213,17 @@ web_DDP_Publication _web_DDP_getPublication(web_DDP this, corto_string name) {
 /* $end */
 }
 
+corto_int16 _web_DDP_init(web_DDP this) {
+/* $begin(corto/web/DDP/init) */
+
+    /* autoPublish is by default turned on for ease of use. It should be turned
+    * of in real systems because of its security implications. */
+    this->autoPublish = TRUE;
+
+    return 0;
+/* $end */
+}
+
 corto_void _web_DDP_onData(web_DDP this, web_HTTP_Connection c, corto_string msg) {
 /* $begin(corto/web/DDP/onData) */
     JSON_Value *root = json_parse_string(msg);
@@ -222,6 +240,8 @@ corto_void _web_DDP_onData(web_DDP this, web_HTTP_Connection c, corto_string msg
             web_DDP_ping(this, c, jsonObj);
         } else if (!strcmp(msg, "sub")) {
             web_DDP_sub(this, c, jsonObj);
+        } else if (!strcmp(msg, "unsub")) {
+            web_DDP_unsub(this, c, jsonObj);
         } else if (!strcmp(msg, "method")) {
             web_DDP_method(this, c, root);
         } else {
