@@ -26,6 +26,16 @@ corto_void _web_HTTP_addService(web_HTTP this, web_Service s) {
 /* $end */
 }
 
+corto_void _web_HTTP_broadcast(web_HTTP this, corto_string msg) {
+/* $begin(corto/web/HTTP/broadcast) */
+
+    web_HTTP_ConnectionListForeach(this->connections, c) {
+        web_HTTP_write(this, c, msg);
+    }
+
+/* $end */
+}
+
 corto_void _web_HTTP_destruct(web_HTTP this) {
 /* $begin(corto/web/HTTP/destruct) */
 
@@ -40,6 +50,8 @@ corto_void _web_HTTP_doClose(web_HTTP this, web_HTTP_Connection c) {
     web_ServiceListForeach(this->services, s) {
         web_Service_onClose(s, c);
     }
+
+    web_HTTP_ConnectionListRemove(this->connections, c);
 
 /* $end */
 }
@@ -57,9 +69,19 @@ corto_void _web_HTTP_doMessage(web_HTTP this, web_HTTP_Connection c, corto_strin
 corto_void _web_HTTP_doOpen(web_HTTP this, web_HTTP_Connection c) {
 /* $begin(corto/web/HTTP/doOpen) */
 
+    web_HTTP_ConnectionListAppend(this->connections, c);
+
     web_ServiceListForeach(this->services, s) {
         web_Service_onOpen(s, c);
     }
+
+/* $end */
+}
+
+corto_void _web_HTTP_doPoll(web_HTTP this) {
+/* $begin(corto/web/HTTP/doPoll) */
+
+    /* << Insert implementation >> */
 
 /* $end */
 }
@@ -129,5 +151,13 @@ corto_bool _web_HTTP_set(corto_uint16 port, web_HTTP server) {
     corto_mutexUnlock(&serverLock);
 
     return result;
+/* $end */
+}
+
+corto_void _web_HTTP_write_v(web_HTTP this, web_HTTP_Connection c, corto_string msg) {
+/* $begin(corto/web/HTTP/write) */
+
+    /* << Insert implementation >> */
+
 /* $end */
 }

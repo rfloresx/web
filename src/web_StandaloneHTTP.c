@@ -27,7 +27,7 @@ static int web_StandaloneHTTP_handler(struct mg_connection *conn, enum mg_event 
 
     web_StandaloneHTTP this = web_StandaloneHTTP(conn->server_param);
     if (!conn->connection_param) {
-        c = web_HTTP_ConnectionCreate(NULL);
+        c = web_HTTP_ConnectionCreate(NULL, this);
         c->conn = (corto_word)conn;
         conn->connection_param = c;
     } else {
@@ -91,7 +91,8 @@ static void* web_StandaloneHTTP_threadRun(void *data) {
     mg_set_option(server, "listening_port", port);
 
     while (TRUE) {
-        mg_poll_server(server, this->pollInterval);
+        mg_poll_server(server, web_HTTP(this)->pollInterval);
+        web_HTTP_doPoll(this);
         if (this->exiting) {
             break;
         }
@@ -112,8 +113,8 @@ corto_int16 _web_StandaloneHTTP_construct(web_StandaloneHTTP this) {
         goto error;
     }
 
-    if (!this->pollInterval) {
-        this->pollInterval = 200;
+    if (!web_HTTP(this)->pollInterval) {
+        web_HTTP(this)->pollInterval = 200;
     }
 
     /* Start server thread */
@@ -136,6 +137,14 @@ corto_void _web_StandaloneHTTP_destruct(web_StandaloneHTTP this) {
     }
 
     web_HTTP_destruct(this);
+
+/* $end */
+}
+
+corto_void _web_StandaloneHTTP_write(web_StandaloneHTTP this, web_HTTP_Connection c, corto_string msg) {
+/* $begin(corto/web/StandaloneHTTP/write) */
+
+    mg_websocket_printf((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, msg);
 
 /* $end */
 }

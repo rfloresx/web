@@ -145,43 +145,30 @@ void web_REST_apiRequest(
     }
 
     web_HTTP_Request_reply(r, reply);
-
-    /* Serialize object-value to JSON */
-    /*struct corto_serializer_s serializer = corto_json_ser(
-        CORTO_PRIVATE,
-        CORTO_NOT,
-        CORTO_SERIALIZER_TRACE_NEVER);
-
-    if ((corto_typeof(o)->kind == CORTO_VOID) && (!meta && !expr)) {
-        web_HTTP_Request_reply(r, "\n");
-    } else {
-        corto_json_ser_t jsonData = {
-          NULL, NULL, 0, 0, 0, meta, value, scope, TRUE};
-        corto_serialize(&serializer, o, &jsonData);
-        web_HTTP_Request_reply(r, jsonData.buffer);
-        corto_dealloc(jsonData.buffer);
-    }
-
-    corto_release(o);*/
 }
 /* $end */
 
 corto_int16 _web_REST_construct(web_REST this) {
 /* $begin(corto/web/REST/construct) */
 
+    if (!this->prefix) {
+        corto_setstr(&this->prefix, "");
+    }
+
     return web_Service_construct(this);
 
 /* $end */
 }
 
-corto_void _web_REST_onRequest(web_REST this, web_HTTP_Connection c, web_HTTP_Request *r) {
+corto_int16 _web_REST_onRequest(web_REST this, web_HTTP_Connection c, web_HTTP_Request *r) {
 /* $begin(corto/web/REST/onRequest) */
     CORTO_UNUSED(this);
 
-    if (!memcmp(r->uri, "/api", 4)) {
+    if (!memcmp(r->uri, this->prefix, 4)) {
         web_REST_apiRequest(this, c, r);
+        return 1;
     } else {
-        web_HTTP_Request_reply(r, "invalid URI");
+        return 0;
     }
 
 /* $end */

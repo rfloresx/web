@@ -3,33 +3,26 @@
 #### n
 #### Returns
 
-## DDPServer
+## DDP
 ### autoPublish
 ### Collection
-### construct()
-#### Returns
 ### events
 ### getPublication(string name)
 #### name
 #### Returns
-### onClose(/corto/web/SockJsServer/Connection conn)
-#### conn
-### onMessage(/corto/web/SockJsServer/Connection conn,string message)
-#### conn
-#### message
-### onUri(/corto/web/SockJsServer/UriRequest conn,string uri)
-#### conn
-#### uri
+### onData(/corto/web/HTTP/Connection c,string msg)
+#### c
+#### msg
+### onPoll()
 ### post(event e)
 #### e
 ### Publication
 ### readyEvent
-### run()
 ### Session
 ### sessions
 ### Subscription
 
-## DDPServer/Collection
+## DDP/Collection
 ### construct()
 #### Returns
 ### meta
@@ -47,16 +40,16 @@
 #### scope
 ### value
 
-## DDPServer/Publication
+## DDP/Publication
 ### create(object session,object sub)
 #### session
 #### sub
 #### Returns
 ### scope
 
-## DDPServer/readyEvent
+## DDP/readyEvent
 
-## DDPServer/Session
+## DDP/Session
 ### collections
 ### conn
 ### connected()
@@ -65,12 +58,12 @@
 ### error(string reason,string offendingMessage)
 #### reason
 #### offendingMessage
-### failed(/corto/web/SockJsServer/Connection conn)
+### failed(/corto/web/HTTP/Connection conn)
 #### conn
 ### getCollection(string name)
 #### name
 #### Returns
-### getSub(/corto/web/DDPServer/Publication pub,string id,bool meta,bool value,bool scope)
+### getSub(/corto/web/DDP/Publication pub,string id,bool meta,bool value,bool scope)
 #### pub
 #### id
 #### meta
@@ -87,7 +80,7 @@
 #### scope
 ### subscriptions
 
-## DDPServer/Subscription
+## DDP/Subscription
 ### id
 ### meta
 ### pub
@@ -95,12 +88,13 @@
 ### scope
 ### value
 
-## handler
-
 ## HTTP
 ### addService(/corto/web/Service s)
 #### s
+### broadcast(string msg)
+#### msg
 ### Connection
+### connections
 ### destruct()
 ### doClose(/corto/web/HTTP/Connection c)
 #### c
@@ -109,12 +103,14 @@
 #### msg
 ### doOpen(/corto/web/HTTP/Connection c)
 #### c
+### doPoll()
 ### doRequest(/corto/web/HTTP/Connection c,/corto/web/HTTP/Request r)
 #### c
 #### r
 ### get(uint16 port)
 #### port
 #### Returns
+### pollInterval
 ### port
 ### removeService(/corto/web/Service s)
 #### s
@@ -124,10 +120,16 @@
 #### port
 #### server
 #### Returns
+### write(/corto/web/HTTP/Connection c,string msg)
+#### c
+#### msg
 
 ## HTTP/Connection
 ### conn
+### server
 ### udata
+### write(string msg)
+#### msg
 
 ## HTTP/Request
 ### conn
@@ -143,14 +145,13 @@
 #### status
 ### uri
 
-## messageHandler
-
 ## REST
 ### construct()
 #### Returns
 ### onRequest(/corto/web/HTTP/Connection c,/corto/web/HTTP/Request r)
 #### c
 #### r
+#### Returns
 ### prefix
 
 ## Service
@@ -163,87 +164,41 @@
 #### msg
 ### onOpen(/corto/web/HTTP/Connection c)
 #### c
+### onPoll()
 ### onRequest(/corto/web/HTTP/Connection c,/corto/web/HTTP/Request r)
 #### c
 #### r
+#### Returns
 ### port
 ### server
 
-## SockJsServer
-### Connection
-### connections
+## SockJs
 ### construct()
 #### Returns
-### destruct()
-### exiting
-### handler
-### messageHandler
-### onClose
-### onMessage
-### onOpen
-### onUri
-### poll(uint32 msec)
-#### msec
-### pollTimemoutMillis
-### port
-### run()
-### server
-### thread
-### timeElapsed
-### uriHandler
-### UriRequest
-
-## SockJsServer/Connection
-### conn
-### data
-### send(string msg)
+### onClose(/corto/web/HTTP/Connection c)
+#### c
+### onData(/corto/web/HTTP/Connection c,string msg)
+#### c
 #### msg
-
-## SockJsServer/handler
-
-## SockJsServer/messageHandler
-
-## SockJsServer/uriHandler
-
-## SockJsServer/UriRequest
-### conn
-### getVar(string id)
-#### id
+### onMessage(/corto/web/HTTP/Connection c,string msg)
+#### c
+#### msg
+### onOpen(/corto/web/HTTP/Connection c)
+#### c
+### onPoll()
+### onRequest(/corto/web/HTTP/Connection c,/corto/web/HTTP/Request r)
+#### c
+#### r
 #### Returns
-### setHeader(string name,string val)
-#### name
-#### val
-### setStatus(uint16 status)
-#### status
-### write(string msg)
-#### msg
+### timeElapsed
 
 ## StandaloneHTTP
 ### construct()
 #### Returns
 ### destruct()
 ### exiting
-### pollInterval
 ### server
 ### thread
-
-## WebSocketConnection
-### conn
-### data
-### send(string message)
-#### message
-
-## WebSocketServer
-### construct()
-#### Returns
-### destruct()
-### exiting
-### onClose
-### onMessage
-### onOpen
-### poll()
-### pollTimemoutMillis
-### port
-### run()
-### server
-### thread
+### write(/corto/web/HTTP/Connection c,string msg)
+#### c
+#### msg

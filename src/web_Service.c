@@ -37,7 +37,7 @@ corto_int16 _web_Service_construct(web_Service this) {
 corto_void _web_Service_onClose_v(web_Service this, web_HTTP_Connection c) {
 /* $begin(corto/web/Service/onClose) */
 
-    /* << Insert implementation >> */
+    /* virtual method */
 
 /* $end */
 }
@@ -45,7 +45,7 @@ corto_void _web_Service_onClose_v(web_Service this, web_HTTP_Connection c) {
 corto_void _web_Service_onMessage_v(web_Service this, web_HTTP_Connection c, corto_string msg) {
 /* $begin(corto/web/Service/onMessage) */
 
-    /* << Insert implementation >> */
+    /* virtual method */
 
 /* $end */
 }
@@ -53,15 +53,23 @@ corto_void _web_Service_onMessage_v(web_Service this, web_HTTP_Connection c, cor
 corto_void _web_Service_onOpen_v(web_Service this, web_HTTP_Connection c) {
 /* $begin(corto/web/Service/onOpen) */
 
-    /* << Insert implementation >> */
+    /* virtual method */
 
 /* $end */
 }
 
-corto_void _web_Service_onRequest_v(web_Service this, web_HTTP_Connection c, web_HTTP_Request *r) {
+corto_void _web_Service_onPoll_v(web_Service this) {
+/* $begin(corto/web/Service/onPoll) */
+
+    /* virtual method */
+
+/* $end */
+}
+
+corto_int16 _web_Service_onRequest_v(web_Service this, web_HTTP_Connection c, web_HTTP_Request *r) {
 /* $begin(corto/web/Service/onRequest) */
 
-    /* << Insert implementation >> */
+    return 0;
 
 /* $end */
 }
