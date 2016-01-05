@@ -6,11 +6,11 @@ $ curl corto.io/install | sh
 ```
 You can then use the corto installer to install web:
 ```
-corto install corto/web
+$ corto install corto/web
 ```
 Or build the package from scratch:
 ```
-corto build web
+$ corto build web
 ```
 
 This example project shows integration with Meteor using the DDP server:
