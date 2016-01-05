@@ -1,6 +1,9 @@
 
+
 PACKAGE = 'corto::web'
 
-USE_COMPONENT = ['json']
-
 require "#{ENV['CORTO_BUILD']}/package"
+
+COMPONENTS << "server"
+
+require "#{ENV['CORTO_BUILD']}/forward"
