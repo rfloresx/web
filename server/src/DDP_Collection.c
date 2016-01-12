@@ -28,7 +28,7 @@ corto_string server_DDP_Collection_getJson(
     if (this->meta) {
         corto_asprintf(
           &meta,
-          "{\"meta\":{\"type\":\"%s\"}}",
+          "\"meta\":{\"type\":\"%s\"}",
           corto_fullpath(NULL, observable));
     }
 
@@ -36,7 +36,7 @@ corto_string server_DDP_Collection_getJson(
         corto_string json = json_serialize(observable);
         corto_asprintf(
           &value,
-          "{\"value\":%s}",
+          "\"value\":%s",
           json);
         corto_dealloc(json);
     }
@@ -70,6 +70,22 @@ corto_int16 _server_DDP_Collection_construct(server_DDP_Collection this) {
     corto_listen(this, server_DDP_Collection_onRemoved_o, 0, this->obj, server);
 
     return 0;
+/* $end */
+}
+
+corto_void _server_DDP_Collection_destruct(server_DDP_Collection this) {
+/* $begin(corto/web/server/DDP/Collection/destruct) */
+    server_DDP server = server_DDP(
+      corto_parentof(
+        corto_parentof(
+          corto_parentof(
+            corto_parentof(this)))));
+
+    corto_silence(this, server_DDP_Collection_onAdded_o, 0, this->obj);
+    corto_silence(this, server_DDP_Collection_onChanged_o, 0, this->obj);
+    corto_silence(this, server_DDP_Collection_onRemoved_o, 0, this->obj);
+
+    server_DDP_purge(server, this);
 
 /* $end */
 }
@@ -86,7 +102,6 @@ corto_void _server_DDP_Collection_onAdded(server_DDP_Collection this, corto_obje
         corto_fullpath(NULL, observable),
         json);
 
-
     server_SockJs_write(session->conn, msg);
 
     corto_dealloc(msg);
@@ -96,6 +111,7 @@ corto_void _server_DDP_Collection_onAdded(server_DDP_Collection this, corto_obje
 
 corto_void _server_DDP_Collection_onChanged(server_DDP_Collection this, corto_object observable) {
 /* $begin(corto/web/server/DDP/Collection/onChanged) */
+
     server_DDP_Session session = server_DDP_Collection_getSession(this);
     corto_string json = server_DDP_Collection_getJson(this, observable);
     corto_string msg;
@@ -105,7 +121,6 @@ corto_void _server_DDP_Collection_onChanged(server_DDP_Collection this, corto_ob
         corto_nameof(this->obj),
         corto_fullpath(NULL, observable),
         json);
-
 
     server_SockJs_write(session->conn, msg);
 

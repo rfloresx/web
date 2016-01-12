@@ -81,7 +81,9 @@ corto_void _server_HTTP_doOpen(server_HTTP this, server_HTTP_Connection c) {
 corto_void _server_HTTP_doPoll(server_HTTP this) {
 /* $begin(corto/web/server/HTTP/doPoll) */
 
-    /* << Insert implementation >> */
+    server_ServiceListForeach(this->services, s) {
+        server_Service_onPoll(s);
+    }
 
 /* $end */
 }

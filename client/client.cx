@@ -1,0 +1,6 @@
+#package corto/web/client
+
+struct Url::
+    address: string
+    response: string, private | local
+    string request()

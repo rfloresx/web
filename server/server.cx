@@ -109,6 +109,7 @@ class DDP: SockJs, implements={dispatcher}::
         value, meta, @scope: int32
 
         int16 construct()
+        void destruct()
         observer onAdded: mask=on_define|on_scope
         observer onChanged: mask=on_update|on_scope
         observer onRemoved: mask=on_delete|on_scope
@@ -150,6 +151,8 @@ class DDP: SockJs, implements={dispatcher}::
     int16 construct()
     void onData(HTTP::Connection c, string msg)
     void onPoll()
+    void onClose(HTTP::Connection c)
+    void purge(object observable)
 
     void post(event e)
     Publication getPublication(string name)

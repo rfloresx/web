@@ -111,7 +111,7 @@ corto_void _server_SockJs_write(server_HTTP_Connection c, corto_string msg) {
     /* Escape & pack message in SockJS header */
     escapedLength = stresc(NULL, 0, msg);
     sockJsMsg = corto_alloc(escapedLength + strlen("a[\"\"]") + 1);
-    sprintf(sockJsMsg, "a[\"%*s\"]", escapedLength, " ");
+    sprintf(sockJsMsg, "a[\"%*s\"]", escapedLength, "");
     stresc(sockJsMsg + 3, escapedLength, msg);
 
     if (c) {

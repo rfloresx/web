@@ -14,6 +14,8 @@
 #### Returns
 ### init()
 #### Returns
+### onClose(/corto/web/server/HTTP/Connection c)
+#### c
 ### onData(/corto/web/server/HTTP/Connection c,string msg)
 #### c
 #### msg
@@ -21,6 +23,8 @@
 ### post(/corto/core/event e)
 #### e
 ### Publication
+### purge(object observable)
+#### observable
 ### readyEvent
 ### Session
 ### sessions
@@ -29,6 +33,7 @@
 ## DDP/Collection
 ### construct()
 #### Returns
+### destruct()
 ### meta
 ### obj
 ### onAdded

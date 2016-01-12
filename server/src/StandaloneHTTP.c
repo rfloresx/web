@@ -146,8 +146,7 @@ corto_void _server_StandaloneHTTP_destruct(server_StandaloneHTTP this) {
 
 corto_void _server_StandaloneHTTP_write(server_StandaloneHTTP this, server_HTTP_Connection c, corto_string msg) {
 /* $begin(corto/web/server/StandaloneHTTP/write) */
-
-    mg_websocket_printf((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, msg);
+    mg_websocket_printf((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, "%s", msg);
 
 /* $end */
 }

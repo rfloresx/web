@@ -43,7 +43,7 @@ static corto_void server_DDP_connect(server_DDP this, server_HTTP_Connection con
     }
 
     return;
-failed:;
+failed:
     server_DDP_Session_failed(conn);
 }
 
@@ -82,7 +82,6 @@ static corto_void server_DDP_unsub(server_DDP this, server_HTTP_Connection conn,
     const char *id = json_object_get_string(json, "id");
     server_DDP_Session_unsub(conn->udata, (corto_string)id);
 }
-
 
 static corto_void server_DDP_callMethod(server_DDP this, server_HTTP_Connection conn, corto_method m, corto_object instance, JSON_Array*params) {
     corto_int32 i = 1;
@@ -223,6 +222,13 @@ corto_int16 _server_DDP_init(server_DDP this) {
 /* $end */
 }
 
+corto_void _server_DDP_onClose(server_DDP this, server_HTTP_Connection c) {
+/* $begin(corto/web/server/DDP/onClose) */
+    server_DDP_Session session = server_DDP_Session(c->udata);
+    corto_delete(session);
+/* $end */
+}
+
 corto_void _server_DDP_onData(server_DDP this, server_HTTP_Connection c, corto_string msg) {
 /* $begin(corto/web/server/DDP/onData) */
     JSON_Value *root = json_parse_string(msg);
@@ -261,7 +267,7 @@ corto_void _server_DDP_onPoll(server_DDP this) {
     corto_event e;
     corto_ll events = corto_llNew();
 
-    /* Poll sockjs so it can send out heartbeats */
+    /* Poll SockJs so it can send out heartbeats */
     server_SockJs_onPoll_v(this);
 
     /* Collect events */
@@ -280,6 +286,8 @@ corto_void _server_DDP_onPoll(server_DDP this) {
          * send out heartbeats */
         server_SockJs_onPoll_v(this);
     }
+
+    corto_llFree(events);
 /* $end */
 }
 
@@ -315,6 +323,7 @@ corto_void _server_DDP_post(server_DDP this, corto_event e) {
     } else {
         corto_llAppend(this->events, e);
     }
+
     size = corto_llSize(this->events);
     corto_unlock(this);
 
@@ -323,5 +332,23 @@ corto_void _server_DDP_post(server_DDP this, corto_event e) {
         corto_sleep(0, SERVER_DDP_SERVER_BIG_LIST_SLEEP);
     }
 
+/* $end */
+}
+
+corto_void _server_DDP_purge(server_DDP this, corto_object observable) {
+/* $begin(corto/web/server/DDP/purge) */
+    corto_lock(this);
+
+    corto_iter iter = corto_llIter(this->events);
+    while(corto_iterHasNext(&iter)) {
+        corto_observableEvent e = corto_iterNext(&iter);
+
+        /* Remove each event that belongs to a deleted collection */
+        if (e->me == observable) {
+            corto_llRemove(this->events, e);
+        }
+    }
+
+    corto_unlock(this);
 /* $end */
 }

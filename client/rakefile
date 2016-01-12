@@ -1,0 +1,6 @@
+
+PACKAGE = 'corto::web::client'
+
+LIB = ['curl']
+
+require "#{ENV['CORTO_BUILD']}/package"
