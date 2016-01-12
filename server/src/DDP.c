@@ -59,16 +59,14 @@ static corto_void server_DDP_sub(server_DDP this, server_HTTP_Connection conn, J
     const char *name = json_object_get_string(json, "name");
     JSON_Array *params = json_object_get_array(json, "params");
     JSON_Object *cxparams = json_array_get_object(params, 0);
-    corto_bool meta = FALSE, value = TRUE, scope = FALSE;
+    corto_bool meta = FALSE, value = FALSE, scope = FALSE;
     int v;
 
     if ((v = json_object_get_boolean(cxparams, "meta")) != -1) {
         meta = v;
-        value = FALSE;
     }
     if ((v = json_object_get_boolean(cxparams, "scope")) != -1) {
         scope = v;
-        value = FALSE;
     }
     if ((v = json_object_get_boolean(cxparams, "value")) != -1) {
         value = v;
@@ -196,13 +194,25 @@ corto_int16 _server_DDP_construct(server_DDP this) {
 
 server_DDP_Publication _server_DDP_getPublication(server_DDP this, corto_string name) {
 /* $begin(corto/web/server/DDP/getPublication) */
+    corto_id subId;
+    char *ptr = subId, ch;
+
+    /* Replace / with _ */
+    strcpy(subId, name);
+
+    while ((ch = *ptr)) {
+        if (ch == '/') {
+            *ptr = '_';
+        }
+        ptr++;
+    }
 
     /* Find matching publication */
-    server_DDP_Publication pub = corto_lookup(this, name);
+    server_DDP_Publication pub = corto_lookup(this, subId);
     if (!pub && this->autoPublish) {
         corto_object o = corto_resolve(NULL, name);
         if (o) {
-            pub = server_DDP_PublicationCreateChild(this, name, o);
+            pub = server_DDP_PublicationCreateChild(this, subId, o);
             corto_release(o);
         }
     }

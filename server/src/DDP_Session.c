@@ -77,7 +77,20 @@ server_DDP_Collection _server_DDP_Session_getCollection(server_DDP_Session this,
 /* $begin(corto/web/server/DDP/Session/getCollection) */
     corto_id collectionName;
     server_DDP_Collection result = NULL;
-    sprintf(collectionName, "c_%s", name ? name : "");
+    corto_id subId;
+    char *ptr = subId, ch;
+
+    /* Replace / with _ */
+    strcpy(subId, name);
+
+    while ((ch = *ptr)) {
+        if (ch == '/') {
+            *ptr = '_';
+        }
+        ptr++;
+    }
+
+    sprintf(collectionName, "c_%s", subId ? subId : "");
 
     if (!(result = corto_lookup(this->collections, collectionName))) {
         corto_object o = corto_resolve(NULL, name);

@@ -98,8 +98,8 @@ corto_void _server_DDP_Collection_onAdded(server_DDP_Collection this, corto_obje
     corto_asprintf(
         &msg,
         SERVER_DDP_COLLECTION_ADDED,
-        corto_nameof(this->obj),
-        corto_fullpath(NULL, observable),
+        corto_path(NULL, root_o, this->obj, "/"),
+        corto_nameof(observable),
         json);
 
     server_SockJs_write(session->conn, msg);
@@ -118,8 +118,8 @@ corto_void _server_DDP_Collection_onChanged(server_DDP_Collection this, corto_ob
     corto_asprintf(
         &msg,
         SERVER_DDP_COLLECTION_CHANGED,
-        corto_nameof(this->obj),
-        corto_fullpath(NULL, observable),
+        corto_path(NULL, root_o, this->obj, "/"),
+        corto_nameof(observable),
         json);
 
     server_SockJs_write(session->conn, msg);
@@ -136,8 +136,8 @@ corto_void _server_DDP_Collection_onRemoved(server_DDP_Collection this, corto_ob
     corto_asprintf(
         &msg,
         SERVER_DDP_COLLECTION_REMOVED,
-        corto_nameof(this->obj),
-        corto_fullpath(NULL, observable));
+        corto_path(NULL, root_o, this->obj, "/"),
+        corto_nameof(observable));
 
     server_SockJs_write(session->conn, msg);
 

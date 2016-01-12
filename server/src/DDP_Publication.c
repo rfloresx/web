@@ -12,10 +12,11 @@ corto_int16 _server_DDP_Publication_create(server_DDP_Publication this, corto_ob
 /* $begin(corto/web/server/DDP/Publication/create) */
     server_DDP_Session _session = server_DDP_Session(session);
     server_DDP_Subscription _sub = server_DDP_Subscription(sub);
+    corto_id scope;
 
     server_DDP_Collection coll = server_DDP_Session_getCollection(
         _session,
-        corto_nameof(this->scope),
+        corto_path(scope, root_o, this->scope, "/"),
         _sub->meta,
         _sub->value,
         _sub->scope);
