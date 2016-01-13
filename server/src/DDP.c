@@ -235,7 +235,10 @@ corto_int16 _server_DDP_init(server_DDP this) {
 corto_void _server_DDP_onClose(server_DDP this, server_HTTP_Connection c) {
 /* $begin(corto/web/server/DDP/onClose) */
     server_DDP_Session session = server_DDP_Session(c->udata);
-    corto_delete(session);
+
+    if (session) {
+        corto_delete(session);
+    }
 /* $end */
 }
 
