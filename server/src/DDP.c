@@ -39,11 +39,13 @@ static corto_void server_DDP_connect(server_DDP this, server_HTTP_Connection con
             corto_release(ddpSession);
         }
 
+        corto_trace("[ddp] session %s: new session", corto_nameof(ddpSession));
         server_DDP_Session_connected(ddpSession);
     }
 
     return;
 failed:
+    corto_trace("[ddp] connection attempt failed");
     server_DDP_Session_failed(conn);
 }
 
@@ -72,12 +74,23 @@ static corto_void server_DDP_sub(server_DDP this, server_HTTP_Connection conn, J
         value = v;
     }
 
+    corto_trace("[ddp] session %s: subscribe for %s (subscription id = %s, value = %d)",
+        corto_nameof(conn->udata),
+        name,
+        id,
+        value);
+
     server_DDP_Session_sub(conn->udata, (corto_string)id, (corto_string)name, meta, value, scope);
 }
 
 static corto_void server_DDP_unsub(server_DDP this, server_HTTP_Connection conn, JSON_Object *json) {
     CORTO_UNUSED(this);
     const char *id = json_object_get_string(json, "id");
+
+    corto_trace("[ddp] session %s: unsubscribe subscription %s",
+        corto_nameof(conn->udata),
+        id);
+
     server_DDP_Session_unsub(conn->udata, (corto_string)id);
 }
 
@@ -185,6 +198,7 @@ error:
 
 corto_int16 _server_DDP_construct(server_DDP this) {
 /* $begin(corto/web/server/DDP/construct) */
+    corto_trace("[ddp] server created");
 
     this->sessions = corto_voidCreateChild(this, "__sessions");
 
@@ -237,7 +251,10 @@ corto_void _server_DDP_onClose(server_DDP this, server_HTTP_Connection c) {
     server_DDP_Session session = server_DDP_Session(c->udata);
 
     if (session) {
+        corto_trace("[ddp] session %s: close session", corto_nameof(session));
         corto_delete(session);
+    } else {
+        corto_trace("[ddp] session ???: close connection");
     }
 /* $end */
 }

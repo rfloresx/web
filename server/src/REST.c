@@ -81,7 +81,7 @@ void server_REST_apiRequest(
             corto_cleanpath(id);
             corto_asprintf(
                 &item,
-                "{\"_id\":\"%s\"%s%s%s%s%s}",
+                "{\"id\":\"%s\"%s%s%s%s%s}",
                 id,
                 metaTxt ? ", " : "",
                 metaTxt ? metaTxt : "",

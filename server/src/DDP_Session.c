@@ -81,16 +81,20 @@ server_DDP_Collection _server_DDP_Session_getCollection(server_DDP_Session this,
     char *ptr = subId, ch;
 
     /* Replace / with _ */
-    strcpy(subId, name);
+    if (name) {
+        strcpy(subId, name);
 
-    while ((ch = *ptr)) {
-        if (ch == '/') {
-            *ptr = '_';
+        while ((ch = *ptr)) {
+            if (ch == '/') {
+                *ptr = '_';
+            }
+            ptr++;
         }
-        ptr++;
+    } else {
+        subId[0] = '\0';
     }
 
-    sprintf(collectionName, "c_%s", subId ? subId : "");
+    sprintf(collectionName, "c_%s", subId);
 
     if (!(result = corto_lookup(this->collections, collectionName))) {
         corto_object o = corto_resolve(NULL, name);

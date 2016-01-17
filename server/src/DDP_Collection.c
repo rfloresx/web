@@ -115,6 +115,7 @@ corto_void _server_DDP_Collection_onChanged(server_DDP_Collection this, corto_ob
     server_DDP_Session session = server_DDP_Collection_getSession(this);
     corto_string json = server_DDP_Collection_getJson(this, observable);
     corto_string msg;
+    
     corto_asprintf(
         &msg,
         SERVER_DDP_COLLECTION_CHANGED,
