@@ -25,6 +25,7 @@ CORTO_WEB_SERVER_EXPORT corto_string _server_random(corto_uint16 n);
 #include "corto/web/server/DDP_readyEvent.h"
 #include "corto/web/server/DDP_Session.h"
 #include "corto/web/server/DDP_Subscription.h"
+#include "corto/web/server/Files.h"
 #include "corto/web/server/HTTP.h"
 #include "corto/web/server/HTTP_Connection.h"
 #include "corto/web/server/HTTP_Request.h"
@@ -33,6 +34,7 @@ CORTO_WEB_SERVER_EXPORT corto_string _server_random(corto_uint16 n);
 #include "corto/web/server/SockJs.h"
 #include "corto/web/server/StandaloneHTTP.h"
 #include "corto/web/web.h"
+#include "corto/fmt/json/json.h"
 
 #ifdef __cplusplus
 }

@@ -21,9 +21,11 @@ class HTTP::
         void setHeader(string name, string val)
         void setStatus(uint16 status)
         void reply(string msg)
+        void sendfile(string file)
         string getVar(string id)
         uri: string
         conn: word, private|local
+        file: bool, private|local
 
     port: uint16
     pollInterval: uint16
@@ -71,21 +73,29 @@ class StandaloneHTTP: HTTP::
 // Service built on top of an HTTP instance
 class Service::
     port: uint16
+    prefix: string, hidden
     server: HTTP, private|local
 
     int16 construct()
 
     void onOpen(HTTP::Connection c) virtual
     void onClose(HTTP::Connection c) virtual
-    int16 onRequest(HTTP::Connection c, HTTP::Request r) virtual
+    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) virtual
     void onMessage(HTTP::Connection c, string msg) virtual
     void onPoll() virtual
 
+// Service that serves up static content
+class Files: Service::
+    alias prefix: Service/prefix
+    path: string
+    int16 construct()
+    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
+
 // REST interface that provides access to Corto store
 class REST: Service::
-    prefix: string // Prefix of the API
+    alias prefix: Service/prefix
     int16 construct()
-    int16 onRequest(HTTP::Connection c, HTTP::Request r)
+    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
 
 // SockJs service
 class SockJs: Service::
@@ -95,7 +105,7 @@ class SockJs: Service::
 
     void onOpen(HTTP::Connection c)
     void onClose(HTTP::Connection c)
-    int16 onRequest(HTTP::Connection c, HTTP::Request r)
+    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
     void onMessage(HTTP::Connection c, string msg)
     void onPoll() virtual
     void onData(HTTP::Connection c, string msg) virtual

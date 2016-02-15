@@ -106,6 +106,17 @@
 ### scope
 ### value
 
+## Files
+### construct()
+#### Returns
+### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
+#### c
+#### r
+#### uri
+#### Returns
+### path
+### prefix
+
 ## HTTP
 ### addService(/corto/web/server/Service s)
 #### s
@@ -151,11 +162,14 @@
 
 ## HTTP/Request
 ### conn
+### file
 ### getVar(string id)
 #### id
 #### Returns
 ### reply(string msg)
 #### msg
+### sendfile(string file)
+#### file
 ### setHeader(string name,string val)
 #### name
 #### val
@@ -166,9 +180,10 @@
 ## REST
 ### construct()
 #### Returns
-### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r)
+### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
 #### c
 #### r
+#### uri
 #### Returns
 ### prefix
 
@@ -183,11 +198,13 @@
 ### onOpen(/corto/web/server/HTTP/Connection c)
 #### c
 ### onPoll()
-### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r)
+### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
 #### c
 #### r
+#### uri
 #### Returns
 ### port
+### prefix
 ### server
 
 ## SockJs
@@ -204,9 +221,10 @@
 ### onOpen(/corto/web/server/HTTP/Connection c)
 #### c
 ### onPoll()
-### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r)
+### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
 #### c
 #### r
+#### uri
 #### Returns
 ### timeElapsed
 ### write(/corto/web/server/HTTP/Connection c,string msg)

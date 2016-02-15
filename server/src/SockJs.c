@@ -9,13 +9,13 @@
 #include "corto/web/server/server.h"
 
 /* $header() */
-#include "parson.h"
+#include "corto/fmt/json/json.h"
 #define SERVER_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT  (25)
 /* $end */
 
 corto_int16 _server_SockJs_construct(server_SockJs this) {
 /* $begin(corto/web/server/SockJs/construct) */
-
+    corto_setstr(&server_Service(this)->prefix, "sockjs");
     return server_Service_construct(this);
 
 /* $end */
@@ -83,10 +83,10 @@ corto_void _server_SockJs_onPoll_v(server_SockJs this) {
 /* $end */
 }
 
-corto_int16 _server_SockJs_onRequest(server_SockJs this, server_HTTP_Connection c, server_HTTP_Request *r) {
+corto_int16 _server_SockJs_onRequest(server_SockJs this, server_HTTP_Connection c, server_HTTP_Request *r, corto_string uri) {
 /* $begin(corto/web/server/SockJs/onRequest) */
 
-    if (!strcmp(r->uri, "/sockjs/info")) {
+    if (!strcmp(uri, "info")) {
         corto_string msg;
         corto_asprintf(&msg, "{\"websocket\":true,\"origins\":[\"*:*\"],"
                              "\"cookie_needed\":false,\"entropy\":%u}",

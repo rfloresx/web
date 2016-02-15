@@ -9,12 +9,13 @@
 #include "corto/web/server/server.h"
 
 /* $header() */
-#include "json.h"
+#include "corto/fmt/json/json.h"
 
 void server_REST_apiRequest(
     server_REST this,
     server_HTTP_Connection c,
-    server_HTTP_Request *r)
+    server_HTTP_Request *r,
+    corto_string uri)
 {
     corto_bool value = FALSE;
     corto_bool meta = FALSE;
@@ -37,11 +38,11 @@ void server_REST_apiRequest(
     corto_object scope;
     corto_string select = server_HTTP_Request_getVar(r, "select");
     if (!strlen(select)) {
-        select = r->uri + strlen(this->prefix);
+        select = uri;
         scope = NULL;
     } else {
         multiple = (strchr(select, '*') != NULL);
-        scope = corto_resolve(NULL, r->uri + strlen(this->prefix));
+        scope = corto_resolve(NULL, uri);
     }
     if (corto_select(scope, select, &iter)) {
         server_HTTP_Request_setStatus(r, 400);
@@ -156,26 +157,16 @@ void server_REST_apiRequest(
 
 corto_int16 _server_REST_construct(server_REST this) {
 /* $begin(corto/web/server/REST/construct) */
-
-    if (!this->prefix) {
-        corto_setstr(&this->prefix, "");
-    }
-
     return server_Service_construct(this);
-
 /* $end */
 }
 
-corto_int16 _server_REST_onRequest(server_REST this, server_HTTP_Connection c, server_HTTP_Request *r) {
+corto_int16 _server_REST_onRequest(server_REST this, server_HTTP_Connection c, server_HTTP_Request *r, corto_string uri) {
 /* $begin(corto/web/server/REST/onRequest) */
     CORTO_UNUSED(this);
 
-    if (!strlen(this->prefix) || !memcmp(r->uri, this->prefix, strlen(this->prefix))) {
-        server_REST_apiRequest(this, c, r);
-        return 1;
-    } else {
-        return 0;
-    }
+    server_REST_apiRequest(this, c, r, uri);
 
+    return 1;
 /* $end */
 }

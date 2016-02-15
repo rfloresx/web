@@ -37,7 +37,7 @@ static int client_Url_onData(
 }
 /* $end */
 
-corto_string _client_Url_request(client_Url *this) {
+corto_string _client_Url_request(client_Url* this) {
 /* $begin(corto/web/client/Url/request) */
     CURL *conn;
     CURLcode res;

@@ -92,7 +92,15 @@ corto_void _server_HTTP_doRequest(server_HTTP this, server_HTTP_Connection c, se
 /* $begin(corto/web/server/HTTP/doRequest) */
 
     server_ServiceListForeach(this->services, s) {
-        server_Service_onRequest(s, c, r);
+        int prefixLength = strlen(s->prefix);
+        int uriLength = strlen(r->uri) - 1;
+        if (!prefixLength || (!memcmp(r->uri + 1, s->prefix, prefixLength))) {
+            corto_string uri = r->uri + 1 + prefixLength;
+            if (uriLength > prefixLength) {
+                uri += 1;
+            }
+            server_Service_onRequest(s, c, r, uri);
+        }
     }
 
 /* $end */
@@ -105,8 +113,7 @@ server_HTTP _server_HTTP_get(corto_uint16 port) {
     corto_mutexLock(&serverLock);
 
     while ((i < SERVER_MAX_SERVERS) &&
-           (!servers[i].port ||
-           (servers[i].port == port)))
+           (servers[i].port != port))
     {
         i++;
     }
@@ -133,17 +140,18 @@ corto_bool _server_HTTP_set(corto_uint16 port, server_HTTP server) {
     corto_mutexLock(&serverLock);
 
     while ((i < SERVER_MAX_SERVERS) &&
-           (!servers[i].port ||
-           (servers[i].port == port)))
+           (servers[i].port &&
+           (servers[i].port != port)))
     {
         i++;
     }
 
-    if (servers[i].port == port) {
+    if (!servers[i].port || (servers[i].port == port)) {
         if (server && servers[i].server) {
             result = FALSE;
         } else if (server) {
             servers[i].server = server;
+            servers[i].port = port;
         } else {
             servers[i].port = 0;
             servers[i].server = NULL;

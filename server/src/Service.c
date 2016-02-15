@@ -12,6 +12,10 @@ corto_int16 _server_Service_construct(server_Service this) {
 /* $begin(corto/web/server/Service/construct) */
     server_HTTP server = NULL;
 
+    if (!this->prefix) {
+        corto_setstr(&this->prefix, "");
+    }
+
     /* Fetch HTTP server for port. If none is registered, automatically create
      * a standalone server */
     while (!server) {
@@ -66,7 +70,7 @@ corto_void _server_Service_onPoll_v(server_Service this) {
 /* $end */
 }
 
-corto_int16 _server_Service_onRequest_v(server_Service this, server_HTTP_Connection c, server_HTTP_Request *r) {
+corto_int16 _server_Service_onRequest_v(server_Service this, server_HTTP_Connection c, server_HTTP_Request *r, corto_string uri) {
 /* $begin(corto/web/server/Service/onRequest) */
 
     return 0;

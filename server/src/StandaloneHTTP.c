@@ -55,9 +55,11 @@ static int server_StandaloneHTTP_handler(struct mg_connection *conn, enum mg_eve
         } else {
             server_HTTP_Request r = {
                 (corto_string)conn->uri,
-                (corto_word)conn
+                (corto_word)conn,
+                FALSE
             };
             server_HTTP_doRequest(this, c, &r);
+            result = r.file ? MG_MORE : MG_TRUE;
         }
         break;
     case MG_HTTP_ERROR:

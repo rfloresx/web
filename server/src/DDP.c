@@ -9,11 +9,7 @@
 #include "corto/web/server/server.h"
 
 /* $header() */
-#include "parson.h"
-
-#include "json.h"
-// #include "server_DDP__method.h"
-
+#include "corto/fmt/json/json.h"
 
 #define SERVER_DDP_SERVER_SIZE_THRESHOLD 100
 #define SERVER_DDP_SERVER_BIG_LIST_SLEEP 10000000

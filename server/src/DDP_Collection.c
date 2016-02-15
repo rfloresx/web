@@ -9,7 +9,7 @@
 #include "corto/web/server/server.h"
 
 /* $header() */
-#include "json.h"
+#include "corto/fmt/json/json.h"
 
 #define SERVER_DDP_COLLECTION_ADDED "{\"msg\":\"added\",\"collection\":\"%s\",\"id\":\"%s\",\"fields\":%s}"
 #define SERVER_DDP_COLLECTION_CHANGED "{\"msg\":\"changed\",\"collection\":\"%s\",\"id\":\"%s\",\"fields\":%s}"
@@ -115,7 +115,7 @@ corto_void _server_DDP_Collection_onChanged(server_DDP_Collection this, corto_ob
     server_DDP_Session session = server_DDP_Collection_getSession(this);
     corto_string json = server_DDP_Collection_getJson(this, observable);
     corto_string msg;
-    
+
     corto_asprintf(
         &msg,
         SERVER_DDP_COLLECTION_CHANGED,
