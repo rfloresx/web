@@ -90,6 +90,7 @@ corto_void _server_HTTP_doPoll(server_HTTP this) {
 
 corto_void _server_HTTP_doRequest(server_HTTP this, server_HTTP_Connection c, server_HTTP_Request *r) {
 /* $begin(corto/web/server/HTTP/doRequest) */
+    int handled = 0;
 
     server_ServiceListForeach(this->services, s) {
         int prefixLength = strlen(s->prefix);
@@ -99,8 +100,15 @@ corto_void _server_HTTP_doRequest(server_HTTP this, server_HTTP_Connection c, se
             if (uriLength > prefixLength) {
                 uri += 1;
             }
-            server_Service_onRequest(s, c, r, uri);
+            if ((handled = server_Service_onRequest(s, c, r, uri))) {
+                break;
+            }
         }
+    }
+
+    if (!handled) {
+        server_HTTP_Request_setStatus(r, 404);
+        server_HTTP_Request_reply(r, "Resource not found");
     }
 
 /* $end */

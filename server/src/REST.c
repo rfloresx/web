@@ -22,6 +22,7 @@ void server_REST_apiRequest(
     corto_ll items = corto_llNew();
     corto_string reply = NULL;
     corto_bool multiple = FALSE;
+    corto_id selectBuffer;
 
     /* Set correct content type */
     server_HTTP_Request_setHeader(
@@ -38,7 +39,8 @@ void server_REST_apiRequest(
     corto_object scope;
     corto_string select = server_HTTP_Request_getVar(r, "select");
     if (!strlen(select)) {
-        select = uri;
+        sprintf(selectBuffer, "/%s", uri);
+        select = selectBuffer;
         scope = NULL;
     } else {
         multiple = (strchr(select, '*') != NULL);
