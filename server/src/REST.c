@@ -38,15 +38,10 @@ void server_REST_apiRequest(
     corto_iter iter;
     corto_object scope;
     corto_string select = server_HTTP_Request_getVar(r, "select");
-    if (!strlen(select)) {
-        sprintf(selectBuffer, "/%s", uri);
-        select = selectBuffer;
-        scope = NULL;
-    } else {
-        multiple = (strchr(select, '*') != NULL);
-        scope = corto_resolve(NULL, uri);
-    }
-    if (corto_select(scope, select, &iter)) {
+
+    multiple = (strchr(select, '*') != NULL);
+
+    if (corto_select(*uri ? uri : "/", select, &iter)) {
         server_HTTP_Request_setStatus(r, 400);
         server_HTTP_Request_reply(r, "400: bad request\n");
         return;
@@ -80,6 +75,7 @@ void server_REST_apiRequest(
         }
 
         {
+            printf("returned parent='%s', name='%s'\n", result.parent, result.name);
             corto_id id; sprintf(id, "%s/%s", result.parent, result.name);
             corto_cleanpath(id);
             corto_asprintf(
@@ -102,8 +98,11 @@ void server_REST_apiRequest(
             server_HTTP_Request_reply(r, "[]");
             return;
         } else {
+            corto_string msg;
+            corto_asprintf(&msg, "404: resource not found '%s'", uri);
             server_HTTP_Request_setStatus(r, 404);
-            server_HTTP_Request_reply(r, "404: resource not found");
+            server_HTTP_Request_reply(r, msg);
+            corto_dealloc(msg);
             return;
         }
     }
@@ -157,13 +156,20 @@ void server_REST_apiRequest(
 }
 /* $end */
 
-corto_int16 _server_REST_construct(server_REST this) {
+corto_int16 _server_REST_construct(
+    server_REST this)
+{
 /* $begin(corto/web/server/REST/construct) */
     return server_Service_construct(this);
 /* $end */
 }
 
-corto_int16 _server_REST_onRequest(server_REST this, server_HTTP_Connection c, server_HTTP_Request *r, corto_string uri) {
+corto_int16 _server_REST_onRequest(
+    server_REST this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
 /* $begin(corto/web/server/REST/onRequest) */
     CORTO_UNUSED(this);
 

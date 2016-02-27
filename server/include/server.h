@@ -17,7 +17,8 @@ extern "C" {
 #endif
 
 
-CORTO_WEB_SERVER_EXPORT corto_string _server_random(corto_uint16 n);
+CORTO_WEB_SERVER_EXPORT corto_string _server_random(
+    corto_uint16 n);
 #define server_random(n) _server_random(n)
 #include "corto/web/server/DDP.h"
 #include "corto/web/server/DDP_Collection.h"

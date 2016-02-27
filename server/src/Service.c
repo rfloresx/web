@@ -8,7 +8,9 @@
 
 #include "corto/web/server/server.h"
 
-corto_int16 _server_Service_construct(server_Service this) {
+corto_int16 _server_Service_construct(
+    server_Service this)
+{
 /* $begin(corto/web/server/Service/construct) */
     server_HTTP server = NULL;
 
@@ -38,7 +40,10 @@ corto_int16 _server_Service_construct(server_Service this) {
 /* $end */
 }
 
-corto_void _server_Service_onClose_v(server_Service this, server_HTTP_Connection c) {
+corto_void _server_Service_onClose_v(
+    server_Service this,
+    server_HTTP_Connection c)
+{
 /* $begin(corto/web/server/Service/onClose) */
 
     /* virtual method */
@@ -46,7 +51,11 @@ corto_void _server_Service_onClose_v(server_Service this, server_HTTP_Connection
 /* $end */
 }
 
-corto_void _server_Service_onMessage_v(server_Service this, server_HTTP_Connection c, corto_string msg) {
+corto_void _server_Service_onMessage_v(
+    server_Service this,
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/Service/onMessage) */
 
     /* virtual method */
@@ -54,7 +63,10 @@ corto_void _server_Service_onMessage_v(server_Service this, server_HTTP_Connecti
 /* $end */
 }
 
-corto_void _server_Service_onOpen_v(server_Service this, server_HTTP_Connection c) {
+corto_void _server_Service_onOpen_v(
+    server_Service this,
+    server_HTTP_Connection c)
+{
 /* $begin(corto/web/server/Service/onOpen) */
 
     /* virtual method */
@@ -62,7 +74,9 @@ corto_void _server_Service_onOpen_v(server_Service this, server_HTTP_Connection 
 /* $end */
 }
 
-corto_void _server_Service_onPoll_v(server_Service this) {
+corto_void _server_Service_onPoll_v(
+    server_Service this)
+{
 /* $begin(corto/web/server/Service/onPoll) */
 
     /* virtual method */
@@ -70,7 +84,12 @@ corto_void _server_Service_onPoll_v(server_Service this) {
 /* $end */
 }
 
-corto_int16 _server_Service_onRequest_v(server_Service this, server_HTTP_Connection c, server_HTTP_Request *r, corto_string uri) {
+corto_int16 _server_Service_onRequest_v(
+    server_Service this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
 /* $begin(corto/web/server/Service/onRequest) */
 
     return 0;

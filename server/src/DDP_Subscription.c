@@ -16,7 +16,9 @@ server_DDP_Session server_DDP_Subscription_getSession(server_DDP_Subscription th
 }
 /* $end */
 
-corto_void _server_DDP_Subscription_ready(server_DDP_Subscription this) {
+corto_void _server_DDP_Subscription_ready(
+    server_DDP_Subscription this)
+{
 /* $begin(corto/web/server/DDP/Subscription/ready) */
     server_DDP_Session session = server_DDP_Subscription_getSession(this);
     corto_string msg = NULL;

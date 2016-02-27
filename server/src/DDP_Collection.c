@@ -56,7 +56,9 @@ corto_string server_DDP_Collection_getJson(
 }
 /* $end */
 
-corto_int16 _server_DDP_Collection_construct(server_DDP_Collection this) {
+corto_int16 _server_DDP_Collection_construct(
+    server_DDP_Collection this)
+{
 /* $begin(corto/web/server/DDP/Collection/construct) */
 
     server_DDP server = server_DDP(
@@ -73,7 +75,9 @@ corto_int16 _server_DDP_Collection_construct(server_DDP_Collection this) {
 /* $end */
 }
 
-corto_void _server_DDP_Collection_destruct(server_DDP_Collection this) {
+corto_void _server_DDP_Collection_destruct(
+    server_DDP_Collection this)
+{
 /* $begin(corto/web/server/DDP/Collection/destruct) */
     server_DDP server = server_DDP(
       corto_parentof(
@@ -90,7 +94,10 @@ corto_void _server_DDP_Collection_destruct(server_DDP_Collection this) {
 /* $end */
 }
 
-corto_void _server_DDP_Collection_onAdded(server_DDP_Collection this, corto_object observable) {
+corto_void _server_DDP_Collection_onAdded(
+    server_DDP_Collection this,
+    corto_object observable)
+{
 /* $begin(corto/web/server/DDP/Collection/onAdded) */
     server_DDP_Session session = server_DDP_Collection_getSession(this);
     corto_string json = server_DDP_Collection_getJson(this, observable);
@@ -109,7 +116,10 @@ corto_void _server_DDP_Collection_onAdded(server_DDP_Collection this, corto_obje
 /* $end */
 }
 
-corto_void _server_DDP_Collection_onChanged(server_DDP_Collection this, corto_object observable) {
+corto_void _server_DDP_Collection_onChanged(
+    server_DDP_Collection this,
+    corto_object observable)
+{
 /* $begin(corto/web/server/DDP/Collection/onChanged) */
 
     server_DDP_Session session = server_DDP_Collection_getSession(this);
@@ -130,7 +140,10 @@ corto_void _server_DDP_Collection_onChanged(server_DDP_Collection this, corto_ob
 /* $end */
 }
 
-corto_void _server_DDP_Collection_onRemoved(server_DDP_Collection this, corto_object observable) {
+corto_void _server_DDP_Collection_onRemoved(
+    server_DDP_Collection this,
+    corto_object observable)
+{
 /* $begin(corto/web/server/DDP/Collection/onRemoved) */
     server_DDP_Session session = server_DDP_Collection_getSession(this);
     corto_string msg;
@@ -147,7 +160,12 @@ corto_void _server_DDP_Collection_onRemoved(server_DDP_Collection this, corto_ob
 /* $end */
 }
 
-corto_void _server_DDP_Collection_subscribe(server_DDP_Collection this, corto_bool value, corto_bool meta, corto_bool scope) {
+corto_void _server_DDP_Collection_subscribe(
+    server_DDP_Collection this,
+    corto_bool value,
+    corto_bool meta,
+    corto_bool scope)
+{
 /* $begin(corto/web/server/DDP/Collection/subscribe) */
 
     this->value += value ? 1 : 0;
@@ -157,7 +175,12 @@ corto_void _server_DDP_Collection_subscribe(server_DDP_Collection this, corto_bo
 /* $end */
 }
 
-corto_void _server_DDP_Collection_unsubscribe(server_DDP_Collection this, corto_bool value, corto_bool meta, corto_bool scope) {
+corto_void _server_DDP_Collection_unsubscribe(
+    server_DDP_Collection this,
+    corto_bool value,
+    corto_bool meta,
+    corto_bool scope)
+{
 /* $begin(corto/web/server/DDP/Collection/unsubscribe) */
 
     this->value -= value ? 1 : 0;

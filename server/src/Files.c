@@ -8,13 +8,20 @@
 
 #include "corto/web/server/server.h"
 
-corto_int16 _server_Files_construct(server_Files this) {
+corto_int16 _server_Files_construct(
+    server_Files this)
+{
 /* $begin(corto/web/server/Files/construct) */
     return server_Service_construct(this);
 /* $end */
 }
 
-corto_int16 _server_Files_onRequest(server_Files this, server_HTTP_Connection c, server_HTTP_Request *r, corto_string uri) {
+corto_int16 _server_Files_onRequest(
+    server_Files this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
 /* $begin(corto/web/server/Files/onRequest) */
     corto_string file;
     corto_asprintf(
@@ -26,8 +33,11 @@ corto_int16 _server_Files_onRequest(server_Files this, server_HTTP_Connection c,
     if (corto_fileTest(file)) {
         server_HTTP_Request_sendfile(r, file);
     } else {
+        corto_string msg;
+        corto_asprintf(&msg, "Resource '%s' not found", uri);
         server_HTTP_Request_setStatus(r, 404);
-        server_HTTP_Request_reply(r, "Resource not found");
+        server_HTTP_Request_reply(r, msg);
+        corto_dealloc(msg);
     }
     corto_dealloc(file);
 

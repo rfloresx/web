@@ -23,7 +23,9 @@ corto_void server_DDP_Session_nosub(server_DDP_Session this, corto_string id) {
 }
 /* $end */
 
-corto_void _server_DDP_Session_connected(server_DDP_Session this) {
+corto_void _server_DDP_Session_connected(
+    server_DDP_Session this)
+{
 /* $begin(corto/web/server/DDP/Session/connected) */
     int msgLength = snprintf(
         NULL, 0,
@@ -39,7 +41,9 @@ corto_void _server_DDP_Session_connected(server_DDP_Session this) {
 /* $end */
 }
 
-corto_int16 _server_DDP_Session_construct(server_DDP_Session this) {
+corto_int16 _server_DDP_Session_construct(
+    server_DDP_Session this)
+{
 /* $begin(corto/web/server/DDP/Session/construct) */
 
     this->collections = corto_voidCreateChild(this, "__collections");
@@ -49,7 +53,11 @@ corto_int16 _server_DDP_Session_construct(server_DDP_Session this) {
 /* $end */
 }
 
-corto_void _server_DDP_Session_error(server_DDP_Session this, corto_string reason, corto_string offendingMessage) {
+corto_void _server_DDP_Session_error(
+    server_DDP_Session this,
+    corto_string reason,
+    corto_string offendingMessage)
+{
 /* $begin(corto/web/server/DDP/Session/error) */
     corto_string msg = NULL;
     if (offendingMessage) {
@@ -66,14 +74,22 @@ corto_void _server_DDP_Session_error(server_DDP_Session this, corto_string reaso
 /* $end */
 }
 
-corto_void _server_DDP_Session_failed(server_HTTP_Connection conn) {
+corto_void _server_DDP_Session_failed(
+    server_HTTP_Connection conn)
+{
 /* $begin(corto/web/server/DDP/Session/failed) */
     server_SockJs_write(conn,
         "{\"msg\":\"failed\",\"version\":\"1\"}");
 /* $end */
 }
 
-server_DDP_Collection _server_DDP_Session_getCollection(server_DDP_Session this, corto_string name, corto_bool meta, corto_bool value, corto_bool scope) {
+server_DDP_Collection _server_DDP_Session_getCollection(
+    server_DDP_Session this,
+    corto_string name,
+    corto_bool meta,
+    corto_bool value,
+    corto_bool scope)
+{
 /* $begin(corto/web/server/DDP/Session/getCollection) */
     corto_id collectionName;
     server_DDP_Collection result = NULL;
@@ -108,7 +124,14 @@ server_DDP_Collection _server_DDP_Session_getCollection(server_DDP_Session this,
 /* $end */
 }
 
-server_DDP_Subscription _server_DDP_Session_getSub(server_DDP_Session this, server_DDP_Publication pub, corto_string id, corto_bool meta, corto_bool value, corto_bool scope) {
+server_DDP_Subscription _server_DDP_Session_getSub(
+    server_DDP_Session this,
+    server_DDP_Publication pub,
+    corto_string id,
+    corto_bool meta,
+    corto_bool value,
+    corto_bool scope)
+{
 /* $begin(corto/web/server/DDP/Session/getSub) */
     server_DDP_Subscription result = NULL;
 
@@ -121,7 +144,10 @@ server_DDP_Subscription _server_DDP_Session_getSub(server_DDP_Session this, serv
 /* $end */
 }
 
-corto_void _server_DDP_Session_pong(server_DDP_Session this, corto_string id) {
+corto_void _server_DDP_Session_pong(
+    server_DDP_Session this,
+    corto_string id)
+{
 /* $begin(corto/web/server/DDP/Session/pong) */
     if (id) {
         int msgLength = snprintf(NULL, 0,
@@ -136,7 +162,14 @@ corto_void _server_DDP_Session_pong(server_DDP_Session this, corto_string id) {
 /* $end */
 }
 
-corto_void _server_DDP_Session_sub(server_DDP_Session this, corto_string id, corto_string name, corto_bool meta, corto_bool value, corto_bool scope) {
+corto_void _server_DDP_Session_sub(
+    server_DDP_Session this,
+    corto_string id,
+    corto_string name,
+    corto_bool meta,
+    corto_bool value,
+    corto_bool scope)
+{
 /* $begin(corto/web/server/DDP/Session/sub) */
     server_DDP server = server_DDP(corto_parentof(corto_parentof(this)));
 
@@ -156,7 +189,10 @@ corto_void _server_DDP_Session_sub(server_DDP_Session this, corto_string id, cor
 /* $end */
 }
 
-corto_void _server_DDP_Session_unsub(server_DDP_Session this, corto_string id) {
+corto_void _server_DDP_Session_unsub(
+    server_DDP_Session this,
+    corto_string id)
+{
 /* $begin(corto/web/server/DDP/Session/unsub) */
     server_DDP_Subscription sub = corto_lookup(this->subscriptions, id);
     if (sub) {

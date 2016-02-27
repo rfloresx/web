@@ -192,7 +192,9 @@ error:
 }
 /* $end */
 
-corto_int16 _server_DDP_construct(server_DDP this) {
+corto_int16 _server_DDP_construct(
+    server_DDP this)
+{
 /* $begin(corto/web/server/DDP/construct) */
     corto_trace("[ddp] server created");
 
@@ -202,7 +204,10 @@ corto_int16 _server_DDP_construct(server_DDP this) {
 /* $end */
 }
 
-server_DDP_Publication _server_DDP_getPublication(server_DDP this, corto_string name) {
+server_DDP_Publication _server_DDP_getPublication(
+    server_DDP this,
+    corto_string name)
+{
 /* $begin(corto/web/server/DDP/getPublication) */
     corto_id subId;
     char *ptr = subId, ch;
@@ -231,7 +236,9 @@ server_DDP_Publication _server_DDP_getPublication(server_DDP this, corto_string 
 /* $end */
 }
 
-corto_int16 _server_DDP_init(server_DDP this) {
+corto_int16 _server_DDP_init(
+    server_DDP this)
+{
 /* $begin(corto/web/server/DDP/init) */
 
     /* autoPublish is by default turned on for ease of use. It should be turned
@@ -242,7 +249,10 @@ corto_int16 _server_DDP_init(server_DDP this) {
 /* $end */
 }
 
-corto_void _server_DDP_onClose(server_DDP this, server_HTTP_Connection c) {
+corto_void _server_DDP_onClose(
+    server_DDP this,
+    server_HTTP_Connection c)
+{
 /* $begin(corto/web/server/DDP/onClose) */
     server_DDP_Session session = server_DDP_Session(c->udata);
 
@@ -255,7 +265,11 @@ corto_void _server_DDP_onClose(server_DDP this, server_HTTP_Connection c) {
 /* $end */
 }
 
-corto_void _server_DDP_onData(server_DDP this, server_HTTP_Connection c, corto_string msg) {
+corto_void _server_DDP_onData(
+    server_DDP this,
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/DDP/onData) */
     JSON_Value *root = json_parse_string(msg);
     if (!root) {
@@ -288,7 +302,9 @@ error:;
 /* $end */
 }
 
-corto_void _server_DDP_onPoll(server_DDP this) {
+corto_void _server_DDP_onPoll(
+    server_DDP this)
+{
 /* $begin(corto/web/server/DDP/onPoll) */
     corto_event e;
     corto_ll events = corto_llNew();
@@ -333,7 +349,10 @@ static corto_observableEvent server_DDP_findRelatedEvent(server_DDP this, corto_
     return NULL;
 }
 /* $end */
-corto_void _server_DDP_post(server_DDP this, corto_event e) {
+corto_void _server_DDP_post(
+    server_DDP this,
+    corto_event e)
+{
 /* $begin(corto/web/server/DDP/post) */
     corto_uint32 size = 0;
     corto_observableEvent e2;
@@ -361,7 +380,10 @@ corto_void _server_DDP_post(server_DDP this, corto_event e) {
 /* $end */
 }
 
-corto_void _server_DDP_purge(server_DDP this, corto_object observable) {
+corto_void _server_DDP_purge(
+    server_DDP this,
+    corto_object observable)
+{
 /* $begin(corto/web/server/DDP/purge) */
     corto_lock(this);
 

@@ -108,7 +108,9 @@ static void* server_StandaloneHTTP_threadRun(void *data) {
 }
 /* $end */
 
-corto_int16 _server_StandaloneHTTP_construct(server_StandaloneHTTP this) {
+corto_int16 _server_StandaloneHTTP_construct(
+    server_StandaloneHTTP this)
+{
 /* $begin(corto/web/server/StandaloneHTTP/construct) */
 
     /* Register with port slot */
@@ -133,7 +135,9 @@ error:
 /* $end */
 }
 
-corto_void _server_StandaloneHTTP_destruct(server_StandaloneHTTP this) {
+corto_void _server_StandaloneHTTP_destruct(
+    server_StandaloneHTTP this)
+{
 /* $begin(corto/web/server/StandaloneHTTP/destruct) */
 
     this->exiting = TRUE;
@@ -146,7 +150,11 @@ corto_void _server_StandaloneHTTP_destruct(server_StandaloneHTTP this) {
 /* $end */
 }
 
-corto_void _server_StandaloneHTTP_write(server_StandaloneHTTP this, server_HTTP_Connection c, corto_string msg) {
+corto_void _server_StandaloneHTTP_write(
+    server_StandaloneHTTP this,
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/StandaloneHTTP/write) */
     mg_websocket_printf((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, "%s", msg);
 

@@ -8,7 +8,9 @@
 
 #include "corto/web/server/server.h"
 
-corto_string _server_random(corto_uint16 n) {
+corto_string _server_random(
+    corto_uint16 n)
+{
 /* $begin(corto/web/server/random) */
     static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static char *alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";

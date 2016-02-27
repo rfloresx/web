@@ -13,7 +13,9 @@
 #define SERVER_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT  (25)
 /* $end */
 
-corto_int16 _server_SockJs_construct(server_SockJs this) {
+corto_int16 _server_SockJs_construct(
+    server_SockJs this)
+{
 /* $begin(corto/web/server/SockJs/construct) */
     corto_setstr(&server_Service(this)->prefix, "sockjs");
     return server_Service_construct(this);
@@ -21,7 +23,10 @@ corto_int16 _server_SockJs_construct(server_SockJs this) {
 /* $end */
 }
 
-corto_void _server_SockJs_onClose(server_SockJs this, server_HTTP_Connection c) {
+corto_void _server_SockJs_onClose(
+    server_SockJs this,
+    server_HTTP_Connection c)
+{
 /* $begin(corto/web/server/SockJs/onClose) */
 
     /* << Insert implementation >> */
@@ -29,7 +34,11 @@ corto_void _server_SockJs_onClose(server_SockJs this, server_HTTP_Connection c) 
 /* $end */
 }
 
-corto_void _server_SockJs_onData_v(server_SockJs this, server_HTTP_Connection c, corto_string msg) {
+corto_void _server_SockJs_onData_v(
+    server_SockJs this,
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/SockJs/onData) */
 
     /* virtual method */
@@ -37,7 +46,11 @@ corto_void _server_SockJs_onData_v(server_SockJs this, server_HTTP_Connection c,
 /* $end */
 }
 
-corto_void _server_SockJs_onMessage(server_SockJs this, server_HTTP_Connection c, corto_string msg) {
+corto_void _server_SockJs_onMessage(
+    server_SockJs this,
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/SockJs/onMessage) */
 
     /* Parse & unpack message */
@@ -61,7 +74,10 @@ error:;
 /* $end */
 }
 
-corto_void _server_SockJs_onOpen(server_SockJs this, server_HTTP_Connection c) {
+corto_void _server_SockJs_onOpen(
+    server_SockJs this,
+    server_HTTP_Connection c)
+{
 /* $begin(corto/web/server/SockJs/onOpen) */
 
     server_HTTP_write(server_Service(this)->server, c, "o");
@@ -69,7 +85,9 @@ corto_void _server_SockJs_onOpen(server_SockJs this, server_HTTP_Connection c) {
 /* $end */
 }
 
-corto_void _server_SockJs_onPoll_v(server_SockJs this) {
+corto_void _server_SockJs_onPoll_v(
+    server_SockJs this)
+{
 /* $begin(corto/web/server/SockJs/onPoll) */
     this->timeElapsed += server_Service(this)->server->pollInterval;
 
@@ -83,7 +101,12 @@ corto_void _server_SockJs_onPoll_v(server_SockJs this) {
 /* $end */
 }
 
-corto_int16 _server_SockJs_onRequest(server_SockJs this, server_HTTP_Connection c, server_HTTP_Request *r, corto_string uri) {
+corto_int16 _server_SockJs_onRequest(
+    server_SockJs this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
 /* $begin(corto/web/server/SockJs/onRequest) */
 
     if (!strcmp(uri, "info")) {
@@ -103,7 +126,10 @@ corto_int16 _server_SockJs_onRequest(server_SockJs this, server_HTTP_Connection 
 /* $end */
 }
 
-corto_void _server_SockJs_write(server_HTTP_Connection c, corto_string msg) {
+corto_void _server_SockJs_write(
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/SockJs/write) */
     int escapedLength;
     corto_string sockJsMsg;

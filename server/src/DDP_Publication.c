@@ -8,7 +8,11 @@
 
 #include "corto/web/server/server.h"
 
-corto_int16 _server_DDP_Publication_create(server_DDP_Publication this, corto_object session, corto_object sub) {
+corto_int16 _server_DDP_Publication_create(
+    server_DDP_Publication this,
+    corto_object session,
+    corto_object sub)
+{
 /* $begin(corto/web/server/DDP/Publication/create) */
     server_DDP_Session _session = server_DDP_Session(session);
     server_DDP_Subscription _sub = server_DDP_Subscription(sub);

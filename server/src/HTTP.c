@@ -18,7 +18,10 @@ static struct {
 } servers[SERVER_MAX_SERVERS];
 /* $end */
 
-corto_void _server_HTTP_addService(server_HTTP this, server_Service s) {
+corto_void _server_HTTP_addService(
+    server_HTTP this,
+    server_Service s)
+{
 /* $begin(corto/web/server/HTTP/addService) */
 
     server_ServiceListAppend(this->services, s);
@@ -26,7 +29,10 @@ corto_void _server_HTTP_addService(server_HTTP this, server_Service s) {
 /* $end */
 }
 
-corto_void _server_HTTP_broadcast(server_HTTP this, corto_string msg) {
+corto_void _server_HTTP_broadcast(
+    server_HTTP this,
+    corto_string msg)
+{
 /* $begin(corto/web/server/HTTP/broadcast) */
 
     server_HTTP_ConnectionListForeach(this->connections, c) {
@@ -36,7 +42,9 @@ corto_void _server_HTTP_broadcast(server_HTTP this, corto_string msg) {
 /* $end */
 }
 
-corto_void _server_HTTP_destruct(server_HTTP this) {
+corto_void _server_HTTP_destruct(
+    server_HTTP this)
+{
 /* $begin(corto/web/server/HTTP/destruct) */
 
     server_HTTP_set(this->port, NULL);
@@ -44,7 +52,10 @@ corto_void _server_HTTP_destruct(server_HTTP this) {
 /* $end */
 }
 
-corto_void _server_HTTP_doClose(server_HTTP this, server_HTTP_Connection c) {
+corto_void _server_HTTP_doClose(
+    server_HTTP this,
+    server_HTTP_Connection c)
+{
 /* $begin(corto/web/server/HTTP/doClose) */
 
     server_ServiceListForeach(this->services, s) {
@@ -56,7 +67,11 @@ corto_void _server_HTTP_doClose(server_HTTP this, server_HTTP_Connection c) {
 /* $end */
 }
 
-corto_void _server_HTTP_doMessage(server_HTTP this, server_HTTP_Connection c, corto_string msg) {
+corto_void _server_HTTP_doMessage(
+    server_HTTP this,
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/HTTP/doMessage) */
 
     server_ServiceListForeach(this->services, s) {
@@ -66,7 +81,10 @@ corto_void _server_HTTP_doMessage(server_HTTP this, server_HTTP_Connection c, co
 /* $end */
 }
 
-corto_void _server_HTTP_doOpen(server_HTTP this, server_HTTP_Connection c) {
+corto_void _server_HTTP_doOpen(
+    server_HTTP this,
+    server_HTTP_Connection c)
+{
 /* $begin(corto/web/server/HTTP/doOpen) */
 
     server_HTTP_ConnectionListAppend(this->connections, c);
@@ -78,7 +96,9 @@ corto_void _server_HTTP_doOpen(server_HTTP this, server_HTTP_Connection c) {
 /* $end */
 }
 
-corto_void _server_HTTP_doPoll(server_HTTP this) {
+corto_void _server_HTTP_doPoll(
+    server_HTTP this)
+{
 /* $begin(corto/web/server/HTTP/doPoll) */
 
     server_ServiceListForeach(this->services, s) {
@@ -88,7 +108,11 @@ corto_void _server_HTTP_doPoll(server_HTTP this) {
 /* $end */
 }
 
-corto_void _server_HTTP_doRequest(server_HTTP this, server_HTTP_Connection c, server_HTTP_Request *r) {
+corto_void _server_HTTP_doRequest(
+    server_HTTP this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r)
+{
 /* $begin(corto/web/server/HTTP/doRequest) */
     int handled = 0;
 
@@ -107,14 +131,19 @@ corto_void _server_HTTP_doRequest(server_HTTP this, server_HTTP_Connection c, se
     }
 
     if (!handled) {
+        corto_string str;
+        corto_asprintf(&str, "Resource '%s' not found: unknown endpoint", r->uri);
         server_HTTP_Request_setStatus(r, 404);
-        server_HTTP_Request_reply(r, "Resource not found");
+        server_HTTP_Request_reply(r, str);
+        corto_dealloc(str);
     }
 
 /* $end */
 }
 
-server_HTTP _server_HTTP_get(corto_uint16 port) {
+server_HTTP _server_HTTP_get(
+    corto_uint16 port)
+{
 /* $begin(corto/web/server/HTTP/get) */
     corto_int32 i = 0;
 
@@ -132,7 +161,10 @@ server_HTTP _server_HTTP_get(corto_uint16 port) {
 /* $end */
 }
 
-corto_void _server_HTTP_removeService(server_HTTP this, server_Service s) {
+corto_void _server_HTTP_removeService(
+    server_HTTP this,
+    server_Service s)
+{
 /* $begin(corto/web/server/HTTP/removeService) */
 
     server_ServiceListRemove(this->services, s);
@@ -140,7 +172,10 @@ corto_void _server_HTTP_removeService(server_HTTP this, server_Service s) {
 /* $end */
 }
 
-corto_bool _server_HTTP_set(corto_uint16 port, server_HTTP server) {
+corto_bool _server_HTTP_set(
+    corto_uint16 port,
+    server_HTTP server)
+{
 /* $begin(corto/web/server/HTTP/set) */
     corto_int32 i = 0;
     corto_bool result = TRUE;
@@ -172,7 +207,11 @@ corto_bool _server_HTTP_set(corto_uint16 port, server_HTTP server) {
 /* $end */
 }
 
-corto_void _server_HTTP_write_v(server_HTTP this, server_HTTP_Connection c, corto_string msg) {
+corto_void _server_HTTP_write_v(
+    server_HTTP this,
+    server_HTTP_Connection c,
+    corto_string msg)
+{
 /* $begin(corto/web/server/HTTP/write) */
 
     /* << Insert implementation >> */
