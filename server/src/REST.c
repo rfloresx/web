@@ -75,7 +75,6 @@ void server_REST_apiRequest(
         }
 
         {
-            printf("returned parent='%s', name='%s'\n", result.parent, result.name);
             corto_id id; sprintf(id, "%s/%s", result.parent, result.name);
             corto_cleanpath(id);
             corto_asprintf(
