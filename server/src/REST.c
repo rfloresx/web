@@ -22,7 +22,6 @@ void server_REST_apiRequest(
     corto_ll items = corto_llNew();
     corto_string reply = NULL;
     corto_bool multiple = FALSE;
-    corto_id selectBuffer;
 
     /* Set correct content type */
     server_HTTP_Request_setHeader(
@@ -36,7 +35,6 @@ void server_REST_apiRequest(
 
     /* Select objects with URI */
     corto_iter iter;
-    corto_object scope;
     corto_string select = server_HTTP_Request_getVar(r, "select");
 
     multiple = (strchr(select, '*') != NULL);
@@ -64,18 +62,27 @@ void server_REST_apiRequest(
         corto_string valueTxt = NULL;
         corto_string item = NULL;
         if (meta) {
-            corto_asprintf(
-              &metaTxt,
-              "\"meta\":{\"type\":\"%s\"}",
-              result.type
-            );
+            if (strcmp(result.name, result.id)) {
+                corto_asprintf(
+                  &metaTxt,
+                  "\"meta\":{\"type\":\"%s\", \"name\":\"%s\"}",
+                  result.type,
+                  result.name
+                );
+            } else {
+                corto_asprintf(
+                  &metaTxt,
+                  "\"meta\":{\"type\":\"%s\"}",
+                  result.type
+                );
+            }
         }
         if (value) {
             valueTxt = corto_result_getText(&result);
         }
 
         {
-            corto_id id; sprintf(id, "%s/%s", result.parent, result.name);
+            corto_id id; sprintf(id, "%s/%s", result.parent, result.id);
             corto_cleanpath(id);
             corto_asprintf(
                 &item,
