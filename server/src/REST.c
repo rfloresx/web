@@ -19,6 +19,10 @@ void server_REST_apiRequest(
 {
     corto_bool value = FALSE;
     corto_bool meta = FALSE;
+    corto_bool augment = FALSE;
+    corto_uint64 offset = 0;
+    corto_uint64 limit = 0;
+    corto_string augmentFilter = NULL;
     corto_ll items = corto_llNew();
     corto_string reply = NULL;
     corto_bool multiple = FALSE;
@@ -32,6 +36,14 @@ void server_REST_apiRequest(
     /* Determine what to show */
     if (!strcmp(server_HTTP_Request_getVar(r, "value"), "true")) { value = TRUE; }
     if (!strcmp(server_HTTP_Request_getVar(r, "meta"), "true")) { meta = TRUE; }
+    offset = atoi(server_HTTP_Request_getVar(r, "offset"));
+    limit = atoi(server_HTTP_Request_getVar(r, "limit"));
+    augmentFilter = server_HTTP_Request_getVar(r, "augment");
+    if (*augmentFilter) {
+        augmentFilter = corto_strdup(augmentFilter);
+    } else {
+        augmentFilter = NULL;
+    }
 
     /* Select objects with URI */
     corto_iter iter;
@@ -43,6 +55,13 @@ void server_REST_apiRequest(
         server_HTTP_Request_setStatus(r, 400);
         server_HTTP_Request_reply(r, "400: bad request\n");
         return;
+    }
+
+    corto_selectLimit(&iter, offset, limit);
+
+    if (augmentFilter && *augmentFilter) {
+        corto_selectAugment(&iter, augmentFilter);
+        augment = TRUE;
     }
 
     if (corto_selectContentType(&iter, "text/json")) {
@@ -60,6 +79,7 @@ void server_REST_apiRequest(
     corto_resultIterForeach(iter, result) {
         corto_string metaTxt = NULL;
         corto_string valueTxt = NULL;
+        corto_string augmentTxt = NULL;
         corto_string item = NULL;
         if (meta) {
             if (strcmp(result.name, result.id)) {
@@ -77,22 +97,51 @@ void server_REST_apiRequest(
                 );
             }
         }
+
+        if (augment) {
+            corto_string tmp;
+            corto_asprintf(
+                &augmentTxt,
+                ", \"augments\":[");
+            if (result.augments.length) {
+                corto_int32 i;
+                corto_augmentData *augmentData;
+                for (i = 0; i < result.augments.length; i++) {
+                    augmentData = &result.augments.buffer[i];
+                    corto_asprintf(
+                        &tmp,
+                        "%s%s{\"name\":\"%s\",\"value\":%s}",
+                        augmentTxt,
+                        i ? "," : "",
+                        augmentData->id,
+                        (corto_string)augmentData->data);
+                    augmentTxt = tmp;
+                    corto_dealloc(tmp);
+                }
+            }
+            corto_asprintf(
+                &tmp,
+                "%s]", augmentTxt);
+            augmentTxt = tmp;
+            corto_dealloc(tmp);
+        }
+
         if (value) {
             valueTxt = corto_result_getText(&result);
         }
-
         {
             corto_id id; sprintf(id, "%s/%s", result.parent, result.id);
             corto_cleanpath(id);
             corto_asprintf(
                 &item,
-                "{\"id\":\"%s\"%s%s%s%s%s}",
+                "{\"id\":\"%s\"%s%s%s%s%s%s}",
                 id,
                 metaTxt ? ", " : "",
                 metaTxt ? metaTxt : "",
                 valueTxt ? ", " : "",
                 valueTxt ? "\"value\":" : "",
-                valueTxt ? valueTxt : ""
+                valueTxt ? valueTxt : "",
+                augmentTxt ? augmentTxt : ""
             );
             corto_dealloc(metaTxt);
             corto_llAppend(items, item);
@@ -159,6 +208,10 @@ void server_REST_apiRequest(
     }
 
     server_HTTP_Request_reply(r, reply);
+
+    if (augmentFilter) {
+        corto_dealloc(augmentFilter);
+    }
 }
 /* $end */
 

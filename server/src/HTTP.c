@@ -120,7 +120,7 @@ corto_void _server_HTTP_doRequest(
         int prefixLength = strlen(s->prefix);
         int uriLength = strlen(r->uri) - 1;
         if (!prefixLength || (!memcmp(r->uri + 1, s->prefix, prefixLength))) {
-            corto_string uri = r->uri + 1 + prefixLength;
+            corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
             if (uriLength > prefixLength) {
                 uri += 1;
             }
