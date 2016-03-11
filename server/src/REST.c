@@ -115,15 +115,15 @@ void server_REST_apiRequest(
                         i ? "," : "",
                         augmentData->id,
                         (corto_string)augmentData->data);
+                    corto_dealloc(augmentTxt);
                     augmentTxt = tmp;
-                    corto_dealloc(tmp);
                 }
             }
             corto_asprintf(
                 &tmp,
                 "%s]", augmentTxt);
+            corto_dealloc(augmentTxt);
             augmentTxt = tmp;
-            corto_dealloc(tmp);
         }
 
         if (value) {
