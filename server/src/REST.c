@@ -41,39 +41,26 @@ void server_REST_apiRequest(
     augmentFilter = server_HTTP_Request_getVar(r, "augment");
     if (*augmentFilter) {
         augmentFilter = corto_strdup(augmentFilter);
+        augment = TRUE;
     } else {
         augmentFilter = NULL;
     }
 
     /* Select objects with URI */
-    corto_iter iter;
+
     corto_string select = server_HTTP_Request_getVar(r, "select");
 
     multiple = (strchr(select, '*') != NULL);
 
-    if (corto_select(*uri ? uri : "/", select, &iter)) {
-        server_HTTP_Request_setStatus(r, 400);
-        server_HTTP_Request_reply(r, "400: bad request\n");
-        return;
-    }
-
-    corto_selectLimit(&iter, offset, limit);
-
-    if (augmentFilter && *augmentFilter) {
-        corto_selectAugment(&iter, augmentFilter);
-        augment = TRUE;
-    }
-
-    if (corto_selectContentType(&iter, "text/json")) {
-        corto_string msg;
-        server_HTTP_Request_setStatus(r, 500);
-        corto_asprintf(&msg,
-            "500: failed to set contentType to text/json\n"
-            "    details: %s\n", corto_lasterr());
-        server_HTTP_Request_reply(r, msg);
-        corto_dealloc(msg);
-        return;
-    }
+    corto_iter iter = corto_select(*uri ? uri : "/", select)
+      .limit(offset, limit)
+      .augment(augmentFilter)
+      .contentType("text/json")
+      .iter({
+          server_HTTP_Request_setStatus(r, 400);
+          server_HTTP_Request_reply(r, "400: bad request\n");
+          return;
+      });
 
     /* Add object to result list */
     corto_resultIterForeach(iter, result) {
