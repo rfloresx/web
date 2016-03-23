@@ -6,4 +6,4 @@ require "#{ENV['CORTO_BUILD']}/package"
 
 COMPONENTS << "server" << "client"
 
-require "#{ENV['CORTO_BUILD']}/forward"
+require "#{ENV['CORTO_BUILD']}/subrake"
