@@ -21,6 +21,16 @@ static char* server_StandaloneHTTP_copyConnectionContent(struct mg_connection *c
     return content;
 }
 
+static server_HTTP_Method server_StandaloneHTTP_methodNameToMethod(const char* methodString) {
+    if (!strcmp(methodString, "GET")) {
+        return SERVER_GET;
+    } else if (!strcmp(methodString, "POST")) {
+        return SERVER_POST;
+    } else {
+        return SERVER_NONE;
+    }
+}
+
 static int server_StandaloneHTTP_handler(struct mg_connection *conn, enum mg_event ev) {
     int result = MG_TRUE;
     server_HTTP_Connection c = NULL;
@@ -55,6 +65,7 @@ static int server_StandaloneHTTP_handler(struct mg_connection *conn, enum mg_eve
         } else {
             server_HTTP_Request r = {
                 (corto_string)conn->uri,
+                server_StandaloneHTTP_methodNameToMethod(conn->request_method),
                 (corto_word)conn,
                 FALSE
             };
@@ -106,6 +117,7 @@ static void* server_StandaloneHTTP_threadRun(void *data) {
     mg_destroy_server(&server);
     return NULL;
 }
+
 /* $end */
 
 corto_int16 _server_StandaloneHTTP_construct(
