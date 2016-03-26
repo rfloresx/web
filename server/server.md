@@ -1,4 +1,8 @@
 # /corto/web/server
+### match(string pattern,string url)
+#### pattern
+#### url
+#### Returns
 ### random(uint16 n)
 #### n
 #### Returns
@@ -139,6 +143,7 @@
 ### get(uint16 port)
 #### port
 #### Returns
+### Method
 ### pollInterval
 ### port
 ### removeService(/corto/web/server/Service s)
@@ -160,12 +165,18 @@
 ### write(string msg)
 #### msg
 
+## HTTP/Method
+### GET
+### NONE
+### POST
+
 ## HTTP/Request
 ### conn
 ### file
 ### getVar(string id)
 #### id
 #### Returns
+### method
 ### reply(string msg)
 #### msg
 ### sendfile(string file)
@@ -186,6 +197,31 @@
 #### uri
 #### Returns
 ### prefix
+
+## Route
+### method
+### pattern
+
+## Router
+Metaclass for creation of RouteService subtypes such that all methods are of type Route. For example:
+
+```
+Router AppRouter::     // AppRouter.instanceof(RouteService) == true
+    void list_users()  // Approuter::list_users.instanceof(Route) == true
+    list_users.pattern = "/users"
+    list_users.method = HTTP::Method::GET
+```
+### construct()
+#### Returns
+
+## RouteService
+### construct()
+#### Returns
+### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
+#### c
+#### r
+#### uri
+#### Returns
 
 ## Service
 ### construct()
@@ -241,3 +277,7 @@
 ### write(/corto/web/server/HTTP/Connection c,string msg)
 #### c
 #### msg
+
+## UrlMatch
+### matches
+### params

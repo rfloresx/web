@@ -9,6 +9,8 @@ class Service
 // There can only be one HTTP server active per port, per process. A maximum of
 // 64 servers can be active per process.
 class HTTP::
+    enum Method:: NONE, GET, POST
+
     // Manages connection & user data
     class Connection::
         udata: object
@@ -24,6 +26,7 @@ class HTTP::
         void sendfile(string file)
         string getVar(string id)
         uri: string
+        method: HTTP::method
         conn: word, private|local
         file: bool, private|local
 
@@ -166,3 +169,25 @@ class DDP: SockJs, implements={dispatcher}::
 
     void post(event e)
     Publication getPublication(string name)
+
+
+procedure Route: procedureKind::METHOD, base=method ::
+    member pattern: string
+    member method: HTTP::Method
+
+
+class UrlMatch::
+    matches: bool
+    params: map{string, string}
+
+
+UrlMatch match(string pattern, string url)
+
+
+class RouteService: Service::
+    int16 construct()
+    int16 onRequest(web/server/HTTP/Connection c, web/server/HTTP/Request r, string uri)
+
+
+class Router: class, defaultType=member, defaultProcedureType=Route::
+    int16 construct()

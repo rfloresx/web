@@ -217,10 +217,7 @@ corto_int16 _server_REST_onRequest(
     corto_string uri)
 {
 /* $begin(corto/web/server/REST/onRequest) */
-    CORTO_UNUSED(this);
-
     server_REST_apiRequest(this, c, r, uri);
-
     return 1;
 /* $end */
 }

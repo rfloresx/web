@@ -1,0 +1,6 @@
+#package ::test
+
+test::Suite WebTestSuite::
+    void tc_matchSimpleRoute()
+    void tc_matchEmptyRoute()
+    void tc_matchRouteWithOneParam()
