@@ -1,6 +1,16 @@
 #package ::test
 
 test::Suite WebTestSuite::
+    void tc_decodeSimple()
+    void tc_decodePlus()
+    void tc_decodePercentageTwenty()
+
+    void tc_queryToMapEmpty()
+    void tc_queryToMapOneEntry()
+    void tc_queryToMapTwoEntries()
+    void tc_queryToMapEncoded_1()
+    void tc_queryToMapEncoded_2()
+
     void tc_matchSimpleRoute()
     void tc_matchEmptyRoute()
     void tc_matchRouteWithOneParam()

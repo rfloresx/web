@@ -3,8 +3,14 @@
 #### pattern
 #### url
 #### Returns
+### queryToMap(string query)
+#### query
+#### Returns
 ### random(uint16 n)
 #### n
+#### Returns
+### urlDecode(string s)
+#### s
 #### Returns
 
 ## DDP
@@ -173,6 +179,8 @@
 ## HTTP/Request
 ### conn
 ### file
+### getPostForm()
+#### Returns
 ### getVar(string id)
 #### id
 #### Returns

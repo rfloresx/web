@@ -9,8 +9,28 @@
 #include "corto/web/server/server.h"
 
 /* $header() */
+
 #include "mongoose.h"
+
 /* $end */
+
+corto_rbtree _server_HTTP_Request_getPostForm(
+    server_HTTP_Request* this)
+{
+/* $begin(corto/web/server/HTTP/Request/getPostForm) */
+    struct mg_connection* conn = (struct mg_connection *)this->conn;
+    char* buffer = corto_alloc(conn->content_len + 1);
+    if (buffer == NULL) {
+        goto error;
+    }
+    strncpy(buffer, conn->content, conn->content_len);
+    buffer[conn->content_len + 1] = '\0';
+    return server_queryToMap(buffer);
+    // return server_HTTP_Request_queryToMap(conn->content, conn->content_len);
+error:
+    return NULL;
+/* $end */
+}
 
 corto_string _server_HTTP_Request_getVar(
     server_HTTP_Request* this,
