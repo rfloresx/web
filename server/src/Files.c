@@ -12,6 +12,9 @@ corto_int16 _server_Files_construct(
     server_Files this)
 {
 /* $begin(corto/web/server/Files/construct) */
+    if (!this->path) {
+        corto_setstr(&this->path, ".");
+    }
     return server_Service_construct(this);
 /* $end */
 }

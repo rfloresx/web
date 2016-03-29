@@ -26,6 +26,7 @@ void server_REST_apiRequest(
     corto_ll items = corto_llNew();
     corto_string reply = NULL;
     corto_bool multiple = FALSE;
+    corto_int16 ret;
 
     /* Set correct content type */
     server_HTTP_Request_setHeader(
@@ -56,11 +57,12 @@ void server_REST_apiRequest(
       .limit(offset, limit)
       .augment(augmentFilter)
       .contentType("text/json")
-      .iter({
-          server_HTTP_Request_setStatus(r, 400);
-          server_HTTP_Request_reply(r, "400: bad request\n");
-          return;
-      });
+      .iter(&ret);
+    if (ret){
+        server_HTTP_Request_setStatus(r, 400);
+        server_HTTP_Request_reply(r, "400: bad request\n");
+        return;
+    };
 
     /* Add object to result list */
     corto_resultIterForeach(iter, result) {
