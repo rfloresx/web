@@ -179,6 +179,8 @@
 ## HTTP/Request
 ### conn
 ### file
+### getGetForm()
+#### Returns
 ### getPostForm()
 #### Returns
 ### getVar(string id)

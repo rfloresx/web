@@ -65,6 +65,18 @@ corto_void _test_WebTestSuite_tc_matchRouteWithOneParam(
 /* $end */
 }
 
+corto_void _test_WebTestSuite_tc_matchRouteWithTwoParts(
+    test_WebTestSuite this)
+{
+/* $begin(test/WebTestSuite/tc_matchRouteWithTwoParts) */
+    server_UrlMatch match = server_match("api/users", "api/users");
+    test_assert(match != NULL);
+    test_assert(match->matches == TRUE);
+    // test_assert(match->params != NULL);
+    corto_release(match);
+/* $end */
+}
+
 corto_void _test_WebTestSuite_tc_matchSimpleRoute(
     test_WebTestSuite this)
 {

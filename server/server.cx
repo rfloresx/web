@@ -30,6 +30,7 @@ class HTTP::
         void sendfile(string file)
         string getVar(string id)
         map{string, string} getPostForm()
+        map{string, string} getGetForm()
         
         uri: string
         method: HTTP::method

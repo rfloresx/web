@@ -14,6 +14,24 @@
 
 /* $end */
 
+corto_rbtree _server_HTTP_Request_getGetForm(
+    server_HTTP_Request* this)
+{
+/* $begin(corto/web/server/HTTP/Request/getGetForm) */
+    struct mg_connection* conn = (struct mg_connection *)this->conn;
+    size_t len = strlen(conn->query_string);
+    char* buffer = corto_alloc(len + 1);
+    if (buffer == NULL) {
+        goto error;
+    }
+    strncpy(buffer, conn->query_string, len);
+    buffer[len + 1] = '\0';
+    return server_queryToMap(buffer);
+error:
+    return NULL;
+/* $end */
+}
+
 corto_rbtree _server_HTTP_Request_getPostForm(
     server_HTTP_Request* this)
 {
@@ -26,7 +44,6 @@ corto_rbtree _server_HTTP_Request_getPostForm(
     strncpy(buffer, conn->content, conn->content_len);
     buffer[conn->content_len + 1] = '\0';
     return server_queryToMap(buffer);
-    // return server_HTTP_Request_queryToMap(conn->content, conn->content_len);
 error:
     return NULL;
 /* $end */

@@ -30,6 +30,7 @@ corto_int16 _server_RouteService_onRequest(
         }
         server_Route route = _route;
         corto_string pattern = route->pattern;
+        printf("uri: <%s> --- pattern: <%s>\n", uri, pattern);
         if (pattern == NULL || route->method == SERVER_NONE) {
             corto_error("route %s does not have a pattern or method", corto_nameof(route));
             continue;
