@@ -59,6 +59,7 @@ corto_void _server_HTTP_doClose(
 /* $begin(corto/web/server/HTTP/doClose) */
 
     server_ServiceListForeach(this->services, s) {
+        corto_trace("[HTTP] %p: close", c);
         server_Service_onClose(s, c);
     }
 
@@ -75,6 +76,7 @@ corto_void _server_HTTP_doMessage(
 /* $begin(corto/web/server/HTTP/doMessage) */
 
     server_ServiceListForeach(this->services, s) {
+        corto_trace("[HTTP] %p: message (%s)", c, msg);
         server_Service_onMessage(s, c, msg);
     }
 
@@ -90,6 +92,7 @@ corto_void _server_HTTP_doOpen(
     server_HTTP_ConnectionListAppend(this->connections, c);
 
     server_ServiceListForeach(this->services, s) {
+        corto_trace("[HTTP] %p: open", c);
         server_Service_onOpen(s, c);
     }
 
@@ -117,14 +120,16 @@ corto_void _server_HTTP_doRequest(
     int handled = 0;
 
     server_ServiceListForeach(this->services, s) {
-        int prefixLength = strlen(s->prefix);
+        corto_string prefix = s->prefix ? s->prefix : "";
+        int prefixLength = strlen(prefix);
         int uriLength = strlen(r->uri) - 1;
-        if (!prefixLength || (!memcmp(r->uri + 1, s->prefix, prefixLength))) {
+        if (!prefixLength || (!memcmp(r->uri + 1, prefix, prefixLength))) {
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
             if (uriLength > prefixLength) {
                 uri += 1;
             }
             if ((handled = server_Service_onRequest(s, c, r, uri))) {
+                corto_trace("[HTTP] GET %s => %s", r->uri, corto_nameof(corto_typeof(s)));
                 break;
             }
         }
@@ -136,6 +141,7 @@ corto_void _server_HTTP_doRequest(
         server_HTTP_Request_setStatus(r, 404);
         server_HTTP_Request_reply(r, str);
         corto_dealloc(str);
+        corto_trace("[HTTP] GET %s => not matched (404)", r->uri);
     }
 
 /* $end */
