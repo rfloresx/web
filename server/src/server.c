@@ -38,7 +38,7 @@ errorStrdupBuffer:
     return NULL;
 }
 
-static void server_HTTP_Request_getPostForm_0(
+static void server_queryToMapExt_0(
     const char* content,
     size_t contentLen,
     corto_int8* state,
@@ -63,7 +63,7 @@ static void server_HTTP_Request_getPostForm_0(
     }
 }
 
-static void server_HTTP_Request_getPostForm_1(
+static void server_queryToMapExt_1(
     const char* content,
     size_t contentLen,
     corto_int8* state,
@@ -89,7 +89,7 @@ static void server_HTTP_Request_getPostForm_1(
     }
 }
 
-static void server_HTTP_Request_getPostForm_2(
+static void server_queryToMapExt_2(
     const char* content,
     size_t contentLen,
     corto_int8* state,
@@ -158,17 +158,17 @@ static corto_rbtree server_queryToMapExt(
     while (state != 3) {
         switch (state) {
         case 0:
-            server_HTTP_Request_getPostForm_0(
+            server_queryToMapExt_0(
                 query, queryLength, &state, &last, curr, &key, &value, params
             );
             break;
         case 1:
-            server_HTTP_Request_getPostForm_1(
+            server_queryToMapExt_1(
                 query, queryLength, &state, &last, curr, &key, &value, params
             );
             break;
         case 2:
-            server_HTTP_Request_getPostForm_2(
+            server_queryToMapExt_2(
                 query, queryLength, &state, &last, curr, &key, &value, params
             );
             break;
@@ -250,7 +250,7 @@ corto_rbtree _server_queryToMap(
     corto_string query)
 {
 /* $begin(corto/web/server/queryToMap) */
-    return server_queryToMapExt(query, strlen(query));
+    return query ? server_queryToMapExt(query, strlen(query)) : NULL;
 /* $end */
 }
 

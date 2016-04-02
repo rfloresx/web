@@ -18,14 +18,18 @@ corto_rbtree _server_HTTP_Request_getGetForm(
     server_HTTP_Request* this)
 {
 /* $begin(corto/web/server/HTTP/Request/getGetForm) */
+    static char empty[] = "";
     struct mg_connection* conn = (struct mg_connection *)this->conn;
-    size_t len = strlen(conn->query_string);
-    char* buffer = corto_alloc(len + 1);
-    if (buffer == NULL) {
-        goto error;
+    char* buffer = empty;
+    if (conn->query_string) {
+        size_t len = strlen(conn->query_string);
+        buffer = corto_alloc(len + 1);
+        if (buffer == NULL) {
+            goto error;
+        }
+        strncpy(buffer, conn->query_string, len);
+        buffer[len] = '\0';
     }
-    strncpy(buffer, conn->query_string, len);
-    buffer[len + 1] = '\0';
     return server_queryToMap(buffer);
 error:
     return NULL;
