@@ -23,11 +23,11 @@ static char* server_StandaloneHTTP_copyConnectionContent(struct mg_connection *c
 
 static server_HTTP_Method server_StandaloneHTTP_methodNameToMethod(const char* methodString) {
     if (!strcmp(methodString, "GET")) {
-        return SERVER_GET;
+        return Server_Get;
     } else if (!strcmp(methodString, "POST")) {
-        return SERVER_POST;
+        return Server_Post;
     } else {
-        return SERVER_NONE;
+        return Server_None;
     }
 }
 

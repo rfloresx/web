@@ -51,6 +51,17 @@ corto_void _server_Service_onClose_v(
 /* $end */
 }
 
+corto_int16 _server_Service_onGet_v(
+    server_Service this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
+/* $begin(corto/web/server/Service/onGet) */
+    return 0;
+/* $end */
+}
+
 corto_void _server_Service_onMessage_v(
     server_Service this,
     server_HTTP_Connection c,
@@ -81,6 +92,17 @@ corto_void _server_Service_onPoll_v(
 
     /* virtual method */
 
+/* $end */
+}
+
+corto_int16 _server_Service_onPost_v(
+    server_Service this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
+/* $begin(corto/web/server/Service/onPost) */
+    return 0;
 /* $end */
 }
 

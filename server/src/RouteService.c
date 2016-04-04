@@ -12,7 +12,7 @@ corto_int16 _server_RouteService_construct(
     server_RouteService this)
 {
 /* $begin(corto/web/server/RouteService/construct) */
-    return server_Service_construct(server_Service(this)); 
+    return server_Service_construct(server_Service(this));
 /* $end */
 }
 
@@ -30,8 +30,8 @@ corto_int16 _server_RouteService_onRequest(
         }
         server_Route route = _route;
         corto_string pattern = route->pattern;
-        if (pattern == NULL || route->method == SERVER_NONE) {
-            corto_error("route %s does not have a pattern or method", corto_nameof(route));
+        if (pattern == NULL || route->method == Server_None) {
+            corto_error("route %s does not have a pattern or method", corto_idof(route));
             continue;
         }
         if (r->method != route->method) {

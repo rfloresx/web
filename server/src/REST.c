@@ -11,7 +11,7 @@
 /* $header() */
 #include "corto/fmt/json/json.h"
 
-void server_REST_apiRequest(
+void server_REST_apiGet(
     server_REST this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
@@ -212,14 +212,27 @@ corto_int16 _server_REST_construct(
 /* $end */
 }
 
-corto_int16 _server_REST_onRequest(
+corto_int16 _server_REST_onGet(
     server_REST this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
     corto_string uri)
 {
-/* $begin(corto/web/server/REST/onRequest) */
-    server_REST_apiRequest(this, c, r, uri);
+/* $begin(corto/web/server/REST/onGet) */
+    server_REST_apiGet(this, c, r, uri);
     return 1;
+/* $end */
+}
+
+corto_int16 _server_REST_onPost(
+    server_REST this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
+/* $begin(corto/web/server/REST/onPost) */
+
+    /* << Insert implementation >> */
+
 /* $end */
 }
