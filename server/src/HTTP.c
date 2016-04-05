@@ -128,8 +128,30 @@ corto_void _server_HTTP_doRequest(
             if (uriLength > prefixLength) {
                 uri += 1;
             }
-            if ((handled = server_Service_onRequest(s, c, r, uri))) {
-                corto_trace("[HTTP] GET %s => %s", r->uri, corto_nameof(corto_typeof(s)));
+            switch(r->method) {
+            case Server_Get:
+                if ((handled = server_Service_onGet(s, c, r, uri))) {
+                    corto_trace("[HTTP] GET %s => %s", r->uri, corto_idof(corto_typeof(s)));
+                }
+                break;
+            case Server_Post:
+                if ((handled = server_Service_onPost(s, c, r, uri))) {
+                    corto_trace("[HTTP] POST %s => %s", r->uri, corto_idof(corto_typeof(s)));
+                }
+                break;
+            default:
+                break;
+            }
+
+            if (server_Service_onRequest(s, c, r, uri)) {
+                corto_trace("[HTTP] %s %s => %s",
+                    r->method == Server_Get ? "GET" : "POST",
+                    r->uri,
+                    corto_idof(corto_typeof(s)));
+                handled = TRUE;
+            }
+
+            if (handled) {
                 break;
             }
         }

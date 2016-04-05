@@ -30,11 +30,11 @@ corto_void _server_DDP_Session_connected(
     int msgLength = snprintf(
         NULL, 0,
         "{\"msg\":\"connected\",\"session\":\"%s\"}",
-        corto_nameof(this));
+        corto_idof(this));
 
     corto_string msg = corto_alloc(msgLength + 1);
     sprintf(msg,
-        "{\"msg\":\"connected\",\"session\":\"%s\"}", corto_nameof(this));
+        "{\"msg\":\"connected\",\"session\":\"%s\"}", corto_idof(this));
 
     server_SockJs_write(this->conn, msg);
     corto_dealloc(msg);
@@ -197,7 +197,7 @@ corto_void _server_DDP_Session_unsub(
     server_DDP_Subscription sub = corto_lookup(this->subscriptions, id);
     if (sub) {
         corto_id collectionName;
-        corto_string name = corto_nameof(sub->pub->scope);
+        corto_string name = corto_idof(sub->pub->scope);
         sprintf(collectionName, "c_%s", name ? name : "");
         server_DDP_Collection c = corto_lookup(
             this->collections, collectionName);

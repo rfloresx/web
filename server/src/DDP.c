@@ -35,7 +35,7 @@ static corto_void server_DDP_connect(server_DDP this, server_HTTP_Connection con
             corto_release(ddpSession);
         }
 
-        corto_trace("[ddp] session %s: new session", corto_nameof(ddpSession));
+        corto_trace("[ddp] session %s: new session", corto_idof(ddpSession));
         server_DDP_Session_connected(ddpSession);
     }
 
@@ -71,7 +71,7 @@ static corto_void server_DDP_sub(server_DDP this, server_HTTP_Connection conn, J
     }
 
     corto_trace("[ddp] session %s: subscribe for %s (subscription id = %s, value = %d)",
-        corto_nameof(conn->udata),
+        corto_idof(conn->udata),
         name,
         id,
         value);
@@ -84,7 +84,7 @@ static corto_void server_DDP_unsub(server_DDP this, server_HTTP_Connection conn,
     const char *id = json_object_get_string(json, "id");
 
     corto_trace("[ddp] session %s: unsubscribe subscription %s",
-        corto_nameof(conn->udata),
+        corto_idof(conn->udata),
         id);
 
     server_DDP_Session_unsub(conn->udata, (corto_string)id);
@@ -257,7 +257,7 @@ corto_void _server_DDP_onClose(
     server_DDP_Session session = server_DDP_Session(c->udata);
 
     if (session) {
-        corto_trace("[ddp] session %s: close session", corto_nameof(session));
+        corto_trace("[ddp] session %s: close session", corto_idof(session));
         corto_delete(session);
     } else {
         corto_trace("[ddp] session ???: close connection");

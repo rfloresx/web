@@ -13,7 +13,7 @@ string urlDecode(string s)
 // There can only be one HTTP server active per port, per process. A maximum of
 // 64 servers can be active per process.
 class HTTP::
-    enum Method:: NONE, GET, POST
+    enum Method:: None, Get, Post
 
     // Manages connection & user data
     class Connection::
@@ -91,6 +91,8 @@ class Service::
     void onOpen(HTTP::Connection c) virtual
     void onClose(HTTP::Connection c) virtual
     int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) virtual
+    int16 onGet(HTTP::Connection c, HTTP::Request r, string uri) virtual
+    int16 onPost(HTTP::Connection c, HTTP::Request r, string uri) virtual
     void onMessage(HTTP::Connection c, string msg) virtual
     void onPoll() virtual
 
@@ -105,7 +107,8 @@ class Files: Service::
 class REST: Service::
     alias prefix: Service/prefix
     int16 construct()
-    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
+    int16 onGet(HTTP::Connection c, HTTP::Request r, string uri)
+    int16 onPost(HTTP::Connection c, HTTP::Request r, string uri)
 
 // SockJs service
 class SockJs: Service::

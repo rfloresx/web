@@ -172,9 +172,9 @@
 #### msg
 
 ## HTTP/Method
-### GET
-### NONE
-### POST
+### Get
+### None
+### Post
 
 ## HTTP/Request
 ### conn
@@ -201,7 +201,12 @@
 ## REST
 ### construct()
 #### Returns
-### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
+### onGet(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
+#### c
+#### r
+#### uri
+#### Returns
+### onPost(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
 #### c
 #### r
 #### uri
@@ -238,12 +243,22 @@ Router AppRouter::     // AppRouter.instanceof(RouteService) == true
 #### Returns
 ### onClose(/corto/web/server/HTTP/Connection c)
 #### c
+### onGet(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
+#### c
+#### r
+#### uri
+#### Returns
 ### onMessage(/corto/web/server/HTTP/Connection c,string msg)
 #### c
 #### msg
 ### onOpen(/corto/web/server/HTTP/Connection c)
 #### c
 ### onPoll()
+### onPost(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
+#### c
+#### r
+#### uri
+#### Returns
 ### onRequest(/corto/web/server/HTTP/Connection c,/corto/web/server/HTTP/Request r,string uri)
 #### c
 #### r
