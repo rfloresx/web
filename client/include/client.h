@@ -12,12 +12,13 @@
 #include "corto/web/client/_meta.h"
 #include "corto/web/client/_interface.h"
 
+#include "corto/web/web.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "corto/web/client/Url.h"
-#include "corto/web/web.h"
 
 #ifdef __cplusplus
 }

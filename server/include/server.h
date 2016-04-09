@@ -12,6 +12,9 @@
 #include "corto/web/server/_meta.h"
 #include "corto/web/server/_interface.h"
 
+#include "corto/web/web.h"
+#include "corto/fmt/json/json.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,8 +54,6 @@ CORTO_WEB_SERVER_EXPORT corto_string _server_urlDecode(
 #include "corto/web/server/SockJs.h"
 #include "corto/web/server/StandaloneHTTP.h"
 #include "corto/web/server/UrlMatch.h"
-#include "corto/web/web.h"
-#include "corto/fmt/json/json.h"
 
 #ifdef __cplusplus
 }

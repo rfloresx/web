@@ -179,6 +179,13 @@
 ## HTTP/Request
 ### conn
 ### file
+### getCookie(string key)
+Warning: only gets cookies up to a length of 200 characters.
+
+Returned value must be deallocated.
+
+#### key
+#### Returns
 ### getGetForm()
 #### Returns
 ### getPostForm()
@@ -191,6 +198,9 @@
 #### msg
 ### sendfile(string file)
 #### file
+### setCookie(string key,string value)
+#### key
+#### value
 ### setHeader(string name,string val)
 #### name
 #### val

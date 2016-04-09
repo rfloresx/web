@@ -26,6 +26,8 @@ class HTTP::
     struct Request::
         void setHeader(string name, string val)
         void setStatus(uint16 status)
+        void setCookie(string key, string value)
+        string getCookie(string key)
         void reply(string msg)
         void sendfile(string file)
         string getVar(string id)

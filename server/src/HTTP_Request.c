@@ -14,6 +14,36 @@
 
 /* $end */
 
+corto_string _server_HTTP_Request_getCookie(
+    server_HTTP_Request* this,
+    corto_string key)
+{
+/* $begin(corto/web/server/HTTP/Request/getCookie) */
+    struct mg_connection* conn = (struct mg_connection *)this->conn;
+    const char* cookies = mg_get_header(conn, "Cookie");
+    if (cookies == NULL) {
+        goto errorNoCookies;
+    }
+    /* TODO prefer dynamic buffer */
+    char buffer[200];
+    if (mg_parse_header(cookies, key, buffer, sizeof(buffer)) == 0) {
+        goto errorParseHeader;
+    }
+
+    char* result = corto_strdup(buffer);
+    if (result == NULL) {
+        goto errorStrdup;
+    }
+
+    return result;
+
+errorStrdup:
+errorParseHeader:
+errorNoCookies:
+    return NULL;    
+/* $end */
+}
+
 corto_rbtree _server_HTTP_Request_getGetForm(
     server_HTTP_Request* this)
 {
@@ -86,6 +116,25 @@ corto_void _server_HTTP_Request_sendfile(
     mg_send_file((struct mg_connection *)this->conn, file, "");
     this->file = TRUE;
 
+/* $end */
+}
+
+corto_void _server_HTTP_Request_setCookie(
+    server_HTTP_Request* this,
+    corto_string key,
+    corto_string value)
+{
+/* $begin(corto/web/server/HTTP/Request/setCookie) */
+    struct mg_connection* conn = (struct mg_connection *)this->conn;
+    char* val = NULL;
+    corto_asprintf(&val, "%s=%s", key, value);
+    /* TODO memory management */
+    if (val == NULL) {
+        goto error;
+    }
+    mg_send_header(conn, "Set-Cookie", val);
+    corto_dealloc(val);
+error:;
 /* $end */
 }
 
