@@ -4,7 +4,7 @@ string random(uint16 n)
 
 class Service
 
-
+// Note, maps are not fully implemented; do not use.
 map{string, string} queryToMap(string query)
 string urlDecode(string s)
 
@@ -31,9 +31,7 @@ class HTTP::
         void reply(string msg)
         void sendfile(string file)
         string getVar(string id)
-        map{string, string} getPostForm()
-        map{string, string} getGetForm()
-        
+
         uri: string
         method: HTTP::method
         conn: word, private|local
