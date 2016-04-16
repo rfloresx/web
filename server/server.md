@@ -177,19 +177,13 @@
 ### Post
 
 ## HTTP/Request
+### badRequest(string msg)
+#### msg
 ### conn
 ### file
 ### getCookie(string key)
-### getCookie(string key)
-
-Warning: only gets cookies up to a length of 200 characters.
-
-Returned value must be deallocated.
-
 #### key
 #### Returns
-A new string with the value of the cookie, or null. The string must be deallocated.
-
 ### getVar(string id)
 #### id
 #### Returns

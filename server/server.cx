@@ -29,6 +29,7 @@ class HTTP::
         void setCookie(string key, string value)
         string getCookie(string key)
         void reply(string msg)
+        void badRequest(string msg)
         void sendfile(string file)
         string getVar(string id)
 
@@ -190,14 +191,11 @@ class UrlMatch::
     matches: bool
     params: map{string, string}
 
-
 UrlMatch match(string pattern, string url)
-
 
 class RouteService: Service::
     int16 construct()
     int16 onRequest(web/server/HTTP/Connection c, web/server/HTTP/Request r, string uri)
 
-
-class Router: class, defaultType=member, defaultProcedureType=Route::
+class Router: class, defaultType=member, defaultProcedureType=Route ::
     int16 construct()

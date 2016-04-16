@@ -185,6 +185,8 @@ server_HTTP _server_HTTP_get(
 
     corto_mutexUnlock(&serverLock);
 
+    printf("servers[%d] = %p\n", i, servers[i].server);
+
     return servers[i].server;
 /* $end */
 }

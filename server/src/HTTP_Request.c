@@ -14,6 +14,20 @@
 
 /* $end */
 
+corto_void _server_HTTP_Request_badRequest(
+    server_HTTP_Request* this,
+    corto_string msg)
+{
+/* $begin(corto/web/server/HTTP/Request/badRequest) */
+
+    server_HTTP_Request_setStatus(this, 400);
+    server_HTTP_Request_setHeader(this, "Content-Type", "text/plain; charset=UTF-8");
+    server_HTTP_Request_reply(this, msg);
+    corto_error("[HTTP] error: %s", msg);
+
+/* $end */
+}
+
 corto_string _server_HTTP_Request_getCookie(
     server_HTTP_Request* this,
     corto_string key)
