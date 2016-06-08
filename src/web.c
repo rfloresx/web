@@ -6,7 +6,7 @@
  * when the file is regenerated.
  */
 
-#include "corto/web/web.h"
+#include <corto/web/web.h>
 
 int webMain(int argc, char* argv[]) {
 /* $begin(main) */

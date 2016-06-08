@@ -6,7 +6,7 @@
  * when the file is regenerated.
  */
 
-#include "corto/web/server/server.h"
+#include <corto/web/server/server.h>
 
 /* $header() */
 #define SERVER_DDP_COLLECTION_REMOVE "{\"msg\":\"removed\",\"collection\":\"%s\"}"

@@ -6,7 +6,7 @@
  * when the file is regenerated.
  */
 
-#include "corto/web/server/server.h"
+#include <corto/web/server/server.h>
 
 /* $header() */
 #include "corto/fmt/json/json.h"
@@ -120,7 +120,7 @@ void server_REST_apiGet(
         }
         {
             corto_id id; sprintf(id, "%s/%s", result.parent, result.id);
-            corto_cleanpath(id);
+            corto_cleanpath(id, id);
             corto_asprintf(
                 &item,
                 "{\"id\":\"%s\"%s%s%s%s%s%s}",
