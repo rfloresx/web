@@ -6,19 +6,20 @@
 #ifndef TEST_H
 #define TEST_H
 
-#include "corto/corto.h"
-#include "_type.h"
-#include "_api.h"
-#include "_meta.h"
-#include "_interface.h"
+#include <corto/corto.h>
+#include <_interface.h>
+#include <_type.h>
+#include <_api.h>
+#include <_meta.h>
+
+#include <corto/test/test.h>
+#include <corto/web/server/server.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "WebTestSuite.h"
-#include "corto/test/test.h"
-#include "corto/web/server/server.h"
+#include <WebTestSuite.h>
 
 #ifdef __cplusplus
 }

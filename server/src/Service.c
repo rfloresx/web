@@ -6,7 +6,7 @@
  * when the file is regenerated.
  */
 
-#include "corto/web/server/server.h"
+#include <corto/web/server/server.h>
 
 corto_int16 _server_Service_construct(
     server_Service this)

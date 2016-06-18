@@ -6,7 +6,7 @@
  * when the file is regenerated.
  */
 
-#include "corto/web/server/server.h"
+#include <corto/web/server/server.h>
 
 /* $header() */
 #define SERVER_MAX_SERVERS (64) /* Maximum number of services that may be active */

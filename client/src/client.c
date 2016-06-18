@@ -6,7 +6,7 @@
  * when the file is regenerated.
  */
 
-#include "corto/web/client/client.h"
+#include <corto/web/client/client.h>
 
 /* $header() */
 #include <curl/curl.h>
