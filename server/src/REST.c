@@ -119,8 +119,9 @@ void server_REST_apiGet(
             valueTxt = corto_result_getText(&result);
         }
         {
-            corto_id id; sprintf(id, "%s/%s", result.parent, result.id);
-            corto_cleanpath(id);
+            corto_id id;
+            sprintf(id, "%s/%s", result.parent, result.id);
+            corto_cleanpath(id, id);
             corto_asprintf(
                 &item,
                 "{\"id\":\"%s\"%s%s%s%s%s%s}",
