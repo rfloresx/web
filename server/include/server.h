@@ -36,6 +36,7 @@ CORTO_WEB_SERVER_EXPORT corto_string _server_random(
 CORTO_WEB_SERVER_EXPORT corto_string _server_urlDecode(
     corto_string s);
 #define server_urlDecode(s) _server_urlDecode(s)
+
 #include <corto/web/server/DDP.h>
 #include <corto/web/server/DDP_Collection.h>
 #include <corto/web/server/DDP_Publication.h>
