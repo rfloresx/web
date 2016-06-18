@@ -13,6 +13,12 @@ Or build the package from scratch:
 $ corto build web
 ```
 
+On Ubuntu, install libcurl:
+
+```
+sudo apt-get install libcurl4-openssl-dev
+```
+
 This example project shows integration with Meteor using the DDP server:
 https://github.com/cortoproject/examples/tree/master/c/SimpleMeteor
 
