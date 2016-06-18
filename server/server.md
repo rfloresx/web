@@ -3,8 +3,14 @@
 #### pattern
 #### url
 #### Returns
+### queryToMap(string query)
+#### query
+#### Returns
 ### random(uint16 n)
 #### n
+#### Returns
+### urlDecode(string s)
+#### s
 #### Returns
 
 ## DDP
@@ -171,8 +177,13 @@
 ### Post
 
 ## HTTP/Request
+### badRequest(string msg)
+#### msg
 ### conn
 ### file
+### getCookie(string key)
+#### key
+#### Returns
 ### getVar(string id)
 #### id
 #### Returns
@@ -181,6 +192,9 @@
 #### msg
 ### sendfile(string file)
 #### file
+### setCookie(string key,string value)
+#### key
+#### value
 ### setHeader(string name,string val)
 #### name
 #### val

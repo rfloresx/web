@@ -4,6 +4,10 @@ string random(uint16 n)
 
 class Service
 
+// Note, maps are not fully implemented; do not use.
+map{string, string} queryToMap(string query)
+string urlDecode(string s)
+
 // Abstraction for server-side HTTP. Multiple services (like REST, DDP, custom)
 // may use the same HTTP instance to avoid using multiple ports.
 // There can only be one HTTP server active per port, per process. A maximum of
@@ -22,9 +26,13 @@ class HTTP::
     struct Request::
         void setHeader(string name, string val)
         void setStatus(uint16 status)
+        void setCookie(string key, string value)
+        string getCookie(string key)
         void reply(string msg)
+        void badRequest(string msg)
         void sendfile(string file)
         string getVar(string id)
+
         uri: string
         method: HTTP::method
         conn: word, private|local
@@ -183,14 +191,11 @@ class UrlMatch::
     matches: bool
     params: map{string, string}
 
-
 UrlMatch match(string pattern, string url)
-
 
 class RouteService: Service::
     int16 construct()
     int16 onRequest(web/server/HTTP/Connection c, web/server/HTTP/Request r, string uri)
 
-
-class Router: class, defaultType=member, defaultProcedureType=Route::
+class Router: class, defaultType=member, defaultProcedureType=Route ::
     int16 construct()

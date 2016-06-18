@@ -47,7 +47,7 @@ corto_int16 _server_RouteService_onRequest(
         if (matched) {
             /* TODO use the match dictionary */
             void* result = NULL;
-            corto_call(corto_function(route), &result, this);
+            corto_call(corto_function(route), &result, this, r);
         }
         corto_release(match);
         if (matched) {

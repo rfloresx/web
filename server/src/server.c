@@ -10,6 +10,8 @@
 
 /* $header() */
 
+#include "mongoose.h"
+
 static corto_ll server_getUrlTokens(corto_string s)
 {
     corto_string buffer = corto_strdup(s);
@@ -33,6 +35,157 @@ errorStrdupToken:
     corto_llFree(ll);
     corto_dealloc(buffer);
 errorStrdupBuffer:
+    return NULL;
+}
+
+static void server_queryToMapExt_0(
+    const char* content,
+    size_t contentLen,
+    corto_int8* state,
+    const char** last,
+    const char* curr,
+    char** key,
+    char** value,
+    corto_rbtree params)
+{
+    corto_bool reachedEnd = curr == content + contentLen;
+    if (reachedEnd) {
+        *state = 3;
+        return;
+    }
+
+    char c = *curr;
+    *last = curr;
+    if (c == '&' || c == '=') {
+        *state = -1;
+    } else {
+        *state = 1;
+    }
+}
+
+static void server_queryToMapExt_1(
+    const char* content,
+    size_t contentLen,
+    corto_int8* state,
+    const char** last,
+    const char* curr,
+    char** key,
+    char** value,
+    corto_rbtree params)
+{
+    corto_bool reachedEnd = curr == content + contentLen;
+    char c = '\0';
+    if (reachedEnd || (c = *curr) == '&') {
+        *state = -1;
+        return;
+    }
+    if (c == '=') {
+        size_t len = curr - *last;
+        *key = corto_alloc(len + 1);
+        strncpy(*key, *last, len);
+        (*key)[len] = '\0';
+        *state = 2;
+        *last = curr + 1;
+    }
+}
+
+static void server_queryToMapExt_2(
+    const char* content,
+    size_t contentLen,
+    corto_int8* state,
+    const char** last,
+    const char* curr,
+    char** key,
+    char** value,
+    corto_rbtree params)
+{
+    char c = *curr;
+    if (c == '=') {
+        *state = -1;
+        return;
+    }
+
+    corto_bool reachedEnd = curr == content + contentLen;
+    if (reachedEnd || c == '&') {
+        size_t len = curr - *last;
+        *value = corto_alloc(len + 1);
+        strncpy(*value, *last, len);
+        (*value)[len] = '\0';
+
+        char* decodedValue = server_urlDecode(*value);
+        corto_dealloc(*value);
+        corto_rbtreeSet(params, *key, decodedValue);
+        *key = NULL;
+        *value = NULL;
+    }
+
+    if (reachedEnd) {
+        *state = 3;
+    } else if (c == '&') {
+        *state = 0;
+    }
+}
+
+static corto_equalityKind server_HTTP_Request_compareString(corto_type this, const void* o1, const void* o2)
+{
+    CORTO_UNUSED(this);
+    const char* i1 = o1;
+    const char* i2 = o2;
+    corto_equalityKind result = CORTO_EQ;
+    while (result == CORTO_EQ && *i1 && *i2) {
+        result = *i1 == *i2 ? CORTO_EQ : (*i1 > *i2 ? CORTO_GT : CORTO_LT);
+        i1++;
+        i2++;
+    }
+    return result;
+}
+
+static corto_rbtree server_queryToMapExt(
+    const char* query,
+    size_t queryLength)
+{
+    corto_rbtree params = corto_rbtreeNew_w_func(server_HTTP_Request_compareString);
+    if (params == NULL) {
+        goto errorRbtreeNew;
+    }
+
+    corto_int8 state = 0;
+    const char* last = NULL;
+    const char* curr = query;
+    char* key = NULL;
+    char* value = NULL;
+
+    while (state != 3) {
+        switch (state) {
+        case 0:
+            server_queryToMapExt_0(
+                query, queryLength, &state, &last, curr, &key, &value, params
+            );
+            break;
+        case 1:
+            server_queryToMapExt_1(
+                query, queryLength, &state, &last, curr, &key, &value, params
+            );
+            break;
+        case 2:
+            server_queryToMapExt_2(
+                query, queryLength, &state, &last, curr, &key, &value, params
+            );
+            break;
+        default:
+            break;
+        }
+        curr++;
+    }
+
+    if (state == -1) {
+        corto_rbtreeFree(params);
+        params = NULL;
+    }
+
+    return params;
+
+errorRbtreeNew:
     return NULL;
 }
 
@@ -93,6 +246,14 @@ errorPatternTokens:
 /* $end */
 }
 
+corto_rbtree _server_queryToMap(
+    corto_string query)
+{
+/* $begin(corto/web/server/queryToMap) */
+    return query ? server_queryToMapExt(query, strlen(query)) : NULL;
+/* $end */
+}
+
 corto_string _server_random(
     corto_uint16 n)
 {
@@ -110,6 +271,22 @@ corto_string _server_random(
     result[i] = '\0';
 
     return result;
+/* $end */
+}
+
+corto_string _server_urlDecode(
+    corto_string s)
+{
+/* $begin(corto/web/server/urlDecode) */
+    size_t len = strlen(s);
+    char* dest = corto_alloc(len + 1);
+    if (dest == NULL) {
+        goto error;
+    }
+    mg_url_decode(s, len + 1, dest, len + 1, 1);
+    return dest;
+error:
+    return NULL;
 /* $end */
 }
 
