@@ -53,12 +53,13 @@ void server_REST_apiGet(
 
     multiple = (strchr(select, '*') != NULL);
 
-    corto_iter iter = corto_select(*uri ? uri : "/", select)
+    corto_iter iter;
+    ret = corto_select(*uri ? uri : "/", select)
       .limit(offset, limit)
       .augment(augmentFilter)
       .contentType("text/json")
-      .iter(&ret);
-    if (ret){
+      .iter(&iter);
+    if (ret) {
         server_HTTP_Request_setStatus(r, 400);
         server_HTTP_Request_reply(r, "400: bad request\n");
         return;

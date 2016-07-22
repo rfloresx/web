@@ -2,5 +2,6 @@
 PACKAGE = 'corto::web::client'
 
 LIB = ['curl']
+PREFIX = 'web/client'
 
 require "#{ENV['CORTO_BUILD']}/package"

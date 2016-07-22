@@ -15,7 +15,7 @@ static int client_Url_onData(
     char *data,
     size_t size,
     size_t nmemb,
-    client_Url *this)
+    web_client_Url *this)
 {
     corto_int32 resultLength = this->response ? strlen(this->response) : 0;
     corto_int32 length = resultLength + size * nmemb;
@@ -37,8 +37,8 @@ static int client_Url_onData(
 }
 /* $end */
 
-corto_string _client_Url_request(
-    client_Url* this)
+corto_string _web_client_Url_request(
+    web_client_Url* this)
 {
 /* $begin(corto/web/client/Url/request) */
     CURL *conn;
