@@ -23,10 +23,10 @@ void server_REST_apiGet(
     corto_uint64 offset = 0;
     corto_uint64 limit = 0;
     corto_string augmentFilter = NULL;
-    corto_ll items = corto_llNew();
-    corto_string reply = NULL;
     corto_bool multiple = FALSE;
     corto_int16 ret;
+
+    corto_buffer response = CORTO_BUFFER_INIT;
 
     /* Set correct content type */
     server_HTTP_Request_setHeader(
@@ -48,9 +48,7 @@ void server_REST_apiGet(
     }
 
     /* Select objects with URI */
-
     corto_string select = server_HTTP_Request_getVar(r, "select");
-
     multiple = (strchr(select, '*') != NULL);
 
     corto_iter iter;
@@ -65,144 +63,82 @@ void server_REST_apiGet(
         return;
     };
 
+
     /* Add object to result list */
+    corto_uint32 count = 0;
+    if (multiple) {
+        corto_buffer_append(&response, "[");
+    }
+
     corto_resultIterForeach(iter, result) {
-        corto_string metaTxt = NULL;
-        corto_string valueTxt = NULL;
-        corto_string augmentTxt = NULL;
-        corto_string item = NULL;
+        if (count) {
+          corto_buffer_append(&response, ",");
+        }
+
+        corto_buffer_append(&response, "{\"id\":\"%s\"", result.id);
         if (meta) {
+            corto_buffer_append(&response, ",\"meta\":{\"type\":\"%s\"",
+              result.type);
             if (strcmp(result.name, result.id)) {
-                corto_asprintf(
-                  &metaTxt,
-                  "\"meta\":{\"type\":\"%s\", \"name\":\"%s\"}",
-                  result.type,
-                  result.name
-                );
-            } else {
-                corto_asprintf(
-                  &metaTxt,
-                  "\"meta\":{\"type\":\"%s\"}",
-                  result.type
-                );
+                corto_buffer_append(&response , ",\"name\":\"%s\"",
+                  result.name);
             }
+            if (result.mount) {
+                corto_buffer_append(&response , ",\"owner\":\"%s\"",
+                  corto_fullpath(NULL, result.mount));
+            }
+            corto_buffer_append(&response, "}");
         }
 
         if (augment) {
-            corto_string tmp;
-            corto_asprintf(
-                &augmentTxt,
-                ", \"augments\":[");
+            corto_buffer_append( &response, ",\"augments\":[");
             if (result.augments.length) {
                 corto_int32 i;
                 corto_augmentData *augmentData;
                 for (i = 0; i < result.augments.length; i++) {
                     augmentData = &result.augments.buffer[i];
-                    corto_asprintf(
-                        &tmp,
+                    corto_buffer_append(
+                        &response,
                         "%s%s{\"name\":\"%s\",\"value\":%s}",
-                        augmentTxt,
                         i ? "," : "",
                         augmentData->id,
                         (corto_string)augmentData->data);
-                    corto_dealloc(augmentTxt);
-                    augmentTxt = tmp;
                 }
             }
-            corto_asprintf(
-                &tmp,
-                "%s]", augmentTxt);
-            corto_dealloc(augmentTxt);
-            augmentTxt = tmp;
+            corto_buffer_append(&response, "]");
         }
 
         if (value) {
-            valueTxt = corto_result_getText(&result);
-        }
-        {
-            corto_id id;
-            sprintf(id, "%s/%s", result.parent, result.id);
-            corto_cleanpath(id, id);
-            corto_asprintf(
-                &item,
-                "{\"id\":\"%s\"%s%s%s%s%s%s}",
-                id,
-                metaTxt ? ", " : "",
-                metaTxt ? metaTxt : "",
-                valueTxt ? ", " : "",
-                valueTxt ? "\"value\":" : "",
-                valueTxt ? valueTxt : "",
-                augmentTxt ? augmentTxt : ""
-            );
-            corto_dealloc(metaTxt);
-            corto_llAppend(items, item);
-        }
-    }
-
-    if (!corto_llSize(items)) {
-        if (multiple) {
-            server_HTTP_Request_reply(r, "[]");
-            return;
-        } else {
-            corto_string msg;
-            corto_asprintf(&msg, "404: resource not found '%s'", uri);
-            server_HTTP_Request_setStatus(r, 404);
-            server_HTTP_Request_reply(r, msg);
-            corto_dealloc(msg);
-            return;
-        }
-    }
-
-    if (multiple) {
-        reply = corto_strdup("[");
-    }
-
-    /* Merge items into one result string */
-    corto_int32 count = 0;
-    iter = corto_llIter(items);
-    while (corto_iterHasNext(&iter)) {
-        corto_string item = corto_iterNext(&iter);
-        corto_string temp = NULL;
-
-        /* Wildly inefficient */
-        if (reply) {
-            if (!count) {
-                corto_asprintf(
-                    &temp,
-                    "%s%s",
-                    reply,
-                    item);
-            } else {
-                corto_asprintf(
-                    &temp,
-                    "%s, %s",
-                    reply,
-                    item);
+            corto_string valueTxt = corto_result_getText(&result);
+            if (valueTxt) {
+                corto_buffer_append(&response, ",\"value\":%s", valueTxt);
             }
-            corto_dealloc(reply);
-            reply = temp;
-        } else {
-            reply = corto_strdup(item);
         }
-        count++;
+        corto_buffer_append(&response, "}");
+        count ++;
     }
-
 
     if (multiple) {
-        corto_string temp = NULL;
-        corto_asprintf(
-            &temp,
-            "%s]",
-            reply);
-        corto_dealloc(reply);
-        reply = temp;
+        corto_buffer_append(&response, "]");
     }
 
-    server_HTTP_Request_reply(r, reply);
+    if (!count && !multiple) {
+        corto_string msg;
+        corto_asprintf(&msg, "404: resource not found '%s'", uri);
+        server_HTTP_Request_setStatus(r, 404);
+        server_HTTP_Request_reply(r, msg);
+        corto_dealloc(msg);
+        return;
+    }
+
+    corto_string responseStr = corto_buffer_str(&response);
+    server_HTTP_Request_reply(r, responseStr);
 
     if (augmentFilter) {
         corto_dealloc(augmentFilter);
     }
+
+    corto_dealloc(responseStr);
 }
 /* $end */
 
@@ -234,7 +170,7 @@ corto_int16 _server_REST_onPost(
 {
 /* $begin(corto/web/server/REST/onPost) */
 
-    /* << Insert implementation >> */
+    return 0;
 
 /* $end */
 }
