@@ -23,6 +23,7 @@ void server_REST_apiGet(
     corto_uint64 offset = 0;
     corto_uint64 limit = 0;
     corto_string augmentFilter = NULL;
+    corto_string typeFilter = NULL;
     corto_bool multiple = FALSE;
     corto_int16 ret;
 
@@ -40,21 +41,31 @@ void server_REST_apiGet(
     offset = atoi(server_HTTP_Request_getVar(r, "offset"));
     limit = atoi(server_HTTP_Request_getVar(r, "limit"));
     augmentFilter = server_HTTP_Request_getVar(r, "augment");
+    typeFilter = server_HTTP_Request_getVar(r, "type");
     if (*augmentFilter) {
         augmentFilter = corto_strdup(augmentFilter);
         augment = TRUE;
     } else {
         augmentFilter = NULL;
     }
+    if (*typeFilter) {
+        typeFilter = corto_strdup(typeFilter);
+    } else {
+        typeFilter = NULL;
+    }
 
     /* Select objects with URI */
     corto_string select = server_HTTP_Request_getVar(r, "select");
     multiple = (strchr(select, '*') != NULL);
 
+    corto_trace("REST: select(%s, %s).limit(%d, %d).type(%s).contentType(%s)",
+      *uri ? uri : "/", select, offset, limit, typeFilter ? typeFilter : "*", "text/json");
+
     corto_iter iter;
     ret = corto_select(*uri ? uri : "/", select)
       .limit(offset, limit)
       .augment(augmentFilter)
+      .type(typeFilter)
       .contentType("text/json")
       .iter(&iter);
     if (ret) {
@@ -71,6 +82,9 @@ void server_REST_apiGet(
     }
 
     corto_resultIterForeach(iter, result) {
+        /* Skip hidden objects */
+        if (*result.id == '.') continue;
+
         if (count) {
           corto_buffer_append(&response, ",");
         }
@@ -82,6 +96,10 @@ void server_REST_apiGet(
             if (strcmp(result.name, result.id)) {
                 corto_buffer_append(&response , ",\"name\":\"%s\"",
                   result.name);
+            }
+            if (strcmp(result.parent, ".")) {
+                corto_buffer_append(&response , ",\"parent\":\"%s\"",
+                  result.parent);
             }
             if (result.mount) {
                 corto_buffer_append(&response , ",\"owner\":\"%s\"",
