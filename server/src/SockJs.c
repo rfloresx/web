@@ -119,6 +119,7 @@ corto_int16 _server_SockJs_onRequest(
         corto_asprintf(&msg, "{\"websocket\":true,\"origins\":[\"*:*\"],"
                              "\"cookie_needed\":false,\"entropy\":%u}",
                              10000000000 * rand());
+        server_HTTP_Request_setStatus(r, 200);
         server_HTTP_Request_setHeader(r, "Access-Control-Allow-Origin", "*");
         server_HTTP_Request_setHeader(r, "Content-Type", "application/json;charset=UTF-8");
         server_HTTP_Request_reply(r, msg);
@@ -130,6 +131,7 @@ corto_int16 _server_SockJs_onRequest(
 
         corto_asprintf(&msg, "Welcome to SockJS!\n",
                              10000000000 * rand());
+        server_HTTP_Request_setStatus(r, 200);
         server_HTTP_Request_setHeader(r, "Access-Control-Allow-Origin", "*");
         server_HTTP_Request_setHeader(
             r,

@@ -1,0 +1,23 @@
+
+PACKAGE = 'corto/web/lib/event2'
+
+LIB = [
+  "event",
+  "event_core",
+  "event_extra",
+  "event_openssl",
+  "event_pthreads"
+]
+
+INCLUDE = [
+  "$(CORTO_INCLUDE)",
+  "$(CORTO_INCLUDE)/event2"
+]
+
+task :source_build do
+    system("./build.sh")
+end
+
+task :prebuild => [:source_build]
+
+require "#{ENV['CORTO_BUILD']}/package"

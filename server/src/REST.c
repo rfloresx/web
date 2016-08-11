@@ -132,6 +132,7 @@ void server_REST_apiGet(
     }
 
     corto_string responseStr = corto_buffer_str(&response);
+    server_HTTP_Request_setStatus(r, 200);
     server_HTTP_Request_reply(r, responseStr);
 
     if (augmentFilter) {

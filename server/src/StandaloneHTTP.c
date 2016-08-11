@@ -11,110 +11,145 @@
 /* $header() */
 #include "inttypes.h"
 #include "math.h"
-#include "mongoose.h"
+#include "wshtp_server.h"
 
-/* Allocates memory and copies the content; free the memory manually when finished. */
-static char* server_StandaloneHTTP_copyConnectionContent(struct mg_connection *conn) {
-    char *content = corto_alloc(conn->content_len + 1);
-    memcpy(content, conn->content, conn->content_len);
-    content[conn->content_len] = '\0';
+static char *server_StandaloneHTTP_copyConnectionContent(wshtp_conn_t *conn) {
+    const char *message = wshtp_get_text(conn);
+    if (message == NULL) {
+        message = "";
+    }
+    char *content = corto_strdup(message);
     return content;
 }
 
-static server_HTTP_Method server_StandaloneHTTP_methodNameToMethod(const char* methodString) {
-    if (!strcmp(methodString, "GET")) {
-        return Server_Get;
-    } else if (!strcmp(methodString, "POST")) {
-        return Server_Post;
+static int server_StandaloneHTTP_onOpen(wshtp_conn_t *conn, void *data){
+    server_HTTP_Connection c = NULL;
+    server_StandaloneHTTP this = server_StandaloneHTTP(data);
+
+    void *connection_param = wshtp_conn_get_userdata(conn);
+    if (connection_param) {
+        c = server_HTTP_Connection(connection_param);
     } else {
-        return Server_None;
+        c = server_HTTP_ConnectionCreate(NULL, this);
+        c->conn = (corto_word)conn;
+        wshtp_conn_set_userdata(conn, c, NULL);
     }
+    server_HTTP_doOpen(this, c);
+    return EVHTP_RES_OK;
 }
 
-static int server_StandaloneHTTP_handler(struct mg_connection *conn, enum mg_event ev) {
-    int result = MG_TRUE;
+static int server_StandaloneHTTP_onMessage(wshtp_conn_t *conn, void *data){
     server_HTTP_Connection c = NULL;
+    server_StandaloneHTTP this = server_StandaloneHTTP(data);
 
-    server_StandaloneHTTP this = server_StandaloneHTTP(conn->server_param);
-    if (conn->connection_param) {
-        c = server_HTTP_Connection(conn->connection_param);
+    void *connection_param = wshtp_conn_get_userdata(conn);
+    if (connection_param) {
+        c = server_HTTP_Connection(connection_param);
     }
 
-    switch (ev) {
-    case MG_AUTH:
-        break;
-    case MG_WS_CONNECT:
-        if (!conn->connection_param) {
-            c = server_HTTP_ConnectionCreate(NULL, this);
-            c->conn = (corto_word)conn;
-            conn->connection_param = c;
-        }
-        server_HTTP_doOpen(this, c);
-        break;
-    case MG_CLOSE:
-        if (c) {
-            server_HTTP_doClose(this, c);
-            corto_delete(c);
-        }
-        break;
-    case MG_REQUEST:
-        if (conn->is_websocket) {
-            corto_string msg = server_StandaloneHTTP_copyConnectionContent(conn);
-            server_HTTP_doMessage(this, c, msg);
-            corto_dealloc(msg);
-        } else {
-            server_HTTP_Request r = {
-                (corto_string)conn->uri,
-                server_StandaloneHTTP_methodNameToMethod(conn->request_method),
-                (corto_word)conn,
-                FALSE
-            };
-            server_HTTP_doRequest(this, c, &r);
-            result = r.file ? MG_MORE : MG_TRUE;
-        }
-        break;
-    case MG_HTTP_ERROR:
-        result = MG_FALSE;
-        break;
-    case MG_POLL:
-        result = MG_FALSE;
-        break;
-    case MG_CONNECT:
-    case MG_WS_HANDSHAKE:
-    case MG_REPLY:
-    case MG_RECV:
-        result = MG_FALSE;
-        break;
+    corto_string msg = server_StandaloneHTTP_copyConnectionContent(conn);
+    server_HTTP_doMessage(this, c, msg);
+    corto_dealloc(msg);
+    return EVHTP_RES_OK;
+}
+
+static int server_StandaloneHTTP_onGet(wshtp_conn_t *conn, void *data){
+    server_HTTP_Connection c = NULL;
+    server_StandaloneHTTP this = server_StandaloneHTTP(data);
+
+    void *connection_param = wshtp_conn_get_userdata(conn);
+    if (connection_param) {
+        c = server_HTTP_Connection(connection_param);
     }
 
+    server_HTTP_Request r = {
+        (char*)wshtp_request_get_path(conn),
+        Server_Get,
+        (corto_word)conn,
+        false
+    };
+    int result;
+    server_HTTP_doRequest(this, c, &r);
+    result = EVHTP_RES_OK;
     return result;
 }
 
+static int server_StandaloneHTTP_onPost(wshtp_conn_t *conn, void *data){
+    server_HTTP_Connection c = NULL;
+    server_StandaloneHTTP this = server_StandaloneHTTP(data);
+
+    void *connection_param = wshtp_conn_get_userdata(conn);
+    if (connection_param) {
+        c = server_HTTP_Connection(connection_param);
+    }
+    server_HTTP_Request r = {
+        (char*)wshtp_request_get_path(conn),
+        Server_Post,
+        (corto_word)conn,
+        false
+    };
+    int result;
+    server_HTTP_doRequest(this, c, &r);
+    result = EVHTP_RES_OK;
+    return result;
+}
+
+static int server_StandaloneHTTP_onClose(wshtp_conn_t *conn, void *data){
+    server_HTTP_Connection c = NULL;
+    server_StandaloneHTTP this = server_StandaloneHTTP(data);
+
+    void *connection_param = wshtp_conn_get_userdata(conn);
+    if (connection_param) {
+        c = server_HTTP_Connection(connection_param);
+    }
+    if (c) {
+        server_HTTP_doClose(this, c);
+        corto_delete(c);
+    }
+    return EVHTP_RES_OK;
+}
 
 static void* server_StandaloneHTTP_threadRun(void *data) {
     server_StandaloneHTTP this = server_StandaloneHTTP(data);
-    char port[6];
-    sprintf(port, "%"PRIu16, server_HTTP(this)->port);
 
-    /* Create mongoose server instance */
-    struct mg_server *server = mg_create_server(
-        this,
-        server_StandaloneHTTP_handler);
 
-    /* Store server instance on Corto object */
+    wshtp_server_t *server = wshtp_server_new();
     this->server = (corto_word)server;
 
-    mg_set_option(server, "listening_port", port);
+    evhtp_bind_socket(server->htp, "0.0.0.0", server_HTTP(this)->port, 1024);
 
-    while (TRUE) {
-        mg_poll_server(server, server_HTTP(this)->pollInterval);
-        server_HTTP_doPoll(this);
-        if (this->exiting) {
-            break;
-        }
+    if (this->enable_ssl) {
+        evhtp_ssl_cfg_t scfg = {
+            .pemfile            = this->ssl_cert,
+            .privfile           = this->ssl_pkey,
+            .cafile             = NULL,
+            .capath             = NULL,
+            .ciphers            = "RC4+RSA:HIGH:+MEDIUM:+LOW",
+            .ssl_opts           = SSL_OP_NO_SSLv2,
+            .ssl_ctx_timeout    = 60 * 60 * 48,
+            .verify_peer        = SSL_VERIFY_NONE,
+            .verify_depth       = 42,
+            .x509_verify_cb     = NULL,
+            .x509_chk_issued_cb = NULL,
+            .scache_type        = evhtp_ssl_scache_type_internal,
+            .scache_size        = 1024,
+            .scache_timeout     = 1024,
+            .scache_init        = NULL,
+            .scache_add         = NULL,
+            .scache_get         = NULL,
+            .scache_del         = NULL,
+        };
+        wshtp_ssl_init(server, &scfg);
     }
 
-    mg_destroy_server(&server);
+    wshtp_set_hook(server, WSHTP_ON_OPEN, server_StandaloneHTTP_onOpen, this);
+    wshtp_set_hook(server, WSHTP_ON_MESSAGE, server_StandaloneHTTP_onMessage, this);
+    wshtp_set_hook(server, WSHTP_ON_GET, server_StandaloneHTTP_onGet, this);
+    wshtp_set_hook(server, WSHTP_ON_POST, server_StandaloneHTTP_onPost, this);
+    wshtp_set_hook(server, WSHTP_ON_CLOSE, server_StandaloneHTTP_onClose, this);
+
+    wshtp_server_start(server);
+
     return NULL;
 }
 
@@ -151,14 +186,12 @@ corto_void _server_StandaloneHTTP_destruct(
     server_StandaloneHTTP this)
 {
 /* $begin(corto/web/server/StandaloneHTTP/destruct) */
-
     this->exiting = TRUE;
     if (this->thread) {
         corto_threadJoin((corto_thread)this->thread, NULL);
     }
 
     server_HTTP_destruct(this);
-
 /* $end */
 }
 
@@ -168,7 +201,6 @@ corto_void _server_StandaloneHTTP_write(
     corto_string msg)
 {
 /* $begin(corto/web/server/StandaloneHTTP/write) */
-    mg_websocket_printf((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, "%s", msg);
-
+    wshtp_send_text((wshtp_conn_t *)c->conn, msg);
 /* $end */
 }

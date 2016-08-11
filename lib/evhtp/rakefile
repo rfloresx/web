@@ -1,0 +1,19 @@
+
+PACKAGE = 'corto/web/lib/evhtp'
+
+LIB = [
+  "evhtp"
+]
+
+INCLUDE = [
+  "$(CORTO_INCLUDE)",
+  "$(CORTO_INCLUDE)/evhtp"
+]
+
+task :source_build do
+    system("./build.sh")
+end
+
+task :prebuild => [:source_build]
+
+require "#{ENV['CORTO_BUILD']}/package"

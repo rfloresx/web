@@ -77,9 +77,21 @@ class StandaloneHTTP: HTTP::
     thread: word, private|local
     server: word, private|local
     exiting: bool, private|local
+
+    enable_ssl : bool, hidden
+    ssl_cert : string, hidden
+    ssl_pkey : string, hidden
+
     int16 construct()
     void destruct()
     void write(HTTP::Connection c, string msg)
+
+class StandaloneHTTPS : StandaloneHTTP::
+    alias ssl_cert : StandaloneHTTP/ssl_cert
+    alias ssl_pkey : StandaloneHTTP/ssl_pkey
+
+    int16 construct()
+    void destruct()
 
 // Service built on top of an HTTP instance
 class Service::

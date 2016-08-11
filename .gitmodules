@@ -1,0 +1,3 @@
+[submodule "lib/evhtp/libevhtp"]
+	path = lib/evhtp/libevhtp
+	url = https://github.com/ellzey/libevhtp.git
