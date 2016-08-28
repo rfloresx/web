@@ -130,18 +130,18 @@ class SockJs: Service::
 class DDP: SockJs, implements={dispatcher}::
     class Collection::
         obj: object
-        value, meta, @scope: int32
+        value, meta, scope: int32
 
         int16 construct()
         void destruct()
         observer onAdded: mask=on_define|on_scope
         observer onChanged: mask=on_update|on_scope
         observer onRemoved: mask=on_delete|on_scope
-        void subscribe(bool value, bool meta, bool @scope)
-        void unsubscribe(bool value, bool meta, bool @scope)
+        void subscribe(bool value, bool meta, bool scope)
+        void unsubscribe(bool value, bool meta, bool scope)
 
     class Publication::
-        @scope: object
+        scope: object
         int16 create(object session, object sub) // sub: temp workaround - dep resolver can't solve cycle
 
     class readyEvent: core/event
@@ -149,7 +149,7 @@ class DDP: SockJs, implements={dispatcher}::
     class Subscription::
         pub: Publication
         id: string
-        value, meta, @scope: bool
+        value, meta, scope: bool
         void ready()
 
     class Session::
@@ -161,11 +161,11 @@ class DDP: SockJs, implements={dispatcher}::
         void connected()
         void failed(HTTP::Connection conn) function
         void pong(string id)
-        void sub(string id, string name, bool meta, bool value, bool @scope)
+        void sub(string id, string name, bool meta, bool value, bool scope)
         void unsub(string id)
         void error(string reason, string offendingMessage)
-        Subscription getSub(Publication pub, string id, bool meta, bool value, bool @scope)
-        DDP::Collection getCollection(string name, bool meta, bool value, bool @scope)
+        Subscription getSub(Publication pub, string id, bool meta, bool value, bool scope)
+        DDP::Collection getCollection(string name, bool meta, bool value, bool scope)
 
     autoPublish: bool, hidden
     events: list{event}, private|local
