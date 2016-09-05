@@ -19,9 +19,8 @@ corto_void _server_HTTP_Request_badRequest(
     corto_string msg)
 {
 /* $begin(corto/web/server/HTTP/Request/badRequest) */
-
     server_HTTP_Request_setStatus(this, 400);
-    server_HTTP_Request_setHeader(this, "Content-Type", "text/plain; charset=UTF-8");
+    server_HTTP_Request_setHeader(this, "Content-Type", "text/html; charset=UTF-8");
     server_HTTP_Request_reply(this, msg);
     corto_error("[HTTP] error: %s", msg);
 
