@@ -141,6 +141,16 @@ corto_void _server_HTTP_doRequest(
                     corto_trace("HTTP: POST %s => %s", r->uri, corto_idof(corto_typeof(s)));
                 }
                 break;
+            case Server_Put:
+                if ((handled = server_Service_onPut(s, c, r, uri))) {
+                    corto_trace("HTTP: PUT %s => %s", r->uri, corto_idof(corto_typeof(s)));
+                }
+                break;
+            case Server_Delete:
+                if ((handled = server_Service_onDelete(s, c, r, uri))) {
+                    corto_trace("HTTP: DELETE %s => %s", r->uri, corto_idof(corto_typeof(s)));
+                }
+                break;
             default:
                 break;
             }

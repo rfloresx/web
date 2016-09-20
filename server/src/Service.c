@@ -46,8 +46,17 @@ corto_void _server_Service_onClose_v(
 {
 /* $begin(corto/web/server/Service/onClose) */
 
-    /* virtual method */
+/* $end */
+}
 
+corto_int16 _server_Service_onDelete_v(
+    server_Service this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
+/* $begin(corto/web/server/Service/onDelete) */
+    return 0;
 /* $end */
 }
 
@@ -102,6 +111,17 @@ corto_int16 _server_Service_onPost_v(
     corto_string uri)
 {
 /* $begin(corto/web/server/Service/onPost) */
+    return 0;
+/* $end */
+}
+
+corto_int16 _server_Service_onPut_v(
+    server_Service this,
+    server_HTTP_Connection c,
+    server_HTTP_Request *r,
+    corto_string uri)
+{
+/* $begin(corto/web/server/Service/onPut) */
     return 0;
 /* $end */
 }

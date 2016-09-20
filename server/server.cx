@@ -1,6 +1,7 @@
 #package corto/web/server
 
 string random(uint16 n)
+string typedescriptor(lang/type type)
 
 class Service
 
@@ -13,7 +14,7 @@ string urlDecode(string s)
 // There can only be one HTTP server active per port, per process. A maximum of
 // 64 servers can be active per process.
 class HTTP::
-    enum Method:: None, Get, Post
+    enum Method:: None, Get, Post, Put, Delete
 
     // Manages connection & user data
     class Connection::
@@ -94,6 +95,8 @@ class Service::
     int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) virtual
     int16 onGet(HTTP::Connection c, HTTP::Request r, string uri) virtual
     int16 onPost(HTTP::Connection c, HTTP::Request r, string uri) virtual
+    int16 onPut(HTTP::Connection c, HTTP::Request r, string uri) virtual
+    int16 onDelete(HTTP::Connection c, HTTP::Request r, string uri) virtual
     void onMessage(HTTP::Connection c, string msg) virtual
     void onPoll() virtual
 
@@ -107,9 +110,12 @@ class Files: Service::
 // REST interface that provides access to Corto store
 class REST: Service::
     alias prefix: Service/prefix
+    root: string
     int16 construct()
     int16 onGet(HTTP::Connection c, HTTP::Request r, string uri)
     int16 onPost(HTTP::Connection c, HTTP::Request r, string uri)
+    int16 onPut(HTTP::Connection c, HTTP::Request r, string uri)
+    int16 onDelete(HTTP::Connection c, HTTP::Request r, string uri)
 
 // SockJs service
 class SockJs: Service::

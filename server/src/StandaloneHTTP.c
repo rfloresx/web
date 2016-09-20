@@ -26,6 +26,10 @@ static server_HTTP_Method server_StandaloneHTTP_methodNameToMethod(const char* m
         return Server_Get;
     } else if (!strcmp(methodString, "POST")) {
         return Server_Post;
+    } else if (!strcmp(methodString, "PUT")) {
+        return Server_Put;
+    } else if (!strcmp(methodString, "DELETE")) {
+        return Server_Delete;
     } else {
         return Server_None;
     }

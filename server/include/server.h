@@ -33,6 +33,10 @@ CORTO_WEB_SERVER_EXPORT corto_string _server_random(
     corto_uint16 n);
 #define server_random(n) _server_random(n)
 
+CORTO_WEB_SERVER_EXPORT corto_string _server_typedescriptor(
+    corto_type type);
+#define server_typedescriptor(type) _server_typedescriptor(corto_type(type))
+
 CORTO_WEB_SERVER_EXPORT corto_string _server_urlDecode(
     corto_string s);
 #define server_urlDecode(s) _server_urlDecode(s)
