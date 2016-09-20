@@ -62,7 +62,7 @@ corto_string _server_HTTP_Request_getVar(
     corto_string id)
 {
 /* $begin(corto/web/server/HTTP/Request/getVar) */
-    static char value[256];
+    static char value[1024];
 
     mg_get_var((struct mg_connection *)this->conn, id, value, sizeof(value));
 
