@@ -11,6 +11,36 @@
 /* $header() */
 #define SERVER_MAX_SERVERS (64) /* Maximum number of services that may be active */
 
+/*
+ * Returns a static string representing the name of the HTTP method.
+ */
+static const char* _server_HTTP_getMethodName(server_HTTP_Method method)
+{
+    switch (method) {
+    case Server_None:
+        return "NONE";
+    case Server_Get:
+        return "GET";
+    case Server_Head:
+        return "HEAD";
+    case Server_Post:
+        return "POST";
+    case Server_Put:
+        return "PUT";
+    case Server_Delete:
+        return "DELETE";
+    case Server_Trace:
+        return "TRACE";
+    case Server_Options:
+        return "OPTIONS";
+    case Server_Connect:
+        return "CONNECT";
+    case Server_Patch:
+        return "PATCH";
+    }
+    return NULL;
+}
+
 static corto_mutex_s serverLock = CORTO_MUTEX_INITIALIZER;
 static struct {
     server_HTTP server;
@@ -177,7 +207,7 @@ corto_void _server_HTTP_doRequest(
         server_HTTP_Request_setStatus(r, 404);
         server_HTTP_Request_reply(r, str);
         corto_dealloc(str);
-        corto_trace("HTTP: GET %s => not matched (404)", r->uri);
+        corto_trace("HTTP: %s %s => not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
     }
 
 /* $end */

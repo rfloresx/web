@@ -56,11 +56,9 @@ corto_void _server_HTTP_Request_badRequest(
 /* $begin(corto/web/server/HTTP/Request/badRequest) */
     wshtp_conn_t *conn = (wshtp_conn_t*)this->conn;
     wshtp_set_code(conn, 400);
-    wshtp_add_header(conn, "Content-Type", "text/plain; charset=UTF-8");
+    wshtp_add_header(conn, "Content-Type", "text/html; charset=UTF-8");
     wshtp_send_text(conn, msg);
-
     corto_error("[HTTP] error: %s", msg);
-
 /* $end */
 }
 
