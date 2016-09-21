@@ -14,7 +14,7 @@ string urlDecode(string s)
 // There can only be one HTTP server active per port, per process. A maximum of
 // 64 servers can be active per process.
 class HTTP::
-    enum Method:: None, Get, Post, Put, Delete
+    enum Method:: None, Get, Head, Post, Put, Delete, Trace, Options, Connect, Patch
 
     // Manages connection & user data
     class Connection::
