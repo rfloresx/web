@@ -28,6 +28,7 @@ uname -v = #120-Ubuntu SMP Mon Jan 18 15:59:10 UTC 2016
 /bin/universe          = unknown
 
 PATH: /home/vagrant/.corto/bin
+PATH: /home/vagrant/.corto/bin
 PATH: /home/vagrant/PrismTech/Vortex_v2/Device/VortexOpenSplice/6.6.3p2/HDE/x86_64.linux/bin
 PATH: /usr/local/rvm/gems/ruby-2.2.1/bin
 PATH: /usr/local/rvm/gems/ruby-2.2.1@global/bin
@@ -597,7 +598,7 @@ configure:12582: checking for zlib.h
 configure:12582: result: yes
 configure:12598: checking for library containing inflateEnd
 configure:12629: gcc -o conftest -g -O2 -Wall -fno-strict-aliasing   conftest.c  >&5
-/tmp/ccg5ZI70.o: In function `main':
+/tmp/ccHmWZY3.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:41: undefined reference to `inflateEnd'
 collect2: error: ld returned 1 exit status
 configure:12629: $? = 1
@@ -1681,7 +1682,7 @@ configure:13652: $? = 0
 configure:13652: result: yes
 configure:13652: checking for arc4random
 configure:13652: gcc -o conftest -g -O2 -Wall -fno-strict-aliasing   conftest.c  >&5
-/tmp/ccSNxqYQ.o: In function `main':
+/tmp/ccSyzIdB.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:102: undefined reference to `arc4random'
 collect2: error: ld returned 1 exit status
 configure:13652: $? = 1
@@ -1794,7 +1795,7 @@ configure: failed program was:
 configure:13652: result: no
 configure:13652: checking for arc4random_buf
 configure:13652: gcc -o conftest -g -O2 -Wall -fno-strict-aliasing   conftest.c  >&5
-/tmp/ccHSDgwV.o: In function `main':
+/tmp/ccpHSjgG.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:102: undefined reference to `arc4random_buf'
 collect2: error: ld returned 1 exit status
 configure:13652: $? = 1
@@ -1955,7 +1956,7 @@ configure:13652: $? = 0
 configure:13652: result: yes
 configure:13652: checking for issetugid
 configure:13652: gcc -o conftest -g -O2 -Wall -fno-strict-aliasing   conftest.c  >&5
-/tmp/cciv6j6I.o: In function `main':
+/tmp/cc9QvzZw.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:114: undefined reference to `issetugid'
 collect2: error: ld returned 1 exit status
 configure:13652: $? = 1
@@ -2080,7 +2081,7 @@ configure: failed program was:
 configure:13652: result: no
 configure:13652: checking for mach_absolute_time
 configure:13652: gcc -o conftest -g -O2 -Wall -fno-strict-aliasing   conftest.c  >&5
-/tmp/ccWravcO.o: In function `main':
+/tmp/cctkchBB.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:114: undefined reference to `mach_absolute_time'
 collect2: error: ld returned 1 exit status
 configure:13652: $? = 1
@@ -2249,7 +2250,7 @@ configure:13652: $? = 0
 configure:13652: result: yes
 configure:13652: checking for strlcpy
 configure:13652: gcc -o conftest -g -O2 -Wall -fno-strict-aliasing   conftest.c  >&5
-/tmp/ccvZrVMt.o: In function `main':
+/tmp/ccC3qfho.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:125: undefined reference to `strlcpy'
 collect2: error: ld returned 1 exit status
 configure:13652: $? = 1
@@ -2449,7 +2450,7 @@ configure:14034: $? = 0
 configure:14034: result: yes
 configure:14118: checking for port_create
 configure:14118: gcc -o conftest -g -O2 -Wall -fno-strict-aliasing   conftest.c  >&5
-/tmp/cccNck5t.o: In function `main':
+/tmp/cc9uOCXn.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:140: undefined reference to `port_create'
 collect2: error: ld returned 1 exit status
 configure:14118: $? = 1
@@ -6166,7 +6167,7 @@ conftest.c:133:22: warning: null argument where non-null required (argument 3) [
 conftest.c:131:27: warning: 'th' is used uninitialized in this function [-Wuninitialized]
  pthread_t th; pthread_join(th, 0);
                            ^
-/tmp/ccIPrq9L.o: In function `main':
+/tmp/ccHiVivM.o: In function `main':
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:131: undefined reference to `pthread_join'
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:132: undefined reference to `__pthread_register_cancel'
 /home/vagrant/GitHub/cortoproject/web/lib/event2/libevent-2.1.5-beta/conftest.c:133: undefined reference to `pthread_create'

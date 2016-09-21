@@ -1,6 +1,6 @@
 require 'rake/clean'
 
-PACKAGE = 'evhtp'
+PACKAGE = 'lib/evhtp'
 NOCORTO = true
 
 LIB = [

@@ -1,6 +1,6 @@
 require 'rake/clean'
 
-PACKAGE = 'event2'
+PACKAGE = 'lib/event2'
 
 LIB = [
   "event",

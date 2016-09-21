@@ -4,7 +4,7 @@ PROJECT="libevhtp"
 
 DIR=$(pwd)
 PLATFORM=`uname`"-"`uname -p`
-INC_TARGET=${DIR}/include/evhtp
+INC_TARGET=${DIR}/include
 LIB_TARGET=${DIR}/install/Linux-x86_64/lib
 SOURCE_DIR=${DIR}/${PROJECT}
 INC_SOURCE_DIR=${SOURCE_DIR}

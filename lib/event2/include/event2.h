@@ -3,8 +3,8 @@
  * This file is generated. Do not modify.
  */
 
-#ifndef CORTO_WEB_LIB_EVENT2_H
-#define CORTO_WEB_LIB_EVENT2_H
+#ifndef LIB_EVENT2_H
+#define LIB_EVENT2_H
 
 #include <corto/corto.h>
 
