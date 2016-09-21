@@ -1,5 +1,7 @@
+require 'rake/clean'
 
-PACKAGE = 'corto/web/lib/evhtp'
+PACKAGE = 'evhtp'
+NOCORTO = true
 
 LIB = [
   "evhtp"
@@ -15,5 +17,7 @@ task :source_build do
 end
 
 task :prebuild => [:source_build]
+
+CLOBBER.include("install")
 
 require "#{ENV['CORTO_BUILD']}/package"

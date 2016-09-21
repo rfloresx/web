@@ -1,4 +1,4 @@
 corto/web
 corto/fmt/json
-corto/web/lib/event2
-corto/web/lib/evhtp
+event2
+evhtp

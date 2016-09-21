@@ -112,7 +112,6 @@ static int server_StandaloneHTTP_onClose(wshtp_conn_t *conn, void *data){
 static void* server_StandaloneHTTP_threadRun(void *data) {
     server_StandaloneHTTP this = server_StandaloneHTTP(data);
 
-
     wshtp_server_t *server = wshtp_server_new();
     this->server = (corto_word)server;
 

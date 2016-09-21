@@ -9,7 +9,6 @@
 #include <corto/web/server/server.h>
 
 /* $header() */
-
 #include "wshtp_server.h"
 
 bool http_parse_header(const char *header, const char *key, char * out, size_t out_len)

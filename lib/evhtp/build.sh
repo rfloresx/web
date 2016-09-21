@@ -21,7 +21,7 @@ fi
 #Setup Lib directory
 if [ -d ${LIB_TARGET} ];
 then
-  rm ${LIB_TARGET}/*
+  rm -f ${LIB_TARGET}/*
 else
   echo "Make lib folder directory [${LIB_TARGET}]"
   mkdir -p ${LIB_TARGET}

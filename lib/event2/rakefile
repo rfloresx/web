@@ -1,5 +1,6 @@
+require 'rake/clean'
 
-PACKAGE = 'corto/web/lib/event2'
+PACKAGE = 'event2'
 
 LIB = [
   "event",
@@ -19,5 +20,7 @@ task :source_build do
 end
 
 task :prebuild => [:source_build]
+
+CLOBBER.include("install")
 
 require "#{ENV['CORTO_BUILD']}/package"
