@@ -352,18 +352,10 @@ corto_int16 server_typedescriptorSer_object(
     corto_value *info,
     void *userData)
 {
-    server_typedescriptorSer_t *data = userData;
-    if (corto_value_getType(info)->kind == CORTO_PRIMITIVE) {
-        corto_buffer_appendstr(&data->b, "{\"value\":");
-    }
-
     corto_int16 result = corto_serializeValue(s, info, userData);
-
-    if (corto_value_getType(info)->kind == CORTO_PRIMITIVE) {
-        corto_buffer_appendstr(&data->b, "}");
-    }
     return result;
 }
+
 corto_int16 server_typedescriptorSer_member(
     corto_serializer s,
     corto_value *info,

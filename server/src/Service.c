@@ -40,6 +40,16 @@ corto_int16 _server_Service_construct(
 /* $end */
 }
 
+corto_void _server_Service_destruct(
+    server_Service this)
+{
+/* $begin(corto/web/server/Service/destruct) */
+
+    server_HTTP_removeService(this->server, this);
+
+/* $end */
+}
+
 corto_void _server_Service_onClose_v(
     server_Service this,
     server_HTTP_Connection c)

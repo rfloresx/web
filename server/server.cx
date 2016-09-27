@@ -101,6 +101,7 @@ class Service::
     server: HTTP, private|local
 
     int16 construct()
+    void destruct()
 
     void onOpen(HTTP::Connection c) virtual
     void onClose(HTTP::Connection c) virtual

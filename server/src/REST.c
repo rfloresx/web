@@ -267,11 +267,15 @@ void server_REST_apiDelete(
     server_HTTP_Request *r,
     corto_string uri)
 {
-    if (corto_publish(CORTO_ON_DELETE, uri, NULL, NULL, NULL)) {
+    corto_string select = server_HTTP_Request_getVar(r, "select");
+    if (corto_publish(CORTO_ON_DELETE, select, NULL, NULL, NULL)) {
         corto_string msg;
         corto_asprintf(&msg, "400: DELETE failed: %s", uri);
         server_HTTP_Request_setStatus(r, 400);
         server_HTTP_Request_reply(r, msg);
+    } else {
+        server_HTTP_Request_setStatus(r, 200);
+        server_HTTP_Request_reply(r, "Ok\n");
     }
 }
 

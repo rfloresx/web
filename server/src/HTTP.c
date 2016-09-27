@@ -157,26 +157,21 @@ corto_void _server_HTTP_doRequest(
         int uriLength = strlen(r->uri) - 1;
         if (!prefixLength || (!memcmp(r->uri + 1, prefix, prefixLength))) {
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
-            char *method = NULL;
             if (uriLength > prefixLength) {
                 uri += 1;
             }
-            
+
             switch(r->method) {
             case Server_Get:
-                method = "GET";
                 handled = server_Service_onGet(s, c, r, uri);
                 break;
             case Server_Post:
-                method = "POST";
                 handled = server_Service_onPost(s, c, r, uri);
                 break;
             case Server_Put:
-                method = "PUT";
                 handled = server_Service_onPut(s, c, r, uri);
                 break;
             case Server_Delete:
-                method = "DELETE";
                 handled = server_Service_onDelete(s, c, r, uri);
                 break;
             default:
@@ -184,12 +179,16 @@ corto_void _server_HTTP_doRequest(
             }
 
             if (handled) {
-                corto_trace("HTTP: %s %s => %s", method, corto_idof(corto_typeof(s)));
+                corto_trace(
+                  "HTTP: %s %s => %s",
+                  _server_HTTP_getMethodName(r->method),
+                  r->uri,
+                  corto_idof(corto_typeof(s)));
             }
 
             if (server_Service_onRequest(s, c, r, uri)) {
                 corto_trace("HTTP: %s %s => %s",
-                    method,
+                    _server_HTTP_getMethodName(r->method),
                     r->uri,
                     corto_idof(corto_typeof(s)));
                 handled = TRUE;

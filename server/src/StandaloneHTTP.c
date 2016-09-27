@@ -53,7 +53,11 @@ static int server_StandaloneHTTP_onMessage(wshtp_conn_t *conn, void *data){
     return EVHTP_RES_OK;
 }
 
-static int server_StandaloneHTTP_onGet(wshtp_conn_t *conn, void *data){
+static int server_StandaloneHTTP_onRequest(
+  wshtp_conn_t *conn,
+  server_HTTP_Method method,
+  void *data)
+{
     server_HTTP_Connection c = NULL;
     server_StandaloneHTTP this = server_StandaloneHTTP(data);
 
@@ -64,7 +68,7 @@ static int server_StandaloneHTTP_onGet(wshtp_conn_t *conn, void *data){
 
     server_HTTP_Request r = {
         (char*)wshtp_request_get_path(conn),
-        Server_Get,
+        method,
         (corto_word)conn,
         false
     };
@@ -74,24 +78,17 @@ static int server_StandaloneHTTP_onGet(wshtp_conn_t *conn, void *data){
     return result;
 }
 
-static int server_StandaloneHTTP_onPost(wshtp_conn_t *conn, void *data){
-    server_HTTP_Connection c = NULL;
-    server_StandaloneHTTP this = server_StandaloneHTTP(data);
-
-    void *connection_param = wshtp_conn_get_userdata(conn);
-    if (connection_param) {
-        c = server_HTTP_Connection(connection_param);
-    }
-    server_HTTP_Request r = {
-        (char*)wshtp_request_get_path(conn),
-        Server_Post,
-        (corto_word)conn,
-        false
-    };
-    int result;
-    server_HTTP_doRequest(this, c, &r);
-    result = EVHTP_RES_OK;
-    return result;
+static int server_StandaloneHTTP_onGet(wshtp_conn_t *conn, void *data) {
+    return server_StandaloneHTTP_onRequest(conn, Server_Get, data);
+}
+static int server_StandaloneHTTP_onPost(wshtp_conn_t *conn, void *data) {
+    return server_StandaloneHTTP_onRequest(conn, Server_Post, data);
+}
+static int server_StandaloneHTTP_onPut(wshtp_conn_t *conn, void *data) {
+    return server_StandaloneHTTP_onRequest(conn, Server_Put, data);
+}
+static int server_StandaloneHTTP_onDelete(wshtp_conn_t *conn, void *data) {
+    return server_StandaloneHTTP_onRequest(conn, Server_Delete, data);
 }
 
 static int server_StandaloneHTTP_onClose(wshtp_conn_t *conn, void *data){
@@ -145,6 +142,8 @@ static void* server_StandaloneHTTP_threadRun(void *data) {
     wshtp_set_hook(server, WSHTP_ON_MESSAGE, server_StandaloneHTTP_onMessage, this);
     wshtp_set_hook(server, WSHTP_ON_GET, server_StandaloneHTTP_onGet, this);
     wshtp_set_hook(server, WSHTP_ON_POST, server_StandaloneHTTP_onPost, this);
+    wshtp_set_hook(server, WSHTP_ON_PUT, server_StandaloneHTTP_onPut, this);
+    wshtp_set_hook(server, WSHTP_ON_DELETE, server_StandaloneHTTP_onDelete, this);
     wshtp_set_hook(server, WSHTP_ON_CLOSE, server_StandaloneHTTP_onClose, this);
 
     wshtp_server_start(server);

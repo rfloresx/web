@@ -52,6 +52,8 @@ enum ws_hook_type_e {
     WSHTP_ON_CLOSE,
     WSHTP_ON_GET,
     WSHTP_ON_POST,
+    WSHTP_ON_PUT,
+    WSHTP_ON_DELETE,
     WSHTP_ON_MESSAGE,
     WSHTP_ON_CONNECTION
 };

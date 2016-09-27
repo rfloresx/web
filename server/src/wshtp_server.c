@@ -62,6 +62,8 @@ struct wshtp_hooks_s {
     wshtp_hook_t on_close;
     wshtp_hook_t on_get;
     wshtp_hook_t on_post;
+    wshtp_hook_t on_put;
+    wshtp_hook_t on_delete;
     wshtp_hook_t on_message;
     wshtp_hook_t on_connection;
 };
@@ -232,6 +234,10 @@ static void wshtp_handler_cb(evhtp_request_t *req, void *data) {
         _conn->method = WSHTP_ON_GET;
     } else if (req->method == htp_method_POST) {
         _conn->method = WSHTP_ON_POST;
+    } else if (req->method == htp_method_PUT) {
+        _conn->method = WSHTP_ON_PUT;
+    } else if (req->method == htp_method_DELETE) {
+        _conn->method = WSHTP_ON_DELETE;
     }
 
     if (_conn->is_open == false) {
@@ -517,6 +523,12 @@ static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, ws
         case WSHTP_ON_POST:
             ret = wshtp_hook_call(&hooks->on_post, conn);
             break;
+        case WSHTP_ON_PUT:
+            ret = wshtp_hook_call(&hooks->on_put, conn);
+            break;
+        case WSHTP_ON_DELETE:
+            ret = wshtp_hook_call(&hooks->on_delete, conn);
+            break;
         case WSHTP_ON_MESSAGE:
             ret = wshtp_hook_call(&hooks->on_message, conn);
             break;
@@ -771,6 +783,12 @@ void wshtp_set_hook(wshtp_server_t *server, enum ws_hook_type_e type, wshtp_hook
             break;
         case WSHTP_ON_POST:
             wshtp_hook_set(&hooks->on_post, cb, data);
+            break;
+        case WSHTP_ON_PUT:
+            wshtp_hook_set(&hooks->on_put, cb, data);
+            break;
+        case WSHTP_ON_DELETE:
+            wshtp_hook_set(&hooks->on_delete, cb, data);
             break;
         case WSHTP_ON_MESSAGE:
             wshtp_hook_set(&hooks->on_message, cb, data);
