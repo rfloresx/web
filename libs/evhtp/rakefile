@@ -12,4 +12,6 @@ INCLUDE = [
   "$(CORTO_INCLUDE)/evhtp"
 ]
 
+CFLAGS = []
+
 require "#{ENV['CORTO_BUILD']}/package"
