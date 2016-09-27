@@ -207,6 +207,7 @@ void server_REST_apiGet(
         return;
     }
 
+    server_HTTP_Request_setStatus(r, 200);
     server_HTTP_Request_reply(r, responseStr);
 
     if (augmentFilter) {

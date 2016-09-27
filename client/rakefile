@@ -1,5 +1,5 @@
 
-PACKAGE = 'corto::web::client'
+PACKAGE = 'corto/web/client'
 
 LIB = ['curl']
 PREFIX = 'web/client'

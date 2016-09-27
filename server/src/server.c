@@ -10,7 +10,46 @@
 
 /* $header() */
 
-#include "mongoose.h"
+static int hextoi(char hex) {
+    int val = 0;
+    if (hex >= 'a') {
+        val = hex - 'a' + 10;
+    } else if (hex >= 'A') {
+        val = hex - 'A' + 10;
+    } else {
+        val = hex - '0';
+    }
+    return val;
+}
+
+static int http_url_decode(const char *src, char *dest, size_t len) {
+    size_t count = 0;
+    char *ptr = (char*)src;
+    while (ptr && *ptr && count < len) {
+        if (*ptr == '%' && ptr[1] && ptr[2]) {
+            char a = ptr[1];
+            char b = ptr[2];
+            if (isxdigit(a) && isxdigit(b)) {
+                *dest = 16*hextoi(a)+hextoi(b);
+                dest++;
+                ptr += 3;
+            }
+        }else if (*ptr == '+') {
+            *dest = ' ';
+            ptr++;
+            dest++;
+        }else {
+            *dest = *ptr;
+            ptr++;
+            dest++;
+        }
+        count++;
+    }
+    if (count < len) {
+        *dest = '\0';
+    }
+    return count;
+}
 
 static corto_ll server_getUrlTokens(corto_string s)
 {
@@ -416,7 +455,8 @@ corto_string _server_urlDecode(
     if (dest == NULL) {
         goto error;
     }
-    mg_url_decode(s, len + 1, dest, len + 1, 1);
+    http_url_decode(s, dest, len + 1);
+
     return dest;
 error:
     return NULL;

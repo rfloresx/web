@@ -1,4 +1,7 @@
 
-PACKAGE = 'corto::web::server'
+PACKAGE = 'corto/web/server'
+
+LIB = ["crypto"]
+CFLAGS = []
 
 require "#{ENV['CORTO_BUILD']}/package"

@@ -10,6 +10,8 @@
 #include <corto/web/server/_interface.h>
 #include <corto/web/web.h>
 #include <corto/fmt/json/json.h>
+#include <event2/event2.h>
+#include <evhtp/evhtp.h>
 
 #include <corto/web/server/_type.h>
 #include <corto/web/server/_api.h>
@@ -57,6 +59,7 @@ CORTO_WEB_SERVER_EXPORT corto_string _server_urlDecode(
 #include <corto/web/server/Service.h>
 #include <corto/web/server/SockJs.h>
 #include <corto/web/server/StandaloneHTTP.h>
+#include <corto/web/server/StandaloneHTTPS.h>
 #include <corto/web/server/UrlMatch.h>
 
 #ifdef __cplusplus
