@@ -197,7 +197,7 @@ static const char *get_mime_type(const char *file_name) {
  * **********************************/
 static evhtp_res wshtp_post_accept_cb(evhtp_connection_t *conn, void *arg) {
     wshtp_server_t *server = (wshtp_server_t*)arg;
-    int64_t id = (int64_t)(conn);
+    int64_t id = (intptr_t)(conn);
 
     wshtp_conn_t *wsconn = (wshtp_conn_t*)avlmap_find(server->conns, id);
     if (wsconn == NULL){
@@ -211,7 +211,7 @@ static void wshtp_handler_cb(evhtp_request_t *req, void *data) {
     evhtp_connection_t *conn = evhtp_request_get_connection(req);
     wshtp_server_t *server = (wshtp_server_t*)data;
 
-    wshtp_conn_t *_conn = (wshtp_conn_t*)avlmap_find(server->conns, (int64_t)conn);
+    wshtp_conn_t *_conn = (wshtp_conn_t*)avlmap_find(server->conns, (intptr_t)conn);
 
 
     wshtp_conn_set_request(_conn, req);
@@ -526,7 +526,7 @@ static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, ws
     }
 
     if (ret != EVHTP_RES_OK || type == WSHTP_ON_CLOSE) {
-        avlmap_remove(server->conns, (int64_t)(conn->conn));
+        avlmap_remove(server->conns, (intptr_t)(conn->conn));
         if (conn->is_websocket) {
             evhtp_connection_free(conn->conn);
         }
