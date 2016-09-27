@@ -9,7 +9,7 @@
 #include <corto/corto.h>
 
 /* $header() */
-/* You can put your own definitions here! */
+#include <event2/event.h>
 /* $end */
 
 #ifdef __cplusplus

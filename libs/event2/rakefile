@@ -2,7 +2,7 @@ require 'rake/clean'
 
 PACKAGE = 'event2'
 
-LIB = [
+LIB_PUBLIC = [
   "event",
   "event_core",
   "event_extra",
@@ -10,9 +10,6 @@ LIB = [
   "event_pthreads"
 ]
 
-INCLUDE = [
-  "$(CORTO_INCLUDE)",
-  "$(CORTO_INCLUDE)/event2"
-]
+LINK_PUBLIC = []
 
 require "#{ENV['CORTO_BUILD']}/package"
