@@ -27,7 +27,7 @@
 
 #ifndef __WSHTP_SERVER_H__
 #define __WSHTP_SERVER_H__
-#include <lib/evhtp/evhtp.h>
+#include <evhtp/evhtp.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <ctype.h>
