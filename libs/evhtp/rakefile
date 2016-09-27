@@ -9,7 +9,8 @@ LIB = [
 
 INCLUDE = [
   "$(CORTO_INCLUDE)",
-  "$(CORTO_INCLUDE)/evhtp"
+  "$(CORTO_INCLUDE)/evhtp",
+  "/usr/local/opt/openssl/include"
 ]
 
 CFLAGS = []
