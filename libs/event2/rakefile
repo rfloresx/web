@@ -1,0 +1,18 @@
+require 'rake/clean'
+
+PACKAGE = 'event2'
+
+LIB = [
+  "event",
+  "event_core",
+  "event_extra",
+  "event_openssl",
+  "event_pthreads"
+]
+
+INCLUDE = [
+  "$(CORTO_INCLUDE)",
+  "$(CORTO_INCLUDE)/event2"
+]
+
+require "#{ENV['CORTO_BUILD']}/package"

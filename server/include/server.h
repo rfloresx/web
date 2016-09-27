@@ -10,8 +10,8 @@
 #include <corto/web/server/_interface.h>
 #include <corto/web/web.h>
 #include <corto/fmt/json/json.h>
-#include <lib/event2/event2.h>
-#include <lib/evhtp/evhtp.h>
+#include <event2/event2.h>
+#include <evhtp/evhtp.h>
 
 #include <corto/web/server/_type.h>
 #include <corto/web/server/_api.h>

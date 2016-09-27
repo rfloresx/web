@@ -4,6 +4,6 @@ PACKAGE = 'corto/web'
 
 require "#{ENV['CORTO_BUILD']}/package"
 
-COMPONENTS << "lib" << "server" << "client"
+COMPONENTS << "libs" << "server" << "client"
 
 require "#{ENV['CORTO_BUILD']}/subrake"
