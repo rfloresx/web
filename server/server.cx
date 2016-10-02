@@ -202,13 +202,11 @@ procedure POST: Method, base = core/route
 procedure PUT: Method, base = core/route
 procedure DELETE: Method, base = core/route
 
-// RouterService that overrides the onRequest method to match routes
-class RouterService: Service::
-  int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
-
-// Router service that forwards requests to routes
-core/router{lang/string, HTTP/Request} Router::
-  // Constructor makes instance of RouterTemplate inherit from 'RouterService'
-  int16 construct()
-  // Match URI and HTTP request
+// Router template that defines route signature and match function
+core/router Router: returnType=string paramType=HTTP/Request paramName="request"::
   int32 matchRoute(core/route route, stringseq pattern, any param)
+
+// Utility class that maps HTTP requests to route/match
+Router RouterService: Service::
+  int16 construct()
+  int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)

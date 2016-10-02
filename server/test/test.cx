@@ -1,0 +1,22 @@
+#package /test
+
+class TestRouter: web/server/RouterService::
+    web/server/GET index: "/"
+    web/server/GET part1: "/part1"
+    web/server/GET part2_part1: "/part2/part1"
+    web/server/GET part3_part1: "/part3/part1"
+    web/server/GET part3_part2: "/part3/part2"
+    web/server/GET mobyDick: "/moby-dick"
+    web/server/GET hello: "/hello"
+    web/server/GET add: "/add"
+
+test::Suite RouterTest::
+    void tc_GetIndex()
+    void tc_GetRouteWithOnePart()
+    void tc_GetRouteWithTwoParts()
+    void tc_GetRouteWithCommonParts()
+    void tc_GetRouteWithLargeBody()
+    void tc_GetRouteWithParams()
+    void tc_GetRouteWithPercentEncodingParams()
+    void tc_GetRouteWithMultipleParams()
+    void tc_GetEndpointUnknown()
