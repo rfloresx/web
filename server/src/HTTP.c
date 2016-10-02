@@ -151,6 +151,8 @@ corto_void _server_HTTP_doRequest(
 /* $begin(corto/web/server/HTTP/doRequest) */
     int handled = 0;
 
+    server_HTTP_Request_setStatus(r, 200);
+
     server_ServiceListForeach(this->services, s) {
         corto_string prefix = s->prefix ? s->prefix : "";
         int prefixLength = strlen(prefix);

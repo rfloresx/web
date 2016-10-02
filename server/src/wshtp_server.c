@@ -215,7 +215,6 @@ static void wshtp_handler_cb(evhtp_request_t *req, void *data) {
 
     wshtp_conn_t *_conn = (wshtp_conn_t*)avlmap_find(server->conns, (intptr_t)conn);
 
-
     wshtp_conn_set_request(_conn, req);
     if (req->method == htp_method_GET) {
         int ret = do_ws_handshake(req);
@@ -570,6 +569,16 @@ static const char *wshtp_get_method_str(htp_method method) {
         case htp_method_POST:
         {
             str = "POST";
+            break;
+        }
+        case htp_method_PUT:
+        {
+            str = "POST";
+            break;
+        }
+        case htp_method_DELETE:
+        {
+            str = "DELETE";
             break;
         }
         default:

@@ -5,10 +5,6 @@ string typedescriptor(lang/type type)
 
 class Service
 
-// Note, maps are not fully implemented; do not use.
-map{string, string} queryToMap(string query)
-string urlDecode(string s)
-
 // Abstraction for server-side HTTP. Multiple services (like REST, DDP, custom)
 // may use the same HTTP instance to avoid using multiple ports.
 // There can only be one HTTP server active per port, per process. A maximum of
@@ -200,21 +196,19 @@ class DDP: SockJs, implements={dispatcher}::
     void post(event e)
     Publication getPublication(string name)
 
+// Encode HTTP methods in type of the route
+procedure GET: Method, base = core/route
+procedure POST: Method, base = core/route
+procedure PUT: Method, base = core/route
+procedure DELETE: Method, base = core/route
 
-procedure Route: procedureKind::METHOD, base=method ::
-    member pattern: string
-    member method: HTTP::Method
+// RouterService that overrides the onRequest method to match routes
+class RouterService: Service::
+  int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
 
-
-class UrlMatch::
-    matches: bool
-    params: map{string, string}
-
-UrlMatch match(string pattern, string url)
-
-class RouteService: Service::
-    int16 construct()
-    int16 onRequest(web/server/HTTP/Connection c, web/server/HTTP/Request r, string uri)
-
-class Router: class, defaultType=member, defaultProcedureType=Route ::
-    int16 construct()
+// Router service that forwards requests to routes
+core/router{lang/string, HTTP/Request} Router::
+  // Constructor makes instance of RouterTemplate inherit from 'RouterService'
+  int16 construct()
+  // Match URI and HTTP request
+  int32 matchRoute(core/route route, stringseq pattern, any param)

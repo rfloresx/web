@@ -9,6 +9,7 @@
 #include <corto/corto.h>
 #include <corto/web/client/_interface.h>
 #include <corto/web/web.h>
+#include <corto/web/web.h>
 
 #include <corto/web/client/_type.h>
 #include <corto/web/client/_api.h>

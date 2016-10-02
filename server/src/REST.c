@@ -32,9 +32,7 @@ void server_REST_apiGet(
 
     /* Set correct content type */
     server_HTTP_Request_setHeader(
-        r,
-        "Content-Type",
-        "application/json; charset=utf-8");
+        r, "Content-Type", "application/json; charset=utf-8");
 
     /* Determine what to show */
     if (!strcmp(server_HTTP_Request_getVar(r, "value"), "true")) { value = TRUE; }
@@ -45,14 +43,11 @@ void server_REST_apiGet(
     augmentFilter = server_HTTP_Request_getVar(r, "augment");
     typeFilter = server_HTTP_Request_getVar(r, "type");
     if (*augmentFilter) {
-        augmentFilter = corto_strdup(augmentFilter);
         augment = TRUE;
     } else {
         augmentFilter = NULL;
     }
-    if (*typeFilter) {
-        typeFilter = corto_strdup(typeFilter);
-    } else {
+    if (!*typeFilter) {
         typeFilter = NULL;
     }
 
@@ -207,12 +202,7 @@ void server_REST_apiGet(
         return;
     }
 
-    server_HTTP_Request_setStatus(r, 200);
     server_HTTP_Request_reply(r, responseStr);
-
-    if (augmentFilter) {
-        corto_dealloc(augmentFilter);
-    }
 
     corto_dealloc(responseStr);
 }
@@ -224,17 +214,18 @@ void server_REST_apiPut(
     corto_string uri)
 {
     char *value = server_HTTP_Request_getVar(r, "value");
-    if (value) value = corto_strdup(value);
+    char *id = server_HTTP_Request_getVar(r, "id");
 
-    if (corto_publish(CORTO_ON_UPDATE, uri, NULL, "text/json", value)) {
+    if (corto_publish(CORTO_ON_UPDATE, id, NULL, "text/json", value)) {
         corto_string msg;
-        corto_asprintf(&msg, "400: PUT failed: %s, value=%s",
-          uri, value);
+        corto_asprintf(&msg, "400: PUT failed: %s: id=%s, value=%s",
+          corto_lasterr(), id, value);
         server_HTTP_Request_setStatus(r, 400);
         server_HTTP_Request_reply(r, msg);
+    } else {
+        server_HTTP_Request_setStatus(r, 200);
+        server_HTTP_Request_reply(r, "Ok\n");
     }
-
-    if (value) corto_dealloc(value);
 }
 
 void server_REST_apiPost(
@@ -243,22 +234,20 @@ void server_REST_apiPost(
     server_HTTP_Request *r,
     corto_string uri)
 {
+    char *id = server_HTTP_Request_getVar(r, "id");
     char *type = server_HTTP_Request_getVar(r, "type");
-    if (type) type = corto_strdup(type);
-
     char *value = server_HTTP_Request_getVar(r, "value");
-    if (value) value = corto_strdup(value);
 
-    if (corto_publish(CORTO_ON_DEFINE, uri, type, "text/json", value)) {
+    if (corto_publish(CORTO_ON_DEFINE, id, type, "text/json", value)) {
         corto_string msg;
-        corto_asprintf(&msg, "400: POST failed: %s, type=%s, value=%s",
-          uri, type, value);
+        corto_asprintf(&msg, "400: POST failed: %s: id=%s, type=%s, value=%s",
+          corto_lasterr(), id, type, value);
         server_HTTP_Request_setStatus(r, 400);
         server_HTTP_Request_reply(r, msg);
+    } else {
+        server_HTTP_Request_setStatus(r, 200);
+        server_HTTP_Request_reply(r, "Ok\n");
     }
-
-    if (type) corto_dealloc(type);
-    if (value) corto_dealloc(value);
 }
 
 void server_REST_apiDelete(
@@ -270,7 +259,7 @@ void server_REST_apiDelete(
     corto_string select = server_HTTP_Request_getVar(r, "select");
     if (corto_publish(CORTO_ON_DELETE, select, NULL, NULL, NULL)) {
         corto_string msg;
-        corto_asprintf(&msg, "400: DELETE failed: %s", uri);
+        corto_asprintf(&msg, "400: DELETE failed: %s", corto_lasterr());
         server_HTTP_Request_setStatus(r, 400);
         server_HTTP_Request_reply(r, msg);
     } else {
