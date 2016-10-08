@@ -82,32 +82,39 @@ web_client_Result _web_client_post(
     corto_string fields)
 {
 /* $begin(corto/web/client/post) */
-    CURL *curl;
-    CURLcode res;
-    web_client_Result result;
-
-    curl = curl_easy_init();
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        if (fields) {
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(fields));
-        }
-
-        res = curl_easy_perform(curl);
-        if (res != CURLE_OK) {
-            corto_seterr("curl_easy_perform() failed: %s", curl_easy_strerror(res));
-        }
-
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &result.status);
-
-        curl_easy_cleanup(curl);
+    web_client_Result result = {0, NULL};
+    CURL* curl = curl_easy_init();
+    if (!curl) {
+        corto_seterr("Could not init curl");
+        goto error;
+    }
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (fields) {
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(fields));
     }
 
-    /* Not supported yet */
-    result.response = NULL;
+    struct url_data data = {0, NULL};
+    data.buffer = corto_alloc(INITIAL_BODY_BUFFER_SIZE);
+    if (!data.buffer) {
+        goto error;
+    }
+    data.buffer[0] = '\0';
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        corto_seterr("curl_easy_perform() failed: %s", curl_easy_strerror(res));
+    }
+
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &result.status);
+    result.response = data.buffer;
+    curl_easy_cleanup(curl);
 
     return result;
+error:
+    return (web_client_Result){0, NULL};
 /* $end */
 }
 
