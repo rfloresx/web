@@ -128,3 +128,15 @@ corto_void _test_RouterTest_tc_GetRouteWithTwoParts(
     corto_delete(router);
 /* $end */
 }
+
+corto_void _test_RouterTest_tc_PostEndpoint(
+    test_RouterTest this)
+{
+/* $begin(test/RouterTest/tc_PostEndpoint) */
+    test_TestRouter router = test_TestRouterCreate(3000);
+    web_client_Result result = web_client_post("localhost:3000/users", "name=Ada&email=ada@lovelace.com");
+    test_assertint(result.status, 200);
+    test_assertstr(result.response, "Created user Ada with email ada@lovelace.com");
+    corto_delete(router);
+/* $end */
+}

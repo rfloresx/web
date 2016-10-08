@@ -10,6 +10,8 @@ class TestRouter: web/server/RouterService::
     web/server/GET hello: "/hello"
     web/server/GET add: "/add"
 
+    web/server/POST post_users: "/users"
+
 test::Suite RouterTest::
     void tc_GetIndex()
     void tc_GetRouteWithOnePart()
@@ -20,3 +22,4 @@ test::Suite RouterTest::
     void tc_GetRouteWithPercentEncodingParams()
     void tc_GetRouteWithMultipleParams()
     void tc_GetEndpointUnknown()
+    void tc_PostEndpoint()
