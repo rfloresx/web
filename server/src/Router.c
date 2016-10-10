@@ -8,15 +8,6 @@
 
 #include <corto/web/server/server.h>
 
-corto_int16 _server_Router_construct(
-    server_Router this)
-{
-/* $begin(corto/web/server/Router/construct) */
-    corto_setref(&corto_interface(this)->base, server_RouterService_o);
-    return corto_routerimpl_construct(this);
-/* $end */
-}
-
 corto_int32 _server_Router_matchRoute(
     server_Router this,
     corto_route route,

@@ -18,9 +18,10 @@ install:
   - |+
     echo 'COMPONENTS = %w(corto c-binding xml corto-language io cortodoc test json web)
     require "#{ENV["CORTO_BUILD"]}/forward"' > rakefile
-
-script:
+  - for g in $(find . -name .git); do echo -e "$(basename $(dirname $g))\t$(git --git-dir $g rev-parse HEAD)"; done | column -t
   - source corto/configure
   - rake
   - cd web
+
+script:
   - rake test

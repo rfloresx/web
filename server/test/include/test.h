@@ -10,6 +10,7 @@
 #include <_interface.h>
 #include <corto/test/test.h>
 #include <corto/web/server/server.h>
+#include <corto/web/client/client.h>
 
 #include <_type.h>
 #include <_api.h>
@@ -19,7 +20,8 @@
 extern "C" {
 #endif
 
-#include <WebTestSuite.h>
+#include <RouterTest.h>
+#include <TestRouter.h>
 
 #ifdef __cplusplus
 }
