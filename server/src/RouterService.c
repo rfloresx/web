@@ -72,12 +72,6 @@ corto_int16 _server_RouterService_onRequest(
 
     return 1;
 nomatch:
-    server_HTTP_Request_setStatus(r, 404);
-    const char* methodName = _RouterService_getMethodName(r->method);
-    char* message = NULL;
-    corto_asprintf(&message, "Cannot find endpoint %s %s", methodName, r->uri);
-    message = message ? message : "Cannot find endpoint";
-    server_HTTP_Request_reply(r, message);
     return 0;
 /* $end */
 }
