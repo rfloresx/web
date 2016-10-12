@@ -1,6 +1,8 @@
 #package /test
 
 class TestRouter: web/server/RouterService::
+    message: string
+
     web/server/GET index: "/"
     web/server/GET part1: "/part1"
     web/server/GET part2_part1: "/part2/part1"
@@ -9,6 +11,7 @@ class TestRouter: web/server/RouterService::
     web/server/GET mobyDick: "/moby-dick"
     web/server/GET hello: "/hello"
     web/server/GET add: "/add"
+    web/server/GET getMessage: "/message"
 
     web/server/POST post_users: "/users"
 
@@ -22,4 +25,5 @@ test::Suite RouterTest::
     void tc_GetRouteWithPercentEncodingParams()
     void tc_GetRouteWithMultipleParams()
     void tc_GetEndpointUnknown()
+    void tc_GetMessage()
     void tc_PostEndpoint()

@@ -29,6 +29,15 @@ corto_string _test_TestRouter_add(
 /* $end */
 }
 
+corto_string _test_TestRouter_getMessage(
+    test_TestRouter this,
+    server_HTTP_Request *request)
+{
+/* $begin(test/TestRouter/getMessage) */
+    return corto_strdup(this->message);
+/* $end */
+}
+
 corto_string _test_TestRouter_hello(
     test_TestRouter this,
     server_HTTP_Request *request)
