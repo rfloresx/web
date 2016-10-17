@@ -318,6 +318,7 @@ static void ws_read_cb(evbev_t * bev, void *arg) {
     evbuf_t *in = bufferevent_get_input(bev);
     size_t data_len = evbuffer_get_length(in);
     void *data = evbuffer_pullup(in, data_len);
+    
     ws_frame_t frame;
 
     size_t nread = ws_parse_frame(data, data_len, &frame);
@@ -378,15 +379,21 @@ static size_t ws_parse_frame(const char *data, size_t data_len, ws_frame_t *fram
             frame->status = STATUS_ERROR;
             return 0;
         }
-        frame->payload_len = *((int64_t*)&data[index]);
-        index += 8;
+        frame->payload_len  = ((uint64_t)(uint8_t)data[index++]) << 56;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]) << 48;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]) << 40;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]) << 32;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]) << 24;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]) << 16;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]) << 8;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]);
     }else if (frame->payload_len == 126) {
         if (data_len < 4) {
             frame->status = STATUS_ERROR;
             return 0;
         }
-        frame->payload_len = *((int16_t*)&data[index]);
-        index += 2;
+        frame->payload_len  = ((uint64_t)(uint8_t)data[index++]) << 8;
+        frame->payload_len += ((uint64_t)(uint8_t)data[index++]);
     }
 
     if (frame->mask) {
