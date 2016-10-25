@@ -67,9 +67,13 @@ corto_int16 _server_DDP_Collection_construct(
           corto_parentof(
             corto_parentof(this)))));
 
-    corto_listen(this, server_DDP_Collection_onAdded_o, 0, this->obj, server);
-    corto_listen(this, server_DDP_Collection_onChanged_o, 0, this->obj, server);
-    corto_listen(this, server_DDP_Collection_onRemoved_o, 0, this->obj, server);
+    corto_setref(&server_DDP_Collection_onAdded_o->dispatcher, server);
+    corto_setref(&server_DDP_Collection_onChanged_o->dispatcher, server);
+    corto_setref(&server_DDP_Collection_onRemoved_o->dispatcher, server);
+
+    corto_observer_observe(server_DDP_Collection_onAdded_o, this, this->obj);
+    corto_observer_observe(server_DDP_Collection_onChanged_o, this, this->obj);
+    corto_observer_observe(server_DDP_Collection_onRemoved_o, this, this->obj);
 
     return 0;
 /* $end */
@@ -85,9 +89,9 @@ corto_void _server_DDP_Collection_destruct(
           corto_parentof(
             corto_parentof(this)))));
 
-    corto_silence(this, server_DDP_Collection_onAdded_o, 0, this->obj);
-    corto_silence(this, server_DDP_Collection_onChanged_o, 0, this->obj);
-    corto_silence(this, server_DDP_Collection_onRemoved_o, 0, this->obj);
+    corto_observer_unobserve(server_DDP_Collection_onAdded_o, this, this->obj);
+    corto_observer_unobserve(server_DDP_Collection_onChanged_o, this, this->obj);
+    corto_observer_unobserve(server_DDP_Collection_onRemoved_o, this, this->obj);
 
     server_DDP_purge(server, this);
 
@@ -96,17 +100,19 @@ corto_void _server_DDP_Collection_destruct(
 
 corto_void _server_DDP_Collection_onAdded(
     server_DDP_Collection this,
-    corto_object observable)
+    corto_eventMask event,
+    corto_object object,
+    corto_observer observer)
 {
 /* $begin(corto/web/server/DDP/Collection/onAdded) */
     server_DDP_Session session = server_DDP_Collection_getSession(this);
-    corto_string json = server_DDP_Collection_getJson(this, observable);
+    corto_string json = server_DDP_Collection_getJson(this, object);
     corto_string msg;
     corto_asprintf(
         &msg,
         SERVER_DDP_COLLECTION_ADDED,
         corto_path(NULL, root_o, this->obj, "/"),
-        corto_idof(observable),
+        corto_idof(object),
         json);
 
     server_SockJs_write(session->conn, msg);
@@ -118,19 +124,21 @@ corto_void _server_DDP_Collection_onAdded(
 
 corto_void _server_DDP_Collection_onChanged(
     server_DDP_Collection this,
-    corto_object observable)
+    corto_eventMask event,
+    corto_object object,
+    corto_observer observer)
 {
 /* $begin(corto/web/server/DDP/Collection/onChanged) */
 
     server_DDP_Session session = server_DDP_Collection_getSession(this);
-    corto_string json = server_DDP_Collection_getJson(this, observable);
+    corto_string json = server_DDP_Collection_getJson(this, object);
     corto_string msg;
 
     corto_asprintf(
         &msg,
         SERVER_DDP_COLLECTION_CHANGED,
         corto_path(NULL, root_o, this->obj, "/"),
-        corto_idof(observable),
+        corto_idof(object),
         json);
 
     server_SockJs_write(session->conn, msg);
@@ -142,7 +150,9 @@ corto_void _server_DDP_Collection_onChanged(
 
 corto_void _server_DDP_Collection_onRemoved(
     server_DDP_Collection this,
-    corto_object observable)
+    corto_eventMask event,
+    corto_object object,
+    corto_observer observer)
 {
 /* $begin(corto/web/server/DDP/Collection/onRemoved) */
     server_DDP_Session session = server_DDP_Collection_getSession(this);
@@ -151,7 +161,7 @@ corto_void _server_DDP_Collection_onRemoved(
         &msg,
         SERVER_DDP_COLLECTION_REMOVED,
         corto_path(NULL, root_o, this->obj, "/"),
-        corto_idof(observable));
+        corto_idof(object));
 
     server_SockJs_write(session->conn, msg);
 

@@ -34,6 +34,7 @@ corto_int16 _server_Files_onRequest(
         strlen(uri) ? uri : "index.html");
 
     if (corto_fileTest(file)) {
+        corto_trace("Files: serving %s", file);
         server_HTTP_Request_sendfile(r, file);
     } else {
         corto_string msg;
