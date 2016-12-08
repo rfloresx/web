@@ -7,7 +7,7 @@
 #define CORTO_WEB_SERVER_H
 
 #include <corto/corto.h>
-#include <corto/web/server/_interface.h>
+#include <corto/web/server/_project.h>
 #include <corto/web/web.h>
 #include <corto/fmt/json/json.h>
 #include <event2/event2.h>
@@ -16,7 +16,7 @@
 
 #include <corto/web/server/_type.h>
 #include <corto/web/server/_api.h>
-#include <corto/web/server/_meta.h>
+#include <corto/web/server/_load.h>
 
 #ifdef __cplusplus
 extern "C" {

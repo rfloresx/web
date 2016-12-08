@@ -126,9 +126,9 @@ void server_REST_apiGet(
                 corto_buffer_append(&response , ",\"parent\":\"%s\"",
                   result.parent);
             }
-            if (result.mount) {
+            if (result.owner) {
                 corto_buffer_append(&response , ",\"owner\":\"%s\"",
-                  corto_fullpath(NULL, result.mount));
+                  corto_fullpath(NULL, result.owner));
             }
             corto_buffer_append(&response, "}");
         }
