@@ -8,7 +8,7 @@
 #define corto_web__API_H
 
 #include "corto.h"
-#include "web__interface.h"
+#include "web__project.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

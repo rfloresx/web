@@ -126,9 +126,21 @@ void server_REST_apiGet(
                 corto_buffer_append(&response , ",\"parent\":\"%s\"",
                   result.parent);
             }
-            if (result.mount) {
+            if (result.owner) {
+                corto_id id;
+                char *escaped = id;
+                corto_fullpath(id, result.owner);
+
+                if (!corto_checkAttr(result.owner, CORTO_ATTR_SCOPED)) {
+                    int length = stresc(NULL, 0, id);
+                    escaped = corto_alloc(length + 1);
+                    stresc(escaped, length + 1, id);
+                }
                 corto_buffer_append(&response , ",\"owner\":\"%s\"",
-                  corto_fullpath(NULL, result.mount));
+                  escaped);
+                if (escaped != id) {
+                    corto_dealloc(escaped);
+                }
             }
             corto_buffer_append(&response, "}");
         }
