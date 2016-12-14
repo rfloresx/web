@@ -127,7 +127,6 @@ void server_REST_apiGet(
                   result.parent);
             }
             if (result.owner) {
-<<<<<<< HEAD
                 corto_id id;
                 char *escaped = id;
                 corto_fullpath(id, result.owner);
@@ -142,10 +141,6 @@ void server_REST_apiGet(
                 if (escaped != id) {
                     corto_dealloc(escaped);
                 }
-=======
-                corto_buffer_append(&response , ",\"owner\":\"%s\"",
-                  corto_fullpath(NULL, result.owner));
->>>>>>> origin/master
             }
             corto_buffer_append(&response, "}");
         }
