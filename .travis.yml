@@ -2,6 +2,13 @@ language: c
 
 sudo: false
 
+os:
+  - linux
+
+# Trusty is necessary and Precise is unusable because the latter is missing
+# libc 2.17 `libevent-2.1.so.5`.
+dist: trusty
+
 install:
   - cd ..
   - mkdir cortoproject
@@ -21,7 +28,7 @@ install:
   - for g in $(find . -name .git); do echo -e "$(basename $(dirname $g))\t$(git --git-dir $g rev-parse HEAD)"; done | column -t
   - source corto/configure
   - rake
-  - cd web
+  - cd web/server/test && rake && cd -
 
 script:
-  - rake test
+  - cd web/server && corto test && cd -
