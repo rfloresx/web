@@ -21,7 +21,7 @@ corto_void _test_RouterTest_tc_GetEndpointUnknown(
     test_TestRouter router = test_TestRouterCreate(3000, "");
     web_client_Result result = web_client_get("localhost:3000/endpoint-that-doesnt-exist", "");
     test_assertint(result.status, 404);
-    test_assertstr(result.response, "Resource '/endpoint-that-doesnt-exist' not found: unknown endpoint");
+    test_assertstr(result.response, "Resource not found: GET /endpoint-that-doesnt-exist");
     corto_delete(router);
 /* $end */
 }

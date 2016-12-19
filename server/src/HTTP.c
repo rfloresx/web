@@ -204,7 +204,7 @@ corto_void _server_HTTP_doRequest(
 
     if (!handled) {
         corto_string str;
-        corto_asprintf(&str, "Resource '%s' not found: unknown endpoint", r->uri);
+        corto_asprintf(&str, "Resource not found: %s %s", _server_HTTP_getMethodName(r->method), r->uri);
         server_HTTP_Request_setStatus(r, 404);
         server_HTTP_Request_reply(r, str);
         corto_dealloc(str);
