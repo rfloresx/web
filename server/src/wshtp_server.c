@@ -318,7 +318,7 @@ static void ws_read_cb(evbev_t * bev, void *arg) {
     evbuf_t *in = bufferevent_get_input(bev);
     size_t data_len = evbuffer_get_length(in);
     void *data = evbuffer_pullup(in, data_len);
-    
+
     ws_frame_t frame;
 
     size_t nread = ws_parse_frame(data, data_len, &frame);
@@ -917,22 +917,18 @@ void wshtp_send_reply(wshtp_conn_t *conn) {
 }
 
 void wshtp_send_file(wshtp_conn_t *conn, const char *filename) {
-    int fd = open(filename, O_RDONLY);
-    if (fd >= 0) {
-        off_t size = lseek(fd, 0L, SEEK_END);
-        lseek(fd, 0L, SEEK_SET);
-        if (conn->is_websocket) {
-
-        } else {
+    if (conn->is_websocket) {
+    } else {
+        int fd = open(filename, O_RDONLY);
+        if (fd >= 0) {
+            off_t size = lseek(fd, 0L, SEEK_END);
+            lseek(fd, 0L, SEEK_SET);
             const char * type = get_mime_type(filename);
             wshtp_add_header(conn, "Content-Type", type);
-            int read = 0;
-            while (read < size) {
-                read += evbuffer_read(conn->reply.out, fd, size - read);
-            }
+            evbuffer_add_file(conn->reply.out, fd, 0, size);
             wshtp_send_reply(conn);
+            close(fd);
         }
-        close(fd);
     }
 }
 
