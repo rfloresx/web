@@ -27,11 +27,17 @@ corto_int16 _server_Files_onRequest(
 {
 /* $begin(corto/web/server/Files/onRequest) */
     corto_string file;
+    corto_string request = uri;
+
+    if (!uri || !strlen(uri) || !strcmp(uri, "/")) {
+        request = "index.html";
+    }
+
     corto_asprintf(
         &file,
         "%s/%s",
         this->path,
-        strlen(uri) ? uri : "index.html");
+        request);
 
     if (corto_fileTest(file)) {
         corto_trace("Files: serving %s", file);
