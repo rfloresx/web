@@ -9,7 +9,8 @@
 #include <corto/corto.h>
 #include <corto/web/client/_project.h>
 #include <corto/web/web.h>
-#include <corto/web/web.h>
+#include <corto/core/c/c.h>
+#include <corto/lang/c/c.h>
 
 #include <corto/web/client/_type.h>
 
