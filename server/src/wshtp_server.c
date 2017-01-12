@@ -757,7 +757,7 @@ wshtp_server_t *wshtp_server_new() {
         wshtp_server_free(ret);
         return NULL;
     }
-    ret->htp->bev_flags |= BEV_OPT_THREADSAFE;
+    ret->htp->bev_flags |= BEV_OPT_THREADSAFE | BEV_OPT_DEFER_CALLBACKS | BEV_OPT_UNLOCK_CALLBACKS;
     return ret;
 }
 
