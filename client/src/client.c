@@ -118,7 +118,7 @@ error:
 /* $end */
 }
 
-int clientMain(int argc, char* argv[]) {
+int clientMain(int argc, char *argv[]) {
 /* $begin(main) */
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
