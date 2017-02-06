@@ -8,7 +8,7 @@
 
 #include <corto/web/web.h>
 
-int webMain(int argc, char* argv[]) {
+int webMain(int argc, char *argv[]) {
 /* $begin(main) */
 
     /* Insert code that must be run when component is loaded */

@@ -34,7 +34,7 @@ corto_int32 _server_Router_matchRoute(
     }
 
     if (match) {
-        result = corto_routerimpl_matchRoute_v(this, route, pattern, param);
+        result = corto_routerimpl_matchRoute_v(this, route, pattern, param, NULL);
     }
 
     return result;

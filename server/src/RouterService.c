@@ -58,8 +58,8 @@ corto_int16 _server_RouterService_onRequest(
     corto_string resultStr = NULL;
     corto_any result = {corto_type(corto_string_o), &resultStr, FALSE};
     corto_any param = {corto_type(server_HTTP_Request_o), r, FALSE};
-
-    if (corto_router_match(this, uri, param, result)) {
+    corto_route route;
+    if (corto_router_match(this, uri, param, result, &route)) {
         goto nomatch;
     } else {
         if (resultStr) {

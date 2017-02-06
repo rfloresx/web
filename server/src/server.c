@@ -153,7 +153,7 @@ corto_string _server_typedescriptor(
 /* $end */
 }
 
-int serverMain(int argc, char* argv[]) {
+int serverMain(int argc, char *argv[]) {
 /* $begin(main) */
     /* Insert code that must be run when component is loaded */
     CORTO_UNUSED(argc);
