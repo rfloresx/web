@@ -1,10 +1,22 @@
+/* $CORTO_GENERATED
+ *
+ * event2.c
+ *
+ * Only code written between the begin and end tags will be preserved
+ * when the file is regenerated.
+ */
 
-/* Add implementation here */
+#include <event2/event2.h>
 
-/* cortomain is called when the package is loaded by Corto. It is a good
- * place for initialization code that needs to be executed once.
- * The function can be safely removed if not needed. */
+/* $header() */
+/* Enter code outside of main here. */
+/* $end */
+
 int event2Main(int argc, char *argv[]) {
+/* $begin(main) */
+
+    /* Insert implementation */
 
     return 0;
+/* $end */
 }

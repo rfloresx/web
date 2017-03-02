@@ -7,6 +7,7 @@
 #define CORTO_WEB_SERVER_H
 
 #include <corto/corto.h>
+#include <corto/corto.h>
 #include <corto/web/server/_project.h>
 #include <evhtp/evhtp.h>
 #include <event2/event2.h>
@@ -15,22 +16,33 @@
 #include <corto/core/c/c.h>
 #include <corto/lang/c/c.h>
 
+/* $header() */
+/* Enter additional code here. */
+/* $end */
+
 #include <corto/web/server/_type.h>
-#include <corto/web/server/_api.h>
 #include <corto/web/server/_load.h>
+#include <corto/web/server/_api.h>
+
+/* $body() */
+/* Enter code that requires types here */
+/* $end */
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-CORTO_WEB_SERVER_EXPORT corto_string _server_random(
-    corto_uint16 n);
 #define server_random(n) _server_random(n)
+CORTO_WEB_SERVER_EXPORT
+corto_string _server_random(
+    corto_uint16 n);
 
-CORTO_WEB_SERVER_EXPORT corto_string _server_typedescriptor(
-    corto_type type);
 #define server_typedescriptor(type) _server_typedescriptor(corto_type(type))
+CORTO_WEB_SERVER_EXPORT
+corto_string _server_typedescriptor(
+    corto_type type);
+
 #include <corto/web/server/DDP.h>
 #include <corto/web/server/DDP_Collection.h>
 #include <corto/web/server/DDP_Publication.h>
@@ -56,5 +68,6 @@ CORTO_WEB_SERVER_EXPORT corto_string _server_typedescriptor(
 #ifdef __cplusplus
 }
 #endif
+
 #endif
 
