@@ -12,7 +12,8 @@ corto_int32 _server_Router_matchRoute(
     server_Router this,
     corto_route route,
     corto_stringseq pattern,
-    corto_any param)
+    corto_any param,
+    corto_any router)
 {
 /* $begin(corto/web/server/Router/matchRoute) */
     corto_assert(

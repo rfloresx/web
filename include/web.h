@@ -7,21 +7,31 @@
 #define CORTO_WEB_H
 
 #include <corto/corto.h>
+#include <corto/corto.h>
 #include <corto/web/_project.h>
 #include <corto/core/c/c.h>
 #include <corto/lang/c/c.h>
 
+/* $header() */
+/* Enter additional code here. */
+/* $end */
+
 #include <corto/web/_type.h>
-#include <corto/web/_api.h>
 #include <corto/web/_load.h>
+#include <corto/web/_api.h>
+
+/* $body() */
+/* Enter code that requires types here */
+/* $end */
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
+
 #endif
 
