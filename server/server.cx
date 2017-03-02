@@ -204,7 +204,7 @@ procedure DELETE: Method, base = core/route
 
 // Router template that defines route signature and match function
 core/router Router: returnType=string paramType=HTTP/Request paramName="request"::
-  int32 matchRoute(core/route route, stringseq pattern, any param)
+  int32 matchRoute(core/route route, stringseq pattern, any param, any routerData)
 
 // Utility class that maps HTTP requests to route/match
 Router RouterService: Service::
