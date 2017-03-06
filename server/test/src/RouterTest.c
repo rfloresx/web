@@ -51,6 +51,18 @@ corto_void _test_RouterTest_tc_GetMessage(
 /* $end */
 }
 
+corto_void _test_RouterTest_tc_GetMessageWithUriParam(
+    test_RouterTest this)
+{
+/* $begin(test/RouterTest/tc_GetMessageWithUriParam) */
+    test_TestRouter router = test_TestRouterCreate(3000, "");
+    web_client_Result result = web_client_get("localhost:3000/add/sugar", "");
+    test_assertint(result.status, 200);
+    test_assertstr(result.response, "Added sugar!");
+    corto_delete(router);
+/* $end */
+}
+
 corto_void _test_RouterTest_tc_GetRouteWithCommonParts(
     test_RouterTest this)
 {

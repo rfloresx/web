@@ -29,6 +29,19 @@ corto_string _test_TestRouter_add(
 /* $end */
 }
 
+corto_string _test_TestRouter_addSomething(
+    test_TestRouter this,
+    server_HTTP_Request *request,
+    corto_string something)
+{
+/* $begin(test/TestRouter/addSomething) */
+    corto_string name = server_HTTP_Request_getVar(request, "name");
+    corto_string buffer = NULL;
+    corto_asprintf(&buffer, "Added %s!", something);
+    return buffer;
+/* $end */
+}
+
 corto_string _test_TestRouter_getMessage(
     test_TestRouter this,
     server_HTTP_Request *request)
