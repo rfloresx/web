@@ -1,1 +1,4 @@
 #package corto/web
+
+string escapeToRequest(string url)
+string escapeFromRequest(string data)

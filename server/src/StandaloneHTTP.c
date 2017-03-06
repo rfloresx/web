@@ -70,11 +70,19 @@ static int server_StandaloneHTTP_onRequest(
         (char*)wshtp_request_get_path(conn),
         method,
         (corto_word)conn,
-        false
+        false,
+        NULL
     };
     int result;
     server_HTTP_doRequest(this, c, &r);
     result = EVHTP_RES_OK;
+    if (r.garbage) {
+        corto_iter it = corto_llIter(r.garbage);
+        while (corto_iterHasNext(&it)) {
+            corto_dealloc(corto_iterNext(&it));
+        }
+        corto_llFree(r.garbage);
+    }
     return result;
 }
 

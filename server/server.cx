@@ -34,6 +34,7 @@ class HTTP::
         method: HTTP::method
         conn: word, private|local
         file: bool, private|local
+        garbage: list{string} // to be cleaned up when request is handled
 
     port: uint16
     pollInterval: uint16

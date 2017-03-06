@@ -98,12 +98,19 @@ corto_string _server_HTTP_Request_getVar(
     corto_string id)
 {
 /* $begin(corto/web/server/HTTP/Request/getVar) */
-    char *value;
+    char *value, *escaped;
     value = (char *)wshtp_request_get_var((wshtp_conn_t*)this->conn, id);
     if (value == NULL) {
         value = "";
     }
-    return value;
+    escaped = web_escapeFromRequest(value);
+    if (escaped) {
+        if (!this->garbage) {
+            this->garbage = corto_llNew();
+        }
+        corto_llInsert(this->garbage, escaped);
+    }
+    return escaped ? escaped : value;
 /* $end */
 }
 

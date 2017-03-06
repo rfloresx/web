@@ -29,6 +29,17 @@
 extern "C" {
 #endif
 
+#define web_escapeFromRequest(data) _web_escapeFromRequest(data)
+CORTO_WEB_EXPORT
+corto_string _web_escapeFromRequest(
+    corto_string data);
+
+#define web_escapeToRequest(url) _web_escapeToRequest(url)
+CORTO_WEB_EXPORT
+corto_string _web_escapeToRequest(
+    corto_string url);
+
+
 #ifdef __cplusplus
 }
 #endif
