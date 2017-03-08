@@ -40,13 +40,8 @@ void server_REST_apiGet(
     if (!strcmp(server_HTTP_Request_getVar(r, "td"), "true")) { descriptor = TRUE; }
     offset = atoi(server_HTTP_Request_getVar(r, "offset"));
     limit = atoi(server_HTTP_Request_getVar(r, "limit"));
-    augmentFilter = server_HTTP_Request_getVar(r, "augment");
     typeFilter = server_HTTP_Request_getVar(r, "type");
-    if (*augmentFilter) {
-        augment = TRUE;
-    } else {
-        augmentFilter = NULL;
-    }
+
     if (!*typeFilter) {
         typeFilter = NULL;
     }
@@ -70,7 +65,6 @@ void server_REST_apiGet(
 
         ret = corto_select(uriWithRoot, select)
           .limit(offset, limit)
-          .augment(augmentFilter)
           .type(typeFilter)
           .contentType("text/json")
           .iter(&iter);
@@ -143,24 +137,6 @@ void server_REST_apiGet(
                 }
             }
             corto_buffer_append(&response, "}");
-        }
-
-        if (augment) {
-            corto_buffer_append( &response, ",\"augments\":[");
-            if (result.augments.length) {
-                corto_int32 i;
-                corto_augmentData *augmentData;
-                for (i = 0; i < result.augments.length; i++) {
-                    augmentData = &result.augments.buffer[i];
-                    corto_buffer_append(
-                        &response,
-                        "%s%s{\"name\":\"%s\",\"value\":%s}",
-                        i ? "," : "",
-                        augmentData->id,
-                        (corto_string)augmentData->data);
-                }
-            }
-            corto_buffer_append(&response, "]");
         }
 
         if (value) {

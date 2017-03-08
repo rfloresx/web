@@ -13,7 +13,6 @@ class TestRouter: web/server/RouterService::
     web/server/GET add: "/add"
     web/server/GET addSomething: "/add/$something"
     web/server/GET getMessage: "/message"
-
     web/server/POST post_users: "/users"
 
 test::Suite RouterTest::

@@ -39,7 +39,7 @@ corto_int16 _server_Files_onRequest(
         this->path,
         request);
 
-    if (corto_fileTest(file)) {
+    if (corto_fileTest("%s", file)) {
         corto_trace("Files: serving '%s'", file);
         server_HTTP_Request_sendfile(r, file);
     } else {
