@@ -313,46 +313,73 @@ static int do_ws_handshake(evhtp_request_t *req) {
 }
 
 static void ws_read_cb(evbev_t * bev, void *arg) {
+    size_t data_len = 0;
+
     wshtp_conn_t *conn = (wshtp_conn_t*)arg;
 
     evbuf_t *in = bufferevent_get_input(bev);
-    size_t data_len = evbuffer_get_length(in);
-    void *data = evbuffer_pullup(in, data_len);
 
-    ws_frame_t frame;
+    bufferevent_lock(bev);
 
-    size_t nread = ws_parse_frame(data, data_len, &frame);
-    if (frame.status == STATUS_OK) {
-        if (conn->data.content) {
-            free(conn->data.content);
+    while ( (data_len = evbuffer_get_length(in)) ){
+        void *data = evbuffer_pullup(in, data_len);
+
+        ws_frame_t frame;
+        size_t nread = ws_parse_frame(data, data_len, &frame);
+
+        if (frame.status == STATUS_OK) {
+            if (conn->data.content) {
+                free(conn->data.content);
+            }
+            conn->data.content = frame.data;
+            conn->data.size = frame.payload_len;
+
+            if (frame.opcode == OP_TEXT) {
+                conn->data.type = WS_DATA_TEXT;
+                conn->method = WSHTP_ON_MESSAGE;
+            } else if (frame.opcode == OP_BIN) {
+                conn->data.type = WS_DATA_BINARY;
+                conn->method = WSHTP_ON_MESSAGE;
+            } else if (frame.opcode == OP_CLOSE) {
+                conn->method = WSHTP_ON_CLOSE;
+            }
+
+            if (conn->method == WSHTP_ON_CLOSE)
+            {
+                evbuffer_drain(in, data_len);
+            }
+            else
+            {
+                evbuffer_drain(in, nread);
+
+                bufferevent_unlock(bev);
+
+                wshtp_hooks_call(conn->server, conn->method, conn);
+
+                bufferevent_lock(bev);
+            }
+        }else {
+            evbuffer_drain(in, data_len);
         }
-        conn->data.content = frame.data;
-        conn->data.size = frame.payload_len;
-
-        if (frame.opcode == OP_TEXT) {
-            conn->data.type = WS_DATA_TEXT;
-            conn->method = WSHTP_ON_MESSAGE;
-        } else if (frame.opcode == OP_BIN) {
-            conn->data.type = WS_DATA_BINARY;
-            conn->method = WSHTP_ON_MESSAGE;
-        } else if (frame.opcode == OP_CLOSE) {
-            conn->method = WSHTP_ON_CLOSE;
-        }
-        evbuffer_drain(in, nread);
-    }else {
-        evbuffer_drain(in, data_len);
     }
 
-    wshtp_hooks_call(conn->server, conn->method, conn);
+    bufferevent_unlock(bev);
 }
 
 static void ws_event_cb(evbev_t *bev, short what, void *args) {
     wshtp_conn_t *conn = args;
 
+    bufferevent_lock(bev);
     if (what & BEV_EVENT_EOF || what & BEV_EVENT_ERROR || what & BEV_EVENT_TIMEOUT) {
         conn->method = WSHTP_ON_CLOSE;
+
+        bufferevent_unlock(bev);
+
         wshtp_hooks_call(conn->server, conn->method, conn);
+
+        bufferevent_lock(bev);
     }
+    bufferevent_unlock(bev);
 }
 
 
@@ -419,6 +446,7 @@ static size_t ws_parse_frame(const char *data, size_t data_len, ws_frame_t *fram
                 frame->data[i] = frame->data[i] ^ mask_key[j];
             }
         }
+        frame->data[frame->payload_len] = '\0';
         index += frame->payload_len;
     }
     return index;
