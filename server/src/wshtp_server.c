@@ -51,6 +51,37 @@
 /* ***********************************
  * Private Structs:
  * ***********************************/
+// frame link list
+typedef struct frame_node_s {
+    void *data;
+    size_t length;
+    struct frame_node_s *next;
+} frame_node_t;
+
+// root frame buffer
+struct ws_buffer_s {
+    frame_node_t *root;
+    frame_node_t **head;
+};
+
+// create a new frame buffer object
+ws_buffer_t *ws_buffer_new();
+
+// clean managed data without releasing the frame buffer object
+void ws_buffer_reset(ws_buffer_t *fbuf);
+
+// release frame buffer object and clean memory
+void ws_buffer_free(ws_buffer_t *fbuf);
+
+// insert data to the frame buffer object
+// the frame buffer take ownership of the data don't delete passed data
+void ws_buffer_append_data(ws_buffer_t *fbuf, void *data, size_t length);
+
+// get the data of the ws_buffer in a continuous array
+void* ws_buffer_get_data(ws_buffer_t *fbuf, size_t *length);
+
+
+//
 typedef struct wshtp_hook_s {
     bool valid;
     wshtp_hook_cb cb;
@@ -254,8 +285,10 @@ static wshtp_conn_t *wshtp_conn_new(wshtp_server_t *server, evhtp_connection_t *
     if (conn == NULL) {
         return NULL;
     }
+
     wsconn->server = server;
     wsconn->conn = conn;
+
     return wsconn;
 }
 
@@ -263,6 +296,10 @@ static void wshtp_conn_free(wshtp_conn_t *conn) {
     if (conn) {
         if (conn->free_cb && conn->userdata) {
             conn->free_cb(conn, conn->userdata);
+        }
+        if (conn->data.ws_frames) {
+            ws_buffer_free(conn->data.ws_frames);
+            conn->data.ws_frames = NULL;
         }
         free(conn);
     }
@@ -325,14 +362,10 @@ static void ws_read_cb(evbev_t * bev, void *arg) {
         void *data = evbuffer_pullup(in, data_len);
 
         ws_frame_t frame;
+
         size_t nread = ws_parse_frame(data, data_len, &frame);
 
         if (frame.status == STATUS_OK) {
-            if (conn->data.content) {
-                free(conn->data.content);
-            }
-            conn->data.content = frame.data;
-            conn->data.size = frame.payload_len;
 
             if (frame.opcode == OP_TEXT) {
                 conn->data.type = WS_DATA_TEXT;
@@ -344,25 +377,45 @@ static void ws_read_cb(evbev_t * bev, void *arg) {
                 conn->method = WSHTP_ON_CLOSE;
             }
 
-            if (conn->method == WSHTP_ON_CLOSE)
-            {
-                evbuffer_drain(in, data_len);
+            if (frame.fin == 0 || frame.opcode == OP_CONT) {
+                if (conn->data.ws_frames == NULL) {
+                    conn->data.ws_frames = ws_buffer_new();
+                }
+                ws_buffer_append_data(conn->data.ws_frames, frame.data, frame.payload_len);
             }
-            else
-            {
+
+            if (conn->method == WSHTP_ON_CLOSE) {
+                evbuffer_drain(in, data_len);
+            } else {
                 evbuffer_drain(in, nread);
+            }
+
+            if (frame.fin) {
+                if (conn->data.ws_frames) {
+                    conn->data.content = ws_buffer_get_data(conn->data.ws_frames, &conn->data.size);
+                    ws_buffer_free(conn->data.ws_frames);
+                    conn->data.ws_frames = NULL;
+                } else {
+                    conn->data.content = frame.data;
+                    conn->data.size = frame.payload_len;
+                }
 
                 bufferevent_unlock(bev);
 
                 wshtp_hooks_call(conn->server, conn->method, conn);
 
                 bufferevent_lock(bev);
+
+                free(conn->data.content);
+                conn->data.content = NULL;
+                conn->data.size = 0;
             }
-        }else {
-            evbuffer_drain(in, data_len);
+        } else {
+            break;
         }
     }
 
+    // free fragments
     bufferevent_unlock(bev);
 }
 
@@ -437,8 +490,9 @@ static size_t ws_parse_frame(const char *data, size_t data_len, ws_frame_t *fram
             frame->status = STATUS_ERROR;
             return 0;
         }
-        frame->data = malloc(frame->payload_len+1);
-        memcpy(frame->data, &data[index], frame->payload_len);
+        frame->data = malloc(frame->payload_len);
+        memcpy(frame->data, &data[index], frame->payload_len+1);
+
         if (frame->mask) {
             char *mask_key = (char *)&frame->mask_key;
             for (int i = 0; i < frame->payload_len; i++) {
@@ -854,7 +908,6 @@ void wshtp_conn_set_userdata(wshtp_conn_t *conn, void *data, wshtp_free_cb cb) {
     conn->free_cb = cb;
 }
 
-
 int wshtp_get_data_size(wshtp_conn_t *conn) {
     return conn->data.size;
 }
@@ -905,7 +958,6 @@ void wshtp_add_header(wshtp_conn_t *conn, const char *key, const char *val) {
     evhtp_headers_add_header(conn->reply.headers, evhtp_header_new(key, val, 1,1));
 }
 
-
 void wshtp_body_add_text(wshtp_conn_t *conn, const char *data) {
     evbuffer_add(conn->reply.out, data, strlen(data));
 }
@@ -913,7 +965,6 @@ void wshtp_body_add_text(wshtp_conn_t *conn, const char *data) {
 void wshtp_body_add_data(wshtp_conn_t *conn, const void *data, size_t size) {
     evbuffer_add(conn->reply.out, data, size);
 }
-
 
 void wshtp_send_data(wshtp_conn_t *conn, const void *data, size_t size) {
     if (conn->is_websocket) {
@@ -961,4 +1012,65 @@ void wshtp_send_file(wshtp_conn_t *conn, const char *filename) {
 }
 
 
-//
+/* ***********************************
+ *  Frame Buffer
+ * ***********************************/
+ws_buffer_t *ws_buffer_new() {
+    ws_buffer_t *fbuf = (ws_buffer_t *)calloc(1, sizeof(ws_buffer_t));
+    if (fbuf == NULL) {
+        return NULL;
+    }
+    fbuf->head = &fbuf->root;
+    return fbuf;
+}
+
+void ws_buffer_reset(ws_buffer_t *fbuf) {
+    frame_node_t *next = fbuf->root;
+    while(next != NULL) {
+        frame_node_t *temp = next;
+        next = next->next;
+        free(temp->data);
+        free(temp);
+    }
+
+    fbuf->root = NULL;
+    fbuf->head = &fbuf->root;
+}
+
+void ws_buffer_free(ws_buffer_t *fbuf) {
+    ws_buffer_reset(fbuf);
+    free(fbuf);
+}
+
+void ws_buffer_append_data(ws_buffer_t *fbuf, void *data, size_t length) {
+    frame_node_t *nframe = (frame_node_t*)calloc(1, sizeof(frame_node_t));
+    (*fbuf->head) = nframe;
+    (*fbuf->head)->data = data;
+    (*fbuf->head)->length = length;
+    fbuf->head = &((*fbuf->head)->next);
+}
+
+void* ws_buffer_get_data(ws_buffer_t *fbuf, size_t *length) {
+    void *data = NULL;
+    size_t size = 0;
+
+    frame_node_t *next =fbuf->root;
+
+    while (next != NULL) {
+        size += next->length;
+        next = next->next;
+    }
+
+    data = malloc((size)+1);
+
+    next = fbuf->root;
+    int8_t *buffer = (int8_t*)data;
+    while (next != NULL) {
+        memcpy(buffer, next->data, next->length);
+        buffer = buffer + next->length;
+        next = next->next;
+    }
+    *buffer = 0;
+    *length = size;
+    return data;
+}

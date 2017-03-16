@@ -38,6 +38,8 @@
 extern "C" {
 #endif
 
+typedef struct ws_buffer_s ws_buffer_t;
+
 typedef struct wshtp_conn_s wshtp_conn_t;
 typedef struct wshtp_server_s wshtp_server_t;
 typedef struct wshtp_hooks_s wshtp_hooks_t;
@@ -70,12 +72,13 @@ struct wshtp_conn_s {
 
     bool is_websocket;
     bool is_open;
+
     struct {
         enum ws_data_type_e type;
         char *content;
         size_t size;
+        ws_buffer_t *ws_frames;
     } data;
-
 
     struct {
         evhtp_res code;
