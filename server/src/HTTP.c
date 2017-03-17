@@ -53,9 +53,9 @@ corto_void _server_HTTP_addService(
     server_Service s)
 {
 /* $begin(corto/web/server/HTTP/addService) */
-    corto_trace("HTTP: register %s service (%p)",
-      corto_fullpath(NULL, corto_typeof(s)), s);
+
     server_ServiceListAppend(this->services, s);
+    corto_ok("HTTP: registered '%s' service", corto_fullpath(NULL, corto_typeof(s)));
 
 /* $end */
 }
@@ -91,7 +91,6 @@ corto_void _server_HTTP_doClose(
 /* $begin(corto/web/server/HTTP/doClose) */
 
     server_ServiceListForeach(this->services, s) {
-        corto_trace("HTTP: %p: close", c);
         server_Service_onClose(s, c);
     }
 
@@ -108,7 +107,6 @@ corto_void _server_HTTP_doMessage(
 /* $begin(corto/web/server/HTTP/doMessage) */
 
     server_ServiceListForeach(this->services, s) {
-        corto_trace("HTTP: %p: message (%s)", c, msg);
         server_Service_onMessage(s, c, msg);
     }
 
@@ -124,7 +122,6 @@ corto_void _server_HTTP_doOpen(
     server_HTTP_ConnectionListAppend(this->connections, c);
 
     server_ServiceListForeach(this->services, s) {
-        corto_trace("HTTP: %p: open", c);
         server_Service_onOpen(s, c);
     }
 
@@ -180,19 +177,21 @@ corto_void _server_HTTP_doRequest(
                 break;
             }
 
+            /* Log if method-specific handlers were invoked */
             if (handled) {
-                corto_trace(
-                  "HTTP: %s %s => %s",
+                corto_ok(
+                  "HTTP: %s: %s '%s'",
+                  corto_idof(corto_typeof(s)),
                   _server_HTTP_getMethodName(r->method),
-                  r->uri,
-                  corto_idof(corto_typeof(s)));
+                  r->uri);
             }
 
+            /* Log if generic handler was invoked */
             if (server_Service_onRequest(s, c, r, uri)) {
-                corto_trace("HTTP: %s %s => %s",
+                corto_ok("HTTP: %s: %s '%s'",
+                    corto_idof(corto_typeof(s)),
                     _server_HTTP_getMethodName(r->method),
-                    r->uri,
-                    corto_idof(corto_typeof(s)));
+                    r->uri);
                 handled = TRUE;
             }
 
@@ -204,11 +203,11 @@ corto_void _server_HTTP_doRequest(
 
     if (!handled) {
         corto_string str;
-        corto_asprintf(&str, "Resource not found: %s %s", _server_HTTP_getMethodName(r->method), r->uri);
+        corto_asprintf(&str, "Resource not found: %s '%s'", _server_HTTP_getMethodName(r->method), r->uri);
         server_HTTP_Request_setStatus(r, 404);
         server_HTTP_Request_reply(r, str);
         corto_dealloc(str);
-        corto_trace("HTTP: %s %s => not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
+        corto_warning("HTTP: %s '%s' not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
     }
 
 /* $end */
@@ -239,10 +238,9 @@ corto_void _server_HTTP_removeService(
     server_Service s)
 {
 /* $begin(corto/web/server/HTTP/removeService) */
-    corto_trace("HTTP: remove %s service (%p)",
-      corto_fullpath(NULL, corto_typeof(s)), s);
 
     server_ServiceListRemove(this->services, s);
+    corto_ok("HTTP: removed %s service", corto_fullpath(NULL, corto_typeof(s)));
 
 /* $end */
 }
@@ -278,8 +276,7 @@ corto_bool _server_HTTP_set(
 
     corto_mutexUnlock(&serverLock);
 
-    corto_trace("HTTP: register server %p for port %d (result=%d)",
-      server, port, result);
+    corto_ok("HTTP: running server on port %d", port);
 
     return result;
 /* $end */

@@ -18,6 +18,7 @@ static web_escape web_escapes[] = {
     {' ', "20"},
     {'$', "24"},
     {'&', "26"},
+    {'*', "2A"},
     {'`', "60"},
     {':', "3A"},
     {'<', "3C"},
@@ -85,6 +86,13 @@ corto_string _web_escapeFromRequest(
             }
             *outPtr = escapeCh;
             ptr += 2;
+            break;
+        case '+':
+            if (!out) {
+                out = corto_strdup(data);
+                outPtr = &out[ptr - data];
+            }
+            *outPtr = ' ';
             break;
         default:
             if (outPtr) *outPtr = ch;

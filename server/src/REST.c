@@ -20,10 +20,8 @@ void server_REST_apiGet(
     corto_bool value = FALSE;
     corto_bool meta = FALSE;
     corto_bool descriptor = FALSE;
-    corto_bool augment = FALSE;
     corto_uint64 offset = 0;
     corto_uint64 limit = 0;
-    corto_string augmentFilter = NULL;
     corto_string typeFilter = NULL;
     corto_bool multiple = FALSE;
     corto_int16 ret;
@@ -204,7 +202,13 @@ void server_REST_apiPut(
     char *value = server_HTTP_Request_getVar(r, "value");
     char *id = server_HTTP_Request_getVar(r, "id");
 
-    if (corto_publish(CORTO_ON_UPDATE, id, NULL, "text/json", value)) {
+    corto_id realId;
+    sprintf(realId, "/%s/%s/%s", server_Service(this)->prefix, uri, id);
+    corto_cleanpath(realId, realId);
+
+    corto_trace("REST: PUT uri='%s' id='%s' value = '%s' (computed id = %s)", uri, id, value, realId);
+
+    if (corto_publish(CORTO_ON_UPDATE, realId, NULL, "text/json", value)) {
         corto_string msg;
         corto_asprintf(&msg, "400: PUT failed: %s: id=%s, value=%s",
           corto_lasterr(), id, value);
