@@ -490,8 +490,8 @@ static size_t ws_parse_frame(const char *data, size_t data_len, ws_frame_t *fram
             frame->status = STATUS_ERROR;
             return 0;
         }
-        frame->data = malloc(frame->payload_len);
-        memcpy(frame->data, &data[index], frame->payload_len+1);
+        frame->data = malloc(frame->payload_len+1);
+        memcpy(frame->data, &data[index], frame->payload_len);
 
         if (frame->mask) {
             char *mask_key = (char *)&frame->mask_key;
