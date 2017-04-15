@@ -56,7 +56,7 @@ class HTTP::
     bool set(uint16 port, HTTP server) function
 
     // Write a websocket message to an open connection
-    void write(HTTP::Connection c, string msg) virtual
+    void write(HTTP::Connection c, string msg) overridable
 
     // Write a message to all open connections
     void broadcast(string msg)
@@ -94,38 +94,27 @@ class StandaloneHTTPS : StandaloneHTTP::
 // Service built on top of an HTTP instance
 class Service::
     port: uint16
-    prefix: string, hidden
+    prefix: string
     server: HTTP, private|local
 
     int16 construct()
     void destruct()
 
-    void onOpen(HTTP::Connection c) virtual
-    void onClose(HTTP::Connection c) virtual
-    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) virtual
-    int16 onGet(HTTP::Connection c, HTTP::Request r, string uri) virtual
-    int16 onPost(HTTP::Connection c, HTTP::Request r, string uri) virtual
-    int16 onPut(HTTP::Connection c, HTTP::Request r, string uri) virtual
-    int16 onDelete(HTTP::Connection c, HTTP::Request r, string uri) virtual
-    void onMessage(HTTP::Connection c, string msg) virtual
-    void onPoll() virtual
+    void onOpen(HTTP::Connection c) overridable
+    void onClose(HTTP::Connection c) overridable
+    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) overridable
+    int16 onGet(HTTP::Connection c, HTTP::Request r, string uri) overridable
+    int16 onPost(HTTP::Connection c, HTTP::Request r, string uri) overridable
+    int16 onPut(HTTP::Connection c, HTTP::Request r, string uri) overridable
+    int16 onDelete(HTTP::Connection c, HTTP::Request r, string uri) overridable
+    void onMessage(HTTP::Connection c, string msg) overridable
+    void onPoll() overridable
 
 // Service that serves up static content
 class Files: Service::
-    alias prefix: Service/prefix
     path: string
     int16 construct()
-    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
-
-// REST interface that provides access to Corto store
-class REST: Service::
-    alias prefix: Service/prefix
-    root: string
-    int16 construct()
-    int16 onGet(HTTP::Connection c, HTTP::Request r, string uri)
-    int16 onPost(HTTP::Connection c, HTTP::Request r, string uri)
-    int16 onPut(HTTP::Connection c, HTTP::Request r, string uri)
-    int16 onDelete(HTTP::Connection c, HTTP::Request r, string uri)
+    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) override
 
 // SockJs service
 class SockJs: Service::
@@ -133,13 +122,12 @@ class SockJs: Service::
 
     int16 construct()
 
-    void onOpen(HTTP::Connection c)
-    void onClose(HTTP::Connection c)
+    void onOpen(HTTP::Connection c) overridable
+    void onClose(HTTP::Connection c) overridable
     int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)
     void onMessage(HTTP::Connection c, string msg)
-    void onPoll() virtual
-    void onData(HTTP::Connection c, string msg) virtual
-
+    void onPoll() overridable 
+    void onData(HTTP::Connection c, string msg) overridable
     void write(HTTP::Connection c, string msg) function
 
 
@@ -189,19 +177,19 @@ class DDP: SockJs, implements={dispatcher}::
 
     int16 init()
     int16 construct()
-    void onData(HTTP::Connection c, string msg)
-    void onPoll()
-    void onClose(HTTP::Connection c)
+    void onData(HTTP::Connection c, string msg) override
+    void onPoll() override
+    void onClose(HTTP::Connection c) override
     void purge(object observable)
 
     void post(event e)
     Publication getPublication(string name)
 
 // Encode HTTP methods in type of the route
-procedure GET: Method, base = core/route
-procedure POST: Method, base = core/route
-procedure PUT: Method, base = core/route
-procedure DELETE: Method, base = core/route
+procedure GET: base = core/route
+procedure POST: base = core/route
+procedure PUT: base = core/route
+procedure DELETE: base = core/route
 
 // Router template that defines route signature and match function
 core/router Router: returnType=string paramType=HTTP/Request paramName="request"::

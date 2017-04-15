@@ -73,6 +73,7 @@ static int server_StandaloneHTTP_onRequest(
         false,
         NULL
     };
+    
     int result;
     server_HTTP_doRequest(this, c, &r);
     result = EVHTP_RES_OK;
