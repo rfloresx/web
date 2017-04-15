@@ -71,7 +71,6 @@ struct wshtp_conn_s {
     evhtp_connection_t *conn;
 
     bool is_websocket;
-    bool is_open;
 
     struct {
         enum ws_data_type_e type;

@@ -140,7 +140,7 @@ static int ws_send_frame(wshtp_conn_t *conn, bool fin, uint8_t opcode,
 
 //Callbacks
 static void wshtp_hook_set(wshtp_hook_t *hook, wshtp_hook_cb cb, void *data);
-static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, wshtp_conn_t *conn);
+static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, wshtp_conn_t **conn);
 static int wshtp_hook_call(wshtp_hook_t *hook, wshtp_conn_t *conn);
 
 //
@@ -270,13 +270,10 @@ static void wshtp_handler_cb(evhtp_request_t *req, void *data) {
         _conn->method = WSHTP_ON_DELETE;
     }
 
-    if (_conn->is_open == false) {
-        wshtp_hooks_call(server, WSHTP_ON_OPEN, _conn);
-        _conn->is_open = true;
-    }
-
     if (_conn->is_websocket == false && _conn->method) {
-        wshtp_hooks_call(server, _conn->method, _conn);
+        wshtp_hooks_call(server, _conn->method, &_conn);
+    } else {
+        wshtp_hooks_call(server, WSHTP_ON_OPEN, &_conn);
     }
 }
 
@@ -300,6 +297,9 @@ static void wshtp_conn_free(wshtp_conn_t *conn) {
         if (conn->data.ws_frames) {
             ws_buffer_free(conn->data.ws_frames);
             conn->data.ws_frames = NULL;
+        }
+        if (conn->data.content) {
+            free(conn->data.content);
         }
         free(conn);
     }
@@ -402,13 +402,15 @@ static void ws_read_cb(evbev_t * bev, void *arg) {
 
                 bufferevent_unlock(bev);
 
-                wshtp_hooks_call(conn->server, conn->method, conn);
+                wshtp_hooks_call(conn->server, conn->method, &conn);
 
                 bufferevent_lock(bev);
 
-                free(conn->data.content);
-                conn->data.content = NULL;
-                conn->data.size = 0;
+                if (conn) {
+                    free(conn->data.content);
+                    conn->data.content = NULL;
+                    conn->data.size = 0;
+                }
             }
         } else {
             break;
@@ -428,7 +430,7 @@ static void ws_event_cb(evbev_t *bev, short what, void *args) {
 
         bufferevent_unlock(bev);
 
-        wshtp_hooks_call(conn->server, conn->method, conn);
+        wshtp_hooks_call(conn->server, conn->method, &conn);
 
         bufferevent_lock(bev);
     }
@@ -490,7 +492,8 @@ static size_t ws_parse_frame(const char *data, size_t data_len, ws_frame_t *fram
             frame->status = STATUS_ERROR;
             return 0;
         }
-        frame->data = malloc(frame->payload_len);
+
+        frame->data = malloc(frame->payload_len + 1);
         memcpy(frame->data, &data[index], frame->payload_len+1);
 
         if (frame->mask) {
@@ -592,10 +595,11 @@ static void wshtp_hook_set(wshtp_hook_t *hook, wshtp_hook_cb cb, void *data) {
     hook->data = data;
 }
 
-static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, wshtp_conn_t *conn) {
+static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, wshtp_conn_t **conn_ptr) {
     if (server == NULL) {
         return 0;
     }
+    wshtp_conn_t *conn = *conn_ptr;
     wshtp_hooks_t *hooks = server->hooks;
     int ret = 0;
     switch (type) {
@@ -631,6 +635,7 @@ static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, ws
             evhtp_connection_free(conn->conn);
         }
         wshtp_conn_free(conn);
+        *conn_ptr = NULL;
     }
     return ret;
 }
