@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <openssl/sha.h>
 #include <event2/thread.h>
+#include <corto/corto.h>
 
 #define FIN      0x80
 
@@ -97,6 +98,7 @@ struct wshtp_hooks_s {
     wshtp_hook_t on_delete;
     wshtp_hook_t on_message;
     wshtp_hook_t on_connection;
+    wshtp_hook_t on_poll;
 };
 
 enum frame_status_e {
@@ -599,7 +601,8 @@ static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, ws
     if (server == NULL) {
         return 0;
     }
-    wshtp_conn_t *conn = *conn_ptr;
+    wshtp_conn_t *conn = NULL;
+    if (conn_ptr) conn = *conn_ptr;
     wshtp_hooks_t *hooks = server->hooks;
     int ret = 0;
     switch (type) {
@@ -627,6 +630,9 @@ static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, ws
         case WSHTP_ON_CONNECTION:
             ret = wshtp_hook_call(&hooks->on_connection, conn);
             break;
+        case WSHTP_ON_POLL:
+            ret = wshtp_hook_call(&hooks->on_poll, conn);
+            break;
     }
 
     if (ret != EVHTP_RES_OK || type == WSHTP_ON_CLOSE) {
@@ -637,6 +643,7 @@ static int wshtp_hooks_call(wshtp_server_t *server, enum ws_hook_type_e type, ws
         wshtp_conn_free(conn);
         *conn_ptr = NULL;
     }
+
     return ret;
 }
 
@@ -836,6 +843,7 @@ wshtp_server_t *wshtp_server_new() {
     ret->evbase = event_base_new();
     ret->htp = evhtp_new(ret->evbase, NULL);
     ret->conns = avlmap_new();
+    ret->pollInterval = 0;
 
     if (ret->hooks == NULL ||
         ret->evbase == NULL ||
@@ -864,10 +872,23 @@ void wshtp_ssl_init(wshtp_server_t *server, evhtp_ssl_cfg_t *scfg) {
 }
 
 int wshtp_server_start(wshtp_server_t *server) {
+    int ret = 0;
+
     evhtp_set_glob_cb(server->htp, "*", wshtp_handler_cb, server);
     evhtp_set_post_accept_cb(server->htp,  wshtp_post_accept_cb, server);
 
-    int ret = event_base_loop(server->evbase, 0);
+    if (server->pollInterval) {
+        int sleep_sec, sleep_nsec;
+        sleep_sec = server->pollInterval / 1000;
+        sleep_nsec = (server->pollInterval - sleep_sec) * 1000000;
+        while (!(ret = event_base_loop(server->evbase, EVLOOP_NONBLOCK))) {
+            ret = wshtp_hooks_call(server, WSHTP_ON_POLL, NULL);
+            corto_sleep(sleep_sec, sleep_nsec);
+        }
+    } else {
+        ret = event_base_loop(server->evbase, 0);
+    }
+
     return ret;
 }
 
@@ -899,7 +920,14 @@ void wshtp_set_hook(wshtp_server_t *server, enum ws_hook_type_e type, wshtp_hook
         case WSHTP_ON_CONNECTION:
             wshtp_hook_set(&hooks->on_connection, cb, data);
             break;
+        case WSHTP_ON_POLL:
+            wshtp_hook_set(&hooks->on_poll, cb, data);
+            break;
     }
+}
+
+void wshtp_set_pollInterval(wshtp_server_t *server, short pollInterval) {
+    server->pollInterval = pollInterval;
 }
 
 //TODO: config API

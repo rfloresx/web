@@ -115,6 +115,14 @@ static int server_StandaloneHTTP_onClose(wshtp_conn_t *conn, void *data){
     return EVHTP_RES_OK;
 }
 
+static int server_StandaloneHTTP_onPoll(wshtp_conn_t *conn, void *data) {
+    CORTO_UNUSED(conn);
+
+    server_StandaloneHTTP this = server_StandaloneHTTP(data);
+    server_HTTP_doPoll(this);
+    return EVHTP_RES_OK;
+}
+
 static void* server_StandaloneHTTP_threadRun(void *data) {
     server_StandaloneHTTP this = server_StandaloneHTTP(data);
 
@@ -154,8 +162,15 @@ static void* server_StandaloneHTTP_threadRun(void *data) {
     wshtp_set_hook(server, WSHTP_ON_PUT, server_StandaloneHTTP_onPut, this);
     wshtp_set_hook(server, WSHTP_ON_DELETE, server_StandaloneHTTP_onDelete, this);
     wshtp_set_hook(server, WSHTP_ON_CLOSE, server_StandaloneHTTP_onClose, this);
+    
+    wshtp_set_pollInterval(server, server_HTTP(this)->pollInterval);
+    wshtp_set_hook(server, WSHTP_ON_POLL, server_StandaloneHTTP_onPoll, this);
 
     wshtp_server_start(server);
+
+    while (1) {
+        printf("running!\n");
+    }
 
     return NULL;
 }

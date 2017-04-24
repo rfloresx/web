@@ -65,7 +65,7 @@ corto_void _server_HTTP_broadcast(
     corto_string msg)
 {
 /* $begin(corto/web/server/HTTP/broadcast) */
-    corto_trace("HTTP: broadcast '%s'", msg);
+    corto_debug("HTTP: broadcast '%s'", msg);
 
     server_HTTP_ConnectionListForeach(this->connections, c) {
         server_HTTP_write(this, c, msg);
@@ -132,9 +132,12 @@ corto_void _server_HTTP_doPoll(
     server_HTTP this)
 {
 /* $begin(corto/web/server/HTTP/doPoll) */
-
-    server_ServiceListForeach(this->services, s) {
-        server_Service_onPoll(s);
+    this->pollCount ++;
+    if (this->pollCount == this->pollServiceRate) {
+        server_ServiceListForeach(this->services, s) {
+            server_Service_onPoll(s);
+        }
+        this->pollCount = 0;
     }
 
 /* $end */

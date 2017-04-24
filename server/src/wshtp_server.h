@@ -57,7 +57,8 @@ enum ws_hook_type_e {
     WSHTP_ON_PUT,
     WSHTP_ON_DELETE,
     WSHTP_ON_MESSAGE,
-    WSHTP_ON_CONNECTION
+    WSHTP_ON_CONNECTION,
+    WSHTP_ON_POLL
 };
 
 enum ws_data_type_e {
@@ -97,6 +98,8 @@ struct wshtp_server_s {
 
     avlmap_t *conns;
 
+    short pollInterval;
+
     wshtp_hooks_t *hooks;
 };
 
@@ -120,6 +123,7 @@ void wshtp_ssl_init(wshtp_server_t *server, evhtp_ssl_cfg_t *scfg);
 int wshtp_server_start(wshtp_server_t *server);
 
 void wshtp_set_hook(wshtp_server_t *server, enum ws_hook_type_e type, wshtp_hook_cb, void *data);
+void wshtp_set_pollInterval(wshtp_server_t *server, short pollInterval);
 
 void *wshtp_conn_get_userdata(wshtp_conn_t *conn);
 void wshtp_conn_set_userdata(wshtp_conn_t *conn, void *data, wshtp_free_cb cb);

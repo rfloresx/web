@@ -24,7 +24,7 @@ corto_int16 _server_Service_construct(
         server = server_HTTP_get(server_Service(this)->port);
         if (!server) {
             server = server_HTTP(server_StandaloneHTTPCreate(
-                server_Service(this)->port, 200));
+                server_Service(this)->port, 50, 5));
 
             /* Server can be NULL if another thread registered a server for the
              * same port. Therefore, keep trying until a valid server object has

@@ -10,7 +10,7 @@
 
 /* $header() */
 #include "corto/fmt/json/json.h"
-#define SERVER_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT  (25)
+#define SERVER_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT  (60)
 /* $end */
 
 corto_int16 _server_SockJs_construct(
@@ -57,13 +57,12 @@ corto_void _server_SockJs_onMessage(
         goto error;
     }
 
-    corto_trace("SockJS: msg (%s)", msg);
-
     if (json_value_get_type(root) == JSONArray) {
         JSON_Array *messages = json_value_get_array(root);
         corto_uint32 i;
         for (i = 0; i < json_array_get_count(messages); i++) {
             const char *message = json_array_get_string(messages, i);
+            corto_trace("SockJS: recv %s", message);
             server_SockJs_onData(this, c, (corto_string)message);
         }
     }
@@ -95,7 +94,7 @@ corto_void _server_SockJs_onPoll_v(
     /* Send heartbeats for all live connections every n seconds */
     if (this->timeElapsed >= (SERVER_SOCKJSSERVER_DEFAULT_HEARTBEAT_TIMEOUT * 1000)) {
 
-        corto_trace("SockJS: heartbeat");
+        corto_debug("SockJS: heartbeat");
         server_HTTP_broadcast(server_Service(this)->server, "h");
 
         this->timeElapsed = 0;
@@ -124,7 +123,7 @@ corto_int16 _server_SockJs_onRequest(
         server_HTTP_Request_setHeader(r, "Content-Type", "application/json; charset=UTF-8");
         server_HTTP_Request_reply(r, msg);
 
-        corto_trace("SockJS: info: %s", msg);
+        corto_trace("SockJS: info %s", msg);
         corto_dealloc(msg);
 
         return 1;
@@ -165,7 +164,7 @@ corto_int16 _server_SockJs_onRequest(
             "</html>\n");
         return 1;
     } else {
-        corto_warning("SockJS: unknown request: '%s'", uri);
+        corto_warning("SockJS: unknown request '%s'", uri);
         return 0;
     }
 
@@ -187,10 +186,10 @@ corto_void _server_SockJs_write(
     stresc(sockJsMsg + 3, escapedLength, msg);
 
     if (c) {
-      corto_trace("SockJS: write: msg '%s'", sockJsMsg);
+      corto_trace("SockJS: send %s", msg);
       server_HTTP_Connection_write(c, sockJsMsg);
     } else {
-        corto_error("SockJS: write: 'null' passed as connection");
+        corto_error("SockJS: send 'null' passed as connection");
     }
 
     corto_dealloc(sockJsMsg);

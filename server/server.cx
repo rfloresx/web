@@ -38,8 +38,10 @@ class HTTP::
 
     port: uint16
     pollInterval: uint16
+    pollServiceRate: uint16
     services: list{Service}, private|local
     connections: list{Connection}, private|local
+    pollCount: uint16, private|local
 
     // Register a service with the server
     void addService(Service s)
