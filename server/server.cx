@@ -187,17 +187,5 @@ class DDP: SockJs, implements={dispatcher}::
     void post(event e)
     Publication getPublication(string name)
 
-// Encode HTTP methods in type of the route
-procedure GET: base = core/route
-procedure POST: base = core/route
-procedure PUT: base = core/route
-procedure DELETE: base = core/route
 
-// Router template that defines route signature and match function
-core/router Router: returnType=string paramType=HTTP/Request paramName="request"::
-  int32 matchRoute(core/route route, stringseq pattern, any param, any routerData)
 
-// Utility class that maps HTTP requests to route/match
-Router RouterService: Service::
-  int16 construct()
-  int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri)

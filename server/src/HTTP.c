@@ -155,11 +155,12 @@ corto_void _server_HTTP_doRequest(
 
     server_ServiceListForeach(this->services, s) {
         corto_string prefix = s->prefix ? s->prefix : "";
+
         int prefixLength = strlen(prefix);
         int uriLength = strlen(r->uri) - 1;
         if (!prefixLength || (!memcmp(r->uri + 1, prefix, prefixLength))) {
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
-            if (uriLength > prefixLength) {
+            if (prefixLength && (uriLength > prefixLength)) {
                 uri += 1;
             }
 
