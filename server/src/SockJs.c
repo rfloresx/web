@@ -62,7 +62,7 @@ corto_void _server_SockJs_onMessage(
         corto_uint32 i;
         for (i = 0; i < json_array_get_count(messages); i++) {
             const char *message = json_array_get_string(messages, i);
-            corto_trace("SockJS: recv %s", message);
+            corto_debug("SockJS: recv %s", message);
             server_SockJs_onData(this, c, (corto_string)message);
         }
     }
@@ -186,7 +186,7 @@ corto_void _server_SockJs_write(
     stresc(sockJsMsg + 3, escapedLength, msg);
 
     if (c) {
-      corto_trace("SockJS: send %s", msg);
+      corto_debug("SockJS: send %s", msg);
       server_HTTP_Connection_write(c, sockJsMsg);
     } else {
         corto_error("SockJS: send 'null' passed as connection");
