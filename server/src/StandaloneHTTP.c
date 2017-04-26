@@ -9,74 +9,198 @@
 #include <corto/web/server/server.h>
 
 /* $header() */
-#include "inttypes.h"
-#include "math.h"
-#include "wshtp_server.h"
+#include <src/civetweb.h>
 
-static char *server_StandaloneHTTP_copyConnectionContent(wshtp_conn_t *conn) {
-    const char *message = wshtp_get_text(conn);
-    if (message == NULL) {
-        message = "";
-    }
-    char *content = corto_strdup(message);
-    return content;
+#define DOCUMENT_ROOT "."
+
+static int
+cb_logMessage(const struct mg_connection *conn, const char *msg)
+{
+    corto_info("StandaloneHTTP: %s", (char*)msg);
+    return 1;
 }
 
-static int server_StandaloneHTTP_onOpen(wshtp_conn_t *conn, void *data){
-    server_HTTP_Connection c = NULL;
-    server_StandaloneHTTP this = server_StandaloneHTTP(data);
+static server_HTTP_Method methodFromStr(const char *method) {
+    server_HTTP_Method result;
 
-    void *connection_param = wshtp_conn_get_userdata(conn);
-    if (connection_param) {
-        c = server_HTTP_Connection(connection_param);
-    } else {
+    if (!strcmp(method, "NONE")) result = Server_None;    
+    else if (!strcmp(method, "GET")) result = Server_Get;    
+    else if (!strcmp(method, "HEAD")) result = Server_Head;    
+    else if (!strcmp(method, "POST")) result = Server_Post;
+    else if (!strcmp(method, "PUT")) result = Server_Put;
+    else if (!strcmp(method, "DELETE")) result = Server_Delete;
+    else if (!strcmp(method, "TRACE")) result = Server_Trace;
+    else if (!strcmp(method, "OPTIONS")) result = Server_Options;
+    else if (!strcmp(method, "CONNECT")) result = Server_Connect;   
+    else if (!strcmp(method, "PATCH")) result = Server_Patch;
+    else result = Server_None;
+
+    return result;
+}
+
+static int
+cb_wsConnect(const struct mg_connection *conn, void *cbdata)
+{
+    server_HTTP_Connection c = mg_get_user_connection_data(conn);
+    const struct mg_request_info *req_info = mg_get_request_info(conn);
+    server_StandaloneHTTP this = req_info->user_data;
+
+    if (!c) {
         c = server_HTTP_ConnectionCreate(NULL, this);
         c->conn = (corto_word)conn;
-        wshtp_conn_set_userdata(conn, c, NULL);
+        mg_set_user_connection_data((struct mg_connection *)conn, c);
     }
+
     server_HTTP_doOpen(this, c);
-    return EVHTP_RES_OK;
+
+    return 0;
 }
 
-static int server_StandaloneHTTP_onMessage(wshtp_conn_t *conn, void *data){
-    server_HTTP_Connection c = NULL;
-    server_StandaloneHTTP this = server_StandaloneHTTP(data);
 
-    void *connection_param = wshtp_conn_get_userdata(conn);
-    if (connection_param) {
-        c = server_HTTP_Connection(connection_param);
-    }
-
-    corto_string msg = server_StandaloneHTTP_copyConnectionContent(conn);
-    server_HTTP_doMessage(this, c, msg);
-    corto_dealloc(msg);
-    return EVHTP_RES_OK;
-}
-
-static int server_StandaloneHTTP_onRequest(
-  wshtp_conn_t *conn,
-  server_HTTP_Method method,
-  void *data)
+static void
+cb_wsReady(struct mg_connection *conn, void *cbdata)
 {
-    server_HTTP_Connection c = NULL;
-    server_StandaloneHTTP this = server_StandaloneHTTP(data);
+}
 
-    void *connection_param = wshtp_conn_get_userdata(conn);
-    if (connection_param) {
-        c = server_HTTP_Connection(connection_param);
+static int
+cb_wsData(struct mg_connection *conn,
+             int bits,
+             char *data,
+             size_t len,
+             void *cbdata)
+{
+    const struct mg_request_info *req_info = mg_get_request_info(conn);
+    server_StandaloneHTTP this = req_info->user_data;
+    server_HTTP_Connection c = mg_get_user_connection_data(conn);
+    
+    if (c) {
+        char *msg = corto_alloc(len + 1);
+        memcpy(msg, data, len);
+        msg[len] = '\0';
+        server_HTTP_doMessage(this, c, msg);
+        corto_dealloc(msg);
     }
+
+    return 1;
+}
+
+
+static void
+cb_wsClose(const struct mg_connection *conn, void *cbdata)
+{
+    const struct mg_request_info *req_info = mg_get_request_info(conn);
+    server_StandaloneHTTP this = req_info->user_data;    
+    server_HTTP_Connection c = mg_get_user_connection_data(conn);
+    server_HTTP_doClose(this, c);
+    corto_delete(c);
+}
+
+struct RequestCtx {
+    corto_uint16 status;
+    corto_buffer headers;
+    corto_buffer msg;
+};
+
+static void 
+cb_setHeader(server_HTTP_Request *r, corto_string key, corto_string val) {
+    struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
+    corto_buffer_append(&ctx->headers, "%s: %s\r\n", key, val); 
+}
+
+static void 
+cb_setStatus(server_HTTP_Request *r, corto_uint16 status) {
+    struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
+    ctx->status = status;
+}
+
+static corto_string 
+cb_getHeader(server_HTTP_Request *r, corto_string key) {
+    return (char*)mg_get_header((struct mg_connection*)r->conn, key);
+}
+
+static void 
+cb_reply(server_HTTP_Request *r, corto_string msg) {
+    struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
+    corto_buffer_appendstr(&ctx->msg, msg);
+}
+
+static void 
+cb_sendFile(server_HTTP_Request *r, corto_string file) {
+    mg_send_file((struct mg_connection *)r->conn, file);
+    r->file = TRUE;
+}
+
+static corto_string 
+cb_getVar(server_HTTP_Request *r, corto_string key) {
+
+    /* This is a bit costly for variables with large values, but better than
+     * returning a partial result. Should modify/extend civetweb so that it is
+     * possible to pass NULL to data to obtain length of variable. */
+    const struct mg_request_info *req_info = mg_get_request_info(((struct mg_connection*)r->conn));
+    const char *query = req_info->query_string;
+
+    int size = 256, queryLen = strlen(query), ret = 0;
+    char *data = corto_alloc(size);
+    while ((ret = mg_get_var(query, queryLen, key, data, size)) == -2) {
+        size *= 2;
+        data = corto_realloc(data, size);
+    }
+
+    if (ret == -1) {
+        corto_dealloc(data);
+        data = NULL;
+    } else {
+        corto_llAppend(r->garbage, data);
+    }
+
+    return data;
+}
+
+static int
+cb_onRequest(struct mg_connection *conn, void *cbdata)
+{
+    /* Handler may access the request info using mg_get_request_info */
+    const struct mg_request_info *req_info = mg_get_request_info(conn);
+    server_StandaloneHTTP this = req_info->user_data;
+    server_HTTP_Method method = methodFromStr(req_info->request_method);
+
+    corto_assert(this != NULL, "server parameter not set");
+
+    struct RequestCtx ctx = {
+        .status = 200,
+        .headers = CORTO_BUFFER_INIT,
+        .msg = CORTO_BUFFER_INIT
+    };
 
     server_HTTP_Request r = {
-        (char*)wshtp_request_get_path(conn),
-        method,
-        (corto_word)conn,
-        false,
-        NULL
+        .uri = (char*)req_info->local_uri,
+        .method = method,
+        .conn = (corto_word)conn,
+        .file = FALSE,
+        .garbage = NULL,
+        .ctx = (corto_word)&ctx
     };
-    
-    int result;
-    server_HTTP_doRequest(this, c, &r);
-    result = EVHTP_RES_OK;
+
+    /* Set request callbacks */
+    server_HTTP_Request_d_setHeaderInitC(&r.m_setHeader, cb_setHeader);
+    server_HTTP_Request_d_setStatusInitC(&r.m_setStatus, cb_setStatus);
+    server_HTTP_Request_d_getHeaderInitC(&r.m_getHeader, cb_getHeader);
+    server_HTTP_Request_d_replyInitC(&r.m_reply, cb_reply);
+    server_HTTP_Request_d_sendFileInitC(&r.m_sendFile, cb_sendFile);
+    server_HTTP_Request_d_getVarInitC(&r.m_getVar, cb_getVar);
+
+    /* Send request to services */
+    server_HTTP_doRequest(this, NULL, &r);
+
+    /* Append 'Connection: close' header */
+    corto_buffer_appendstr(&ctx.headers, "Connection: close\r\n");
+
+    /* Send message */
+    char *headers = corto_buffer_str(&ctx.headers);
+    char *msg = corto_buffer_str(&ctx.msg);
+    mg_printf(conn, "HTTP/1.1 %d OK\r\n%s\r\n%s", ctx.status, headers, msg);
+
+    /* Cleanup any strings from request */
     if (r.garbage) {
         corto_iter it = corto_llIter(r.garbage);
         while (corto_iterHasNext(&it)) {
@@ -84,92 +208,19 @@ static int server_StandaloneHTTP_onRequest(
         }
         corto_llFree(r.garbage);
     }
-    return result;
+
+    return 1;
 }
 
-static int server_StandaloneHTTP_onGet(wshtp_conn_t *conn, void *data) {
-    return server_StandaloneHTTP_onRequest(conn, Server_Get, data);
-}
-static int server_StandaloneHTTP_onPost(wshtp_conn_t *conn, void *data) {
-    return server_StandaloneHTTP_onRequest(conn, Server_Post, data);
-}
-static int server_StandaloneHTTP_onPut(wshtp_conn_t *conn, void *data) {
-    return server_StandaloneHTTP_onRequest(conn, Server_Put, data);
-}
-static int server_StandaloneHTTP_onDelete(wshtp_conn_t *conn, void *data) {
-    return server_StandaloneHTTP_onRequest(conn, Server_Delete, data);
-}
-
-static int server_StandaloneHTTP_onClose(wshtp_conn_t *conn, void *data){
-    server_HTTP_Connection c = NULL;
-    server_StandaloneHTTP this = server_StandaloneHTTP(data);
-
-    void *connection_param = wshtp_conn_get_userdata(conn);
-    if (connection_param) {
-        c = server_HTTP_Connection(connection_param);
-    }
-    if (c) {
-        server_HTTP_doClose(this, c);
-        corto_delete(c);
-    }
-    return EVHTP_RES_OK;
-}
-
-static int server_StandaloneHTTP_onPoll(wshtp_conn_t *conn, void *data) {
-    CORTO_UNUSED(conn);
-
-    server_StandaloneHTTP this = server_StandaloneHTTP(data);
-    server_HTTP_doPoll(this);
-    return EVHTP_RES_OK;
-}
-
-static void* server_StandaloneHTTP_threadRun(void *data) {
-    server_StandaloneHTTP this = server_StandaloneHTTP(data);
-
-    wshtp_server_t *server = wshtp_server_new();
-    this->server = (corto_word)server;
-
-    evhtp_bind_socket(server->htp, "0.0.0.0", server_HTTP(this)->port, 1024);
-
-    if (this->enable_ssl) {
-        evhtp_ssl_cfg_t scfg = {
-            .pemfile            = this->ssl_cert,
-            .privfile           = this->ssl_pkey,
-            .cafile             = NULL,
-            .capath             = NULL,
-            .ciphers            = "RC4+RSA:HIGH:+MEDIUM:+LOW",
-            .ssl_opts           = SSL_OP_NO_SSLv2,
-            .ssl_ctx_timeout    = 60 * 60 * 48,
-            .verify_peer        = SSL_VERIFY_NONE,
-            .verify_depth       = 42,
-            .x509_verify_cb     = NULL,
-            .x509_chk_issued_cb = NULL,
-            .scache_type        = evhtp_ssl_scache_type_internal,
-            .scache_size        = 1024,
-            .scache_timeout     = 1024,
-            .scache_init        = NULL,
-            .scache_add         = NULL,
-            .scache_get         = NULL,
-            .scache_del         = NULL,
-        };
-        wshtp_ssl_init(server, &scfg);
-    }
-
-    wshtp_set_hook(server, WSHTP_ON_OPEN, server_StandaloneHTTP_onOpen, this);
-    wshtp_set_hook(server, WSHTP_ON_MESSAGE, server_StandaloneHTTP_onMessage, this);
-    wshtp_set_hook(server, WSHTP_ON_GET, server_StandaloneHTTP_onGet, this);
-    wshtp_set_hook(server, WSHTP_ON_POST, server_StandaloneHTTP_onPost, this);
-    wshtp_set_hook(server, WSHTP_ON_PUT, server_StandaloneHTTP_onPut, this);
-    wshtp_set_hook(server, WSHTP_ON_DELETE, server_StandaloneHTTP_onDelete, this);
-    wshtp_set_hook(server, WSHTP_ON_CLOSE, server_StandaloneHTTP_onClose, this);
-    
-    wshtp_set_pollInterval(server, server_HTTP(this)->pollInterval);
-    wshtp_set_hook(server, WSHTP_ON_POLL, server_StandaloneHTTP_onPoll, this);
-
-    wshtp_server_start(server);
+void* pollThread(void *udata) {
+    server_StandaloneHTTP this = udata;
 
     while (1) {
-        printf("running!\n");
+        server_HTTP_doPoll(this);
+        if (this->exiting) {
+            break;
+        }
+        corto_sleep(0, server_HTTP(this)->pollInterval * 1000000);
     }
 
     return NULL;
@@ -181,21 +232,58 @@ corto_int16 _server_StandaloneHTTP_construct(
     server_StandaloneHTTP this)
 {
 /* $begin(corto/web/server/StandaloneHTTP/construct) */
+    char port[15];
+    sprintf(port, "%d", server_HTTP(this)->port);
 
-    /* Register with port slot */
+    const char *options[] = {
+        "document_root", DOCUMENT_ROOT,
+        "listening_ports", port,
+        "request_timeout_ms", "10000",
+        "error_log_file", "error.log",
+        "enable_auth_domain_check", "no",
+         NULL};
+
+    struct mg_callbacks callbacks;
+    struct mg_context *ctx;
+
+    if (!mg_check_feature(8)) {
+        corto_warning("StandaloneHTTP: IPv6 not supported");
+    }
+    if (!mg_check_feature(16)) {
+        corto_warning("StandaloneHTTP: websockets not supported");
+    }
+    if (!mg_check_feature(2)) {
+        corto_warning("StandaloneHTTP: SSL not supported");
+    }
+
     if (!server_HTTP_set(server_HTTP(this)->port, this)) {
         corto_seterr("port %d already occupied by other server",
             server_HTTP(this)->port);
         goto error;
     }
 
-    if (!server_HTTP(this)->pollInterval) {
-        server_HTTP(this)->pollInterval = 200;
-    }
+    /* Start CivetWeb web server */
+    memset(&callbacks, 0, sizeof(callbacks));
+    callbacks.log_message = cb_logMessage;
+    ctx = mg_start(&callbacks, this, options);
 
-    /* Start server thread */
+    this->server = (corto_word)ctx;
+
+    /* Add handler for requests */
+    mg_set_request_handler(ctx, "**", cb_onRequest, 0);
+
+    /* Set websocket handlers */
+    mg_set_websocket_handler(ctx,
+         "/",
+         cb_wsConnect,
+         cb_wsReady,
+         cb_wsData,
+         cb_wsClose,
+         0);
+
+    /* Start thread to emit poll signal */
     this->thread = (corto_word)corto_threadNew(
-        server_StandaloneHTTP_threadRun,
+        pollThread,
         this);
 
     return 0;
@@ -208,12 +296,13 @@ corto_void _server_StandaloneHTTP_destruct(
     server_StandaloneHTTP this)
 {
 /* $begin(corto/web/server/StandaloneHTTP/destruct) */
-    this->exiting = TRUE;
-    if (this->thread) {
-        corto_threadJoin((corto_thread)this->thread, NULL);
-    }
 
+    this->exiting = TRUE;
+    
+    mg_stop((struct mg_context*)this->server);
+    corto_threadJoin((corto_thread)this->thread, NULL);
     server_HTTP_destruct(this);
+
 /* $end */
 }
 
@@ -223,6 +312,8 @@ corto_void _server_StandaloneHTTP_write(
     corto_string msg)
 {
 /* $begin(corto/web/server/StandaloneHTTP/write) */
-    wshtp_send_text((wshtp_conn_t *)c->conn, msg);
+
+    mg_websocket_write((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, msg, strlen(msg));
+
 /* $end */
 }

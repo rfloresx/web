@@ -15,26 +15,48 @@ class HTTP::
     // Manages connection & user data
     class Connection::
         udata: object
-        conn: word, private|local
         server: HTTP
+        conn: word, private|local
         void write(string msg)
 
-    // Provides request data and reply interface
+    // Provides request data and reply interface. Use delegate interface so that
+    // a Request instance can live on the stack (overridable methods can only be
+    // used on objects when RTTI is available).
     struct Request::
-        void setHeader(string name, string val)
+        // Delegate types
+        void d_setHeader(Request r, string key, string val) delegate
+        void d_setStatus(Request r, uint16 status) delegate
+        void d_reply(Request r, string msg) delegate
+        void d_sendFile(Request r, string file) delegate
+        string d_getHeader(Request r, string key) delegate
+        string d_getVar(Request r, string key) delegate
+
+        // Method wrappers for delegate
+        void setHeader(string key, string val)
         void setStatus(uint16 status)
         void setCookie(string key, string value)
-        string getCookie(string key)
         void reply(string msg)
         void badRequest(string msg)
         void sendfile(string file)
-        string getVar(string id)
+        string getHeader(string key)
+        string getVar(string key)
+        string getCookie(string key)
 
+        // Request members
         uri: string
-        method: HTTP::method
+        method: HTTP/Method
         conn: word, private|local
         file: bool, private|local
-        garbage: list{string} // to be cleaned up when request is handled
+        garbage: list{string}, private|local // to clean when request is done
+        ctx: word, private|local
+
+        // Delegate members
+        m_setHeader: d_setHeader, private|local
+        m_setStatus: d_setStatus, private|local
+        m_reply: d_reply, private|local
+        m_sendFile: d_sendfile, private|local
+        m_getHeader: d_getHeader, private|local
+        m_getVar: d_getVar, private|local
 
     port: uint16
     pollInterval: uint16

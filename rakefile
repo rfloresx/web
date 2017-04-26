@@ -1,5 +1,5 @@
 PACKAGE = 'corto/web'
 
-COMPONENTS = ["libs", "server", "client"]
+COMPONENTS = ["server", "client"]
 
 require "#{ENV['CORTO_BUILD']}/package"
