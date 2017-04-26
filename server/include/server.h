@@ -9,8 +9,6 @@
 #include <corto/corto.h>
 #include <corto/corto.h>
 #include <corto/web/server/_project.h>
-#include <evhtp/evhtp.h>
-#include <event2/event2.h>
 #include <corto/fmt/json/json.h>
 #include <corto/web/web.h>
 #include <corto/c/c.h>
