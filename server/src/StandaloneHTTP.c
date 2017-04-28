@@ -228,7 +228,7 @@ void* pollThread(void *udata) {
 
 /* $end */
 
-corto_int16 _server_StandaloneHTTP_construct(
+int16_t _server_StandaloneHTTP_construct(
     server_StandaloneHTTP this)
 {
 /* $begin(corto/web/server/StandaloneHTTP/construct) */
@@ -292,7 +292,7 @@ error:
 /* $end */
 }
 
-corto_void _server_StandaloneHTTP_destruct(
+void _server_StandaloneHTTP_destruct(
     server_StandaloneHTTP this)
 {
 /* $begin(corto/web/server/StandaloneHTTP/destruct) */
@@ -306,7 +306,7 @@ corto_void _server_StandaloneHTTP_destruct(
 /* $end */
 }
 
-corto_void _server_StandaloneHTTP_write(
+void _server_StandaloneHTTP_write(
     server_StandaloneHTTP this,
     server_HTTP_Connection c,
     corto_string msg)

@@ -52,7 +52,7 @@ corto_bool parseCookie(const char *header, const char *key, char * out, size_t *
 
 /* $end */
 
-corto_void _server_HTTP_Request_badRequest(
+void _server_HTTP_Request_badRequest(
     server_HTTP_Request* this,
     corto_string msg)
 {
@@ -103,7 +103,7 @@ corto_string _server_HTTP_Request_getVar(
 /* $end */
 }
 
-corto_void _server_HTTP_Request_reply(
+void _server_HTTP_Request_reply(
     server_HTTP_Request* this,
     corto_string msg)
 {
@@ -112,7 +112,7 @@ corto_void _server_HTTP_Request_reply(
 /* $end */
 }
 
-corto_void _server_HTTP_Request_sendfile(
+void _server_HTTP_Request_sendfile(
     server_HTTP_Request* this,
     corto_string file)
 {
@@ -121,7 +121,7 @@ corto_void _server_HTTP_Request_sendfile(
 /* $end */
 }
 
-corto_void _server_HTTP_Request_setCookie(
+void _server_HTTP_Request_setCookie(
     server_HTTP_Request* this,
     corto_string key,
     corto_string value)
@@ -134,7 +134,7 @@ corto_void _server_HTTP_Request_setCookie(
 /* $end */
 }
 
-corto_void _server_HTTP_Request_setHeader(
+void _server_HTTP_Request_setHeader(
     server_HTTP_Request* this,
     corto_string key,
     corto_string val)
@@ -144,9 +144,9 @@ corto_void _server_HTTP_Request_setHeader(
 /* $end */
 }
 
-corto_void _server_HTTP_Request_setStatus(
+void _server_HTTP_Request_setStatus(
     server_HTTP_Request* this,
-    corto_uint16 status)
+    uint16_t status)
 {
 /* $begin(corto/web/server/HTTP/Request/setStatus) */
     server_HTTP_Request_d_setStatusCall(&this->m_setStatus, this, status);

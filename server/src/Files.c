@@ -8,7 +8,7 @@
 
 #include <corto/web/server/server.h>
 
-corto_int16 _server_Files_construct(
+int16_t _server_Files_construct(
     server_Files this)
 {
 /* $begin(corto/web/server/Files/construct) */
@@ -19,7 +19,7 @@ corto_int16 _server_Files_construct(
 /* $end */
 }
 
-corto_int16 _server_Files_onRequest(
+int16_t _server_Files_onRequest(
     server_Files this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
