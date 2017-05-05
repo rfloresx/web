@@ -9,11 +9,11 @@ class Service
 // may use the same HTTP instance to avoid using multiple ports.
 // There can only be one HTTP server active per port, per process. A maximum of
 // 64 servers can be active per process.
-class HTTP::
-    enum Method:: None, Get, Head, Post, Put, Delete, Trace, Options, Connect, Patch
+class HTTP:/
+    enum Method:/ None, Get, Head, Post, Put, Delete, Trace, Options, Connect, Patch
 
     // Manages connection & user data
-    class Connection::
+    class Connection:/
         udata: object
         server: HTTP
         conn: word, private|local
@@ -22,7 +22,7 @@ class HTTP::
     // Provides request data and reply interface. Use delegate interface so that
     // a Request instance can live on the stack (overridable methods can only be
     // used on objects when RTTI is available).
-    struct Request::
+    struct Request:/
         // Delegate types
         void d_setHeader(Request r, string key, string val) delegate
         void d_setStatus(Request r, uint16 status) delegate
@@ -80,22 +80,22 @@ class HTTP::
     bool set(uint16 port, HTTP server) function
 
     // Write a websocket message to an open connection
-    void write(HTTP::Connection c, string msg) overridable
+    void write(HTTP/Connection c, string msg) overridable
 
     // Write a message to all open connections
     void broadcast(string msg)
 
     // Private methods
-    void doOpen(HTTP::Connection c)
-    void doClose (HTTP::Connection c)
-    void doRequest(HTTP::Connection c, HTTP::Request r)
-    void doMessage(HTTP::Connection c, string msg)
+    void doOpen(HTTP/Connection c)
+    void doClose (HTTP/Connection c)
+    void doRequest(HTTP/Connection c, HTTP/Request r)
+    void doMessage(HTTP/Connection c, string msg)
     void doPoll()
 
     void destruct()
 
 // Standalone HTTP server
-class StandaloneHTTP: HTTP::
+class StandaloneHTTP: HTTP:/
     thread: word, private|local
     server: word, private|local
     exiting: bool, private|local
@@ -106,9 +106,9 @@ class StandaloneHTTP: HTTP::
 
     int16 construct()
     void destruct()
-    void write(HTTP::Connection c, string msg)
+    void write(HTTP/Connection c, string msg)
 
-class StandaloneHTTPS : StandaloneHTTP::
+class StandaloneHTTPS : StandaloneHTTP:/
     alias ssl_cert : StandaloneHTTP/ssl_cert
     alias ssl_pkey : StandaloneHTTP/ssl_pkey
 
@@ -116,7 +116,7 @@ class StandaloneHTTPS : StandaloneHTTP::
     void destruct()
 
 // Service built on top of an HTTP instance
-class Service::
+class Service:/
     port: uint16
     prefix: string
     server: HTTP, private|local
@@ -124,19 +124,19 @@ class Service::
     int16 construct()
     void destruct()
 
-    void onOpen(HTTP::Connection c) overridable
-    void onClose(HTTP::Connection c) overridable
-    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) overridable
-    int16 onGet(HTTP::Connection c, HTTP::Request r, string uri) overridable
-    int16 onPost(HTTP::Connection c, HTTP::Request r, string uri) overridable
-    int16 onPut(HTTP::Connection c, HTTP::Request r, string uri) overridable
-    int16 onDelete(HTTP::Connection c, HTTP::Request r, string uri) overridable
-    void onMessage(HTTP::Connection c, string msg) overridable
+    void onOpen(HTTP/Connection c) overridable
+    void onClose(HTTP/Connection c) overridable
+    int16 onRequest(HTTP/Connection c, HTTP/Request r, string uri) overridable
+    int16 onGet(HTTP/Connection c, HTTP/Request r, string uri) overridable
+    int16 onPost(HTTP/Connection c, HTTP/Request r, string uri) overridable
+    int16 onPut(HTTP/Connection c, HTTP/Request r, string uri) overridable
+    int16 onDelete(HTTP/Connection c, HTTP/Request r, string uri) overridable
+    void onMessage(HTTP/Connection c, string msg) overridable
     void onPoll() overridable
 
 // Service that serves up static content
-class Files: Service::
+class Files: Service:/
     path: string
     int16 construct()
-    int16 onRequest(HTTP::Connection c, HTTP::Request r, string uri) override
+    int16 onRequest(HTTP/Connection c, HTTP/Request r, string uri) override
 

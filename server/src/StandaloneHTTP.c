@@ -203,8 +203,8 @@ cb_onRequest(struct mg_connection *conn, void *cbdata)
     /* Cleanup any strings from request */
     if (r.garbage) {
         corto_iter it = corto_llIter(r.garbage);
-        while (corto_iterHasNext(&it)) {
-            corto_dealloc(corto_iterNext(&it));
+        while (corto_iter_hasNext(&it)) {
+            corto_dealloc(corto_iter_next(&it));
         }
         corto_llFree(r.garbage);
     }
