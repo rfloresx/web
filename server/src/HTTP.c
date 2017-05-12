@@ -67,7 +67,7 @@ void _server_HTTP_broadcast(
 /* $begin(corto/web/server/HTTP/broadcast) */
     corto_debug("HTTP: broadcast '%s'", msg);
 
-    corto_iter it = corto_llIter(this->connections);
+    corto_iter it = corto_ll_iter(this->connections);
     while (corto_iter_hasNext(&it)) {
         server_HTTP c = corto_iter_next(&it);
         server_HTTP_write(this, c, msg);
@@ -92,7 +92,7 @@ void _server_HTTP_doClose(
 {
 /* $begin(corto/web/server/HTTP/doClose) */
 
-    corto_iter it = corto_llIter(this->services);
+    corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
         server_Service s = corto_iter_next(&it);
         server_Service_onClose(s, c);
@@ -110,7 +110,7 @@ void _server_HTTP_doMessage(
 {
 /* $begin(corto/web/server/HTTP/doMessage) */
 
-    corto_iter it = corto_llIter(this->services);
+    corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
         server_Service s = corto_iter_next(&it);
         server_Service_onMessage(s, c, msg);
@@ -127,7 +127,7 @@ void _server_HTTP_doOpen(
 
     server_HTTP_ConnectionListAppend(this->connections, c);
 
-    corto_iter it = corto_llIter(this->services);
+    corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
         server_Service s = corto_iter_next(&it);
         server_Service_onOpen(s, c);
@@ -142,7 +142,7 @@ void _server_HTTP_doPoll(
 /* $begin(corto/web/server/HTTP/doPoll) */
     this->pollCount ++;
     if (this->pollCount == this->pollServiceRate) {
-        corto_iter it = corto_llIter(this->services);
+        corto_iter it = corto_ll_iter(this->services);
         while (corto_iter_hasNext(&it)) {
             server_Service s = corto_iter_next(&it);
             server_Service_onPoll(s);
@@ -163,7 +163,7 @@ void _server_HTTP_doRequest(
 
     server_HTTP_Request_setStatus(r, 200);
 
-    corto_iter it = corto_llIter(this->services);
+    corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
         server_Service s = corto_iter_next(&it);
         corto_string prefix = s->prefix ? s->prefix : "";

@@ -13,7 +13,7 @@ int16_t _server_Files_construct(
 {
 /* $begin(corto/web/server/Files/construct) */
     if (!this->path) {
-        corto_setstr(&this->path, ".");
+        corto_ptr_setstr(&this->path, ".");
     }
     return server_Service_construct(this);
 /* $end */

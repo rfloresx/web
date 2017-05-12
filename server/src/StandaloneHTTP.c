@@ -150,7 +150,7 @@ cb_getVar(server_HTTP_Request *r, corto_string key) {
         corto_dealloc(data);
         data = NULL;
     } else {
-        corto_llAppend(r->garbage, data);
+        corto_ll_append(r->garbage, data);
     }
 
     return data;
@@ -202,11 +202,11 @@ cb_onRequest(struct mg_connection *conn, void *cbdata)
 
     /* Cleanup any strings from request */
     if (r.garbage) {
-        corto_iter it = corto_llIter(r.garbage);
+        corto_iter it = corto_ll_iter(r.garbage);
         while (corto_iter_hasNext(&it)) {
             corto_dealloc(corto_iter_next(&it));
         }
-        corto_llFree(r.garbage);
+        corto_ll_free(r.garbage);
     }
 
     return 1;

@@ -15,7 +15,7 @@ int16_t _server_Service_construct(
     server_HTTP server = NULL;
 
     if (!this->prefix) {
-        corto_setstr(&this->prefix, "");
+        corto_ptr_setstr(&this->prefix, "");
     }
 
     /* Fetch HTTP server for port. If none is registered, automatically create
@@ -32,7 +32,7 @@ int16_t _server_Service_construct(
         }
     }
 
-    corto_setref(&this->server, server);
+    corto_ptr_setref(&this->server, server);
 
     server_HTTP_addService(server, this);
 
