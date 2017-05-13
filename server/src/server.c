@@ -9,7 +9,7 @@
 #include <corto/web/server/server.h>
 
 corto_string _server_random(
-    corto_uint16 n)
+    uint16_t n)
 {
 /* $begin(corto/web/server/random) */
     static char *alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -36,7 +36,7 @@ typedef struct server_typedescriptorSer_t {
 } server_typedescriptorSer_t;
 
 corto_int16 server_typedescriptorSer_void(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
@@ -45,16 +45,16 @@ corto_int16 server_typedescriptorSer_void(
     return 0;
 }
 corto_int16 server_typedescriptorSer_primitive(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
     server_typedescriptorSer_t *data = userData;
-    corto_buffer_append(&data->b, "%d", corto_primitive(corto_value_getType(info))->kind);
+    corto_buffer_append(&data->b, "%d", corto_primitive(corto_value_typeof(info))->kind);
     return 0;
 }
 corto_int16 server_typedescriptorSer_reference(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
@@ -63,16 +63,16 @@ corto_int16 server_typedescriptorSer_reference(
     return 0;
 }
 corto_int16 server_typedescriptorSer_object(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
-    corto_int16 result = corto_serializeValue(s, info, userData);
+    corto_int16 result = corto_value_walk(s, info, userData);
     return result;
 }
 
 corto_int16 server_typedescriptorSer_member(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
@@ -84,20 +84,20 @@ corto_int16 server_typedescriptorSer_member(
         data->first = FALSE;
     }
     corto_buffer_append(&data->b, "\"%s\":", corto_idof(m));
-    return corto_serializeValue(s, info, userData);
+    return corto_value_walk(s, info, userData);
 }
 corto_int16 server_typedescriptorSer_base(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
     server_typedescriptorSer_t *data = userData;
     corto_buffer_append(&data->b, "\"super\":");
     data->first = FALSE;
-    return corto_serializeValue(s, info, userData);
+    return corto_value_walk(s, info, userData);
 }
 corto_int16 server_typedescriptorSer_composite(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
@@ -105,13 +105,13 @@ corto_int16 server_typedescriptorSer_composite(
     corto_buffer_appendstr(&data->b, "{");
     corto_bool prev = data->first;
     data->first = TRUE;
-    corto_int16 result = corto_serializeMembers(s, info, userData);
+    corto_int16 result = corto_walk_members(s, info, userData);
     data->first = prev;
     corto_buffer_appendstr(&data->b, "}");
     return result;
 }
 corto_int16 server_typedescriptorSer_collection(
-    corto_serializer s,
+    corto_walk_opt* s,
     corto_value *info,
     void *userData)
 {
@@ -119,18 +119,18 @@ corto_int16 server_typedescriptorSer_collection(
     corto_buffer_appendstr(&data->b, "[");
     corto_bool prev = data->first;
     data->first = TRUE;
-    corto_int16 result = corto_serializeElements(s, info, userData);
+    corto_int16 result = corto_walk_elements(s, info, userData);
     data->first = prev;
     corto_buffer_appendstr(&data->b, "]");
     return result;
 }
-struct corto_serializer_s server_typedescriptorSer(void) {
-    struct corto_serializer_s s;
-    corto_serializerInit(&s);
+corto_walk_opt server_typedescriptorSer(void) {
+    corto_walk_opt s;
+    corto_walk_init(&s);
     s.accessKind = CORTO_NOT;
     s.access = CORTO_PRIVATE;
-    s.aliasAction = CORTO_SERIALIZER_ALIAS_IGNORE;
-    s.optionalAction = CORTO_SERIALIZER_OPTIONAL_ALWAYS;
+    s.aliasAction = CORTO_WALK_ALIAS_IGNORE;
+    s.optionalAction = CORTO_WALK_OPTIONAL_ALWAYS;
     s.program[CORTO_VOID] = server_typedescriptorSer_void;
     s.program[CORTO_PRIMITIVE] = server_typedescriptorSer_primitive;
     s.reference = server_typedescriptorSer_reference;
@@ -146,9 +146,9 @@ corto_string _server_typedescriptor(
     corto_type type)
 {
 /* $begin(corto/web/server/typedescriptor) */
-    struct corto_serializer_s s = server_typedescriptorSer();
+    corto_walk_opt s = server_typedescriptorSer();
     server_typedescriptorSer_t walkData = {CORTO_BUFFER_INIT, TRUE};
-    corto_metaWalk(&s, type, &walkData);
+    corto_metawalk(&s, type, &walkData);
     return corto_buffer_str(&walkData.b);
 /* $end */
 }

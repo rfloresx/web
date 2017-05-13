@@ -9,11 +9,11 @@
 #include <corto/web/server/server.h>
 
 /* $header() */
-#include "wshtp_server.h"
 
-bool http_parse_header(const char *header, const char *key, char * out, size_t out_len)
+static
+corto_bool parseCookie(const char *header, const char *key, char * out, size_t *out_len)
 {
-    bool found = false;
+    corto_bool found = FALSE;
     size_t size = strlen(key);
     out[0] = '\0';
     char *ptr = (char *)header;
@@ -27,11 +27,13 @@ bool http_parse_header(const char *header, const char *key, char * out, size_t o
                 if (end) {
                     size = end - ptr;
                 }
-                if (size < out_len) {
+                if (size < *out_len) {
                     memcpy(out, ptr, size);
                     out[size] = '\0';
+                } else {
+                    *out_len = size + 1;
                 }
-                found = true;
+                found = TRUE;
                 ptr = NULL;
                 break;
             }
@@ -44,21 +46,20 @@ bool http_parse_header(const char *header, const char *key, char * out, size_t o
             }
         }
     }
+
     return found;
 }
 
 /* $end */
 
-corto_void _server_HTTP_Request_badRequest(
+void _server_HTTP_Request_badRequest(
     server_HTTP_Request* this,
     corto_string msg)
 {
 /* $begin(corto/web/server/HTTP/Request/badRequest) */
-    wshtp_conn_t *conn = (wshtp_conn_t*)this->conn;
-    wshtp_set_code(conn, 400);
-    wshtp_add_header(conn, "Content-Type", "text/html; charset=UTF-8");
-    wshtp_send_text(conn, msg);
-    corto_error("[HTTP] error: %s", msg);
+    server_HTTP_Request_setStatus(this, 400);
+    server_HTTP_Request_setHeader(this, "Content-Type", "text/html; charset=UTF-8");
+    server_HTTP_Request_reply(this, msg);
 /* $end */
 }
 
@@ -67,107 +68,87 @@ corto_string _server_HTTP_Request_getCookie(
     corto_string key)
 {
 /* $begin(corto/web/server/HTTP/Request/getCookie) */
-    wshtp_conn_t *conn = (wshtp_conn_t *)this->conn;
-    const char *cookies = wshtp_request_get_header(conn, "Cookie");
-    if (cookies == NULL) {
-        goto errorNoCookies;
-    }
-    /* TODO prefer dynamic buffer */
-    char buffer[200];
+    size_t size = 0;
+    char *result = NULL;
+    char *header = server_HTTP_Request_getHeader(this, "Cookie");
 
-    if (http_parse_header(cookies, key, buffer, sizeof(buffer)) == 0) {
-        goto errorParseHeader;
-    }
-
-    char* result = corto_strdup(buffer);
-    if (result == NULL) {
-        goto errorStrdup;
+    if (parseCookie(header, key, result, &size)) {
+        result = corto_alloc(size);
+        corto_assert(parseCookie(header, key, result, &size), "cookie disappeared :(");
     }
 
     return result;
+/* $end */
+}
 
-errorStrdup:
-errorParseHeader:
-errorNoCookies:
-    return NULL;
+corto_string _server_HTTP_Request_getHeader(
+    server_HTTP_Request* this,
+    corto_string key)
+{
+/* $begin(corto/web/server/HTTP/Request/getHeader) */
+    corto_string result;
+    server_HTTP_Request_d_getHeaderCall(&this->m_getHeader, &result, this, key);
+    return result;
 /* $end */
 }
 
 corto_string _server_HTTP_Request_getVar(
     server_HTTP_Request* this,
-    corto_string id)
+    corto_string key)
 {
 /* $begin(corto/web/server/HTTP/Request/getVar) */
-    char *value, *escaped;
-    value = (char *)wshtp_request_get_var((wshtp_conn_t*)this->conn, id);
-    if (value == NULL) {
-        value = "";
-    }
-    escaped = web_escapeFromRequest(value);
-    if (escaped) {
-        if (!this->garbage) {
-            this->garbage = corto_llNew();
-        }
-        corto_llInsert(this->garbage, escaped);
-    }
-    return escaped ? escaped : value;
+    corto_string result;
+    server_HTTP_Request_d_getVarCall(&this->m_getVar, &result, this, key);
+    return result;
 /* $end */
 }
 
-corto_void _server_HTTP_Request_reply(
+void _server_HTTP_Request_reply(
     server_HTTP_Request* this,
     corto_string msg)
 {
 /* $begin(corto/web/server/HTTP/Request/reply) */
-    wshtp_send_text((wshtp_conn_t*)this->conn, msg);
+    server_HTTP_Request_d_replyCall(&this->m_reply, this, msg);
 /* $end */
 }
 
-corto_void _server_HTTP_Request_sendfile(
+void _server_HTTP_Request_sendfile(
     server_HTTP_Request* this,
     corto_string file)
 {
 /* $begin(corto/web/server/HTTP/Request/sendfile) */
-    wshtp_send_file((wshtp_conn_t*)this->conn, file);
-    this->file = TRUE;
+    server_HTTP_Request_d_sendFileCall(&this->m_sendFile, this, file);
 /* $end */
 }
 
-corto_void _server_HTTP_Request_setCookie(
+void _server_HTTP_Request_setCookie(
     server_HTTP_Request* this,
     corto_string key,
     corto_string value)
 {
 /* $begin(corto/web/server/HTTP/Request/setCookie) */
-    wshtp_conn_t *conn = (wshtp_conn_t*)this->conn;
-
-    char* val = NULL;
-    corto_asprintf(&val, "%s=%s", key, value);
-    /* TODO memory management */
-    if (val == NULL) {
-        goto error;
-    }
-    wshtp_add_header(conn, "Set-Cookie", val);
-    corto_dealloc(val);
-error:;
+    char *cookie;
+    corto_asprintf(&cookie, "%s=%s", key, value);
+    server_HTTP_Request_setHeader(this, "Set-Cookie", cookie);
+    corto_dealloc(cookie);
 /* $end */
 }
 
-corto_void _server_HTTP_Request_setHeader(
+void _server_HTTP_Request_setHeader(
     server_HTTP_Request* this,
-    corto_string name,
+    corto_string key,
     corto_string val)
 {
 /* $begin(corto/web/server/HTTP/Request/setHeader) */
-    wshtp_add_header((wshtp_conn_t *)this->conn, name, val);
+    server_HTTP_Request_d_setHeaderCall(&this->m_setHeader, this, key, val);
 /* $end */
 }
 
-corto_void _server_HTTP_Request_setStatus(
+void _server_HTTP_Request_setStatus(
     server_HTTP_Request* this,
-    corto_uint16 status)
+    uint16_t status)
 {
 /* $begin(corto/web/server/HTTP/Request/setStatus) */
-    wshtp_set_code((wshtp_conn_t *)this->conn, status);
+    server_HTTP_Request_d_setStatusCall(&this->m_setStatus, this, status);
 /* $end */
 }

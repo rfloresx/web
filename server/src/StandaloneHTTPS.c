@@ -8,7 +8,7 @@
 
 #include <corto/web/server/server.h>
 
-corto_int16 _server_StandaloneHTTPS_construct(
+int16_t _server_StandaloneHTTPS_construct(
     server_StandaloneHTTPS this)
 {
 /* $begin(corto/web/server/StandaloneHTTPS/construct) */
@@ -17,7 +17,7 @@ corto_int16 _server_StandaloneHTTPS_construct(
 /* $end */
 }
 
-corto_void _server_StandaloneHTTPS_destruct(
+void _server_StandaloneHTTPS_destruct(
     server_StandaloneHTTPS this)
 {
 /* $begin(corto/web/server/StandaloneHTTPS/destruct) */

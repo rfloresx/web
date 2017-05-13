@@ -8,7 +8,7 @@
 
 #include <corto/web/server/server.h>
 
-corto_void _server_HTTP_Connection_write(
+void _server_HTTP_Connection_write(
     server_HTTP_Connection this,
     corto_string msg)
 {

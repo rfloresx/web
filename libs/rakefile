@@ -1,5 +1,0 @@
-COMPONENTS = %w(
-  event2 evhtp
-)
-
-require "#{ENV['CORTO_BUILD']}/forward"

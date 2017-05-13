@@ -8,14 +8,14 @@
 
 #include <corto/web/server/server.h>
 
-corto_int16 _server_Service_construct(
+int16_t _server_Service_construct(
     server_Service this)
 {
 /* $begin(corto/web/server/Service/construct) */
     server_HTTP server = NULL;
 
     if (!this->prefix) {
-        corto_setstr(&this->prefix, "");
+        corto_ptr_setstr(&this->prefix, "");
     }
 
     /* Fetch HTTP server for port. If none is registered, automatically create
@@ -24,7 +24,7 @@ corto_int16 _server_Service_construct(
         server = server_HTTP_get(server_Service(this)->port);
         if (!server) {
             server = server_HTTP(server_StandaloneHTTPCreate(
-                server_Service(this)->port, 200));
+                server_Service(this)->port, 50, 5));
 
             /* Server can be NULL if another thread registered a server for the
              * same port. Therefore, keep trying until a valid server object has
@@ -32,7 +32,7 @@ corto_int16 _server_Service_construct(
         }
     }
 
-    corto_setref(&this->server, server);
+    corto_ptr_setref(&this->server, server);
 
     server_HTTP_addService(server, this);
 
@@ -40,7 +40,7 @@ corto_int16 _server_Service_construct(
 /* $end */
 }
 
-corto_void _server_Service_destruct(
+void _server_Service_destruct(
     server_Service this)
 {
 /* $begin(corto/web/server/Service/destruct) */
@@ -50,7 +50,7 @@ corto_void _server_Service_destruct(
 /* $end */
 }
 
-corto_void _server_Service_onClose_v(
+void _server_Service_onClose_v(
     server_Service this,
     server_HTTP_Connection c)
 {
@@ -59,7 +59,7 @@ corto_void _server_Service_onClose_v(
 /* $end */
 }
 
-corto_int16 _server_Service_onDelete_v(
+int16_t _server_Service_onDelete_v(
     server_Service this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
@@ -70,7 +70,7 @@ corto_int16 _server_Service_onDelete_v(
 /* $end */
 }
 
-corto_int16 _server_Service_onGet_v(
+int16_t _server_Service_onGet_v(
     server_Service this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
@@ -81,7 +81,7 @@ corto_int16 _server_Service_onGet_v(
 /* $end */
 }
 
-corto_void _server_Service_onMessage_v(
+void _server_Service_onMessage_v(
     server_Service this,
     server_HTTP_Connection c,
     corto_string msg)
@@ -93,7 +93,7 @@ corto_void _server_Service_onMessage_v(
 /* $end */
 }
 
-corto_void _server_Service_onOpen_v(
+void _server_Service_onOpen_v(
     server_Service this,
     server_HTTP_Connection c)
 {
@@ -104,7 +104,7 @@ corto_void _server_Service_onOpen_v(
 /* $end */
 }
 
-corto_void _server_Service_onPoll_v(
+void _server_Service_onPoll_v(
     server_Service this)
 {
 /* $begin(corto/web/server/Service/onPoll) */
@@ -114,7 +114,7 @@ corto_void _server_Service_onPoll_v(
 /* $end */
 }
 
-corto_int16 _server_Service_onPost_v(
+int16_t _server_Service_onPost_v(
     server_Service this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
@@ -125,7 +125,7 @@ corto_int16 _server_Service_onPost_v(
 /* $end */
 }
 
-corto_int16 _server_Service_onPut_v(
+int16_t _server_Service_onPut_v(
     server_Service this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
@@ -136,7 +136,7 @@ corto_int16 _server_Service_onPut_v(
 /* $end */
 }
 
-corto_int16 _server_Service_onRequest_v(
+int16_t _server_Service_onRequest_v(
     server_Service this,
     server_HTTP_Connection c,
     server_HTTP_Request *r,
