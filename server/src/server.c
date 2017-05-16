@@ -67,7 +67,7 @@ corto_int16 server_typedescriptorSer_object(
     corto_value *info,
     void *userData)
 {
-    corto_int16 result = corto_value_walk(s, info, userData);
+    corto_int16 result = corto_walk_value(s, info, userData);
     return result;
 }
 
@@ -84,7 +84,7 @@ corto_int16 server_typedescriptorSer_member(
         data->first = FALSE;
     }
     corto_buffer_append(&data->b, "\"%s\":", corto_idof(m));
-    return corto_value_walk(s, info, userData);
+    return corto_walk_value(s, info, userData);
 }
 corto_int16 server_typedescriptorSer_base(
     corto_walk_opt* s,
@@ -94,7 +94,7 @@ corto_int16 server_typedescriptorSer_base(
     server_typedescriptorSer_t *data = userData;
     corto_buffer_append(&data->b, "\"super\":");
     data->first = FALSE;
-    return corto_value_walk(s, info, userData);
+    return corto_walk_value(s, info, userData);
 }
 corto_int16 server_typedescriptorSer_composite(
     corto_walk_opt* s,
