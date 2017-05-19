@@ -244,7 +244,9 @@ server_HTTP _server_HTTP_get(
     }
 
     corto_mutexUnlock(&serverLock);
-
+    if (i >= SERVER_MAX_SERVERS) {
+        return NULL;
+    }
     return servers[i].server;
 /* $end */
 }
@@ -277,8 +279,9 @@ bool _server_HTTP_set(
     {
         i++;
     }
-
-    if (!servers[i].port || (servers[i].port == port)) {
+    if (i >= SERVER_MAX_SERVERS) {
+        result = FALSE;
+    } else if (!servers[i].port || (servers[i].port == port)) {
         if (server && servers[i].server) {
             result = FALSE;
         } else if (server) {
